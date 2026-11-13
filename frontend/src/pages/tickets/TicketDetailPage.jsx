@@ -9,11 +9,15 @@ import {
   transitionTicketApi,
   assignTicketApi,
   submitAIFeedbackApi,
-  triggerTicketAIAnalysisApi,
   generateAIAssistApi,
   getUsersApi,
   getTeamsApi,
 } from '../../api';
+import { StatusBadge } from '../../components/common/StatusBadge';
+import { PriorityBadge } from '../../components/common/PriorityBadge';
+import { PageHeader } from '../../components/common/PageHeader';
+import { ModernModal } from '../../components/common/ModernModal';
+import { CardSkeleton, TableSkeleton } from '../../components/common/LoadingSkeleton';
 
 export const TicketDetailPage = () => {
   const { id } = useParams();
@@ -34,7 +38,7 @@ export const TicketDetailPage = () => {
   const [showTransitionModal, setShowTransitionModal] = useState(false);
   const [targetStatus, setTargetStatus] = useState('');
   const [transitionComment, setTransitionComment] = useState('');
-  
+
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [availableAgents, setAvailableAgents] = useState([]);
   const [availableTeams, setAvailableTeams] = useState([]);
@@ -169,48 +173,75 @@ export const TicketDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center py-5">
-        <div className="spinner-border text-primary" role="status"></div>
+      <div>
+        <PageHeader title="Ticket Details" subtitle="Loading incident information..." />
+        <CardSkeleton className="mb-4" height="120px" />
+        <div className="row g-4">
+          <div className="col-lg-8"><CardSkeleton height="350px" /></div>
+          <div className="col-lg-4"><CardSkeleton height="350px" /></div>
+        </div>
       </div>
     );
   }
 
   if (!ticket) {
     return (
-      <div className="alert alert-danger">
-        Ticket not found or you do not have permission to view it.
+      <div className="alert alert-danger py-4 text-center rounded-3">
+        <i className="bi bi-exclamation-triangle fs-2 d-block mb-2"></i>
+        <h6>Ticket not found or permission denied</h6>
+        <p className="text-sm mb-3">The requested ticket does not exist or your account lacks viewing privileges.</p>
+        <button onClick={() => navigate('/tickets')} className="btn btn-outline-danger btn-sm">
+          Return to Tickets
+        </button>
       </div>
     );
   }
 
   return (
     <div>
+      <PageHeader
+        title={`Ticket ${ticket.ticket_number}`}
+        subtitle={`Created on ${new Date(ticket.created_at).toLocaleString()}`}
+        breadcrumbs={[
+          { label: 'Dashboard', link: '/dashboard' },
+          { label: 'Tickets', link: '/tickets' },
+          { label: ticket.ticket_number },
+        ]}
+        actions={
+          <button
+            onClick={() => navigate('/tickets')}
+            className="btn btn-outline-secondary btn-sm rounded-3 px-3"
+          >
+            <i className="bi bi-arrow-left me-1"></i>Back to List
+          </button>
+        }
+      />
+
       {/* Top Header Card */}
       <div className="card shadow-sm mb-4">
         <div className="card-body p-4">
           <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
             <div>
-              <div className="d-flex align-items-center gap-2 mb-2">
-                <span className="badge bg-primary fs-6 px-3 py-1 fw-bold">
+              <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
+                <span className="badge bg-primary text-white font-monospace fs-6 px-2.5 py-1">
                   {ticket.ticket_number}
                 </span>
-                <span className={`badge badge-priority-${ticket.priority.toLowerCase()}`}>
-                  {ticket.priority} Priority
-                </span>
-                <span className={`badge badge-status badge-status-${ticket.status.toLowerCase()}`}>
-                  {ticket.status.replace('_', ' ')}
-                </span>
-                <span className="badge bg-light text-dark border">
+                <PriorityBadge priority={ticket.priority} />
+                <StatusBadge status={ticket.status} />
+                <span className="badge bg-surface-subtle text-primary-emphasis border border-default">
                   {ticket.category_name || 'General'}
                 </span>
               </div>
-              <h4 className="fw-bold text-dark mb-1">{ticket.title}</h4>
+
+              <h4 className="fw-bold text-primary-emphasis mb-2">{ticket.title}</h4>
+
               <div className="text-muted text-xs d-flex flex-wrap align-items-center gap-3">
                 <span>
-                  <i className="bi bi-person me-1"></i>Requester: <b>{ticket.requester_name}</b>
+                  <i className="bi bi-person me-1"></i>Requester:{' '}
+                  <b className="text-primary-emphasis">{ticket.requester_name}</b>
                 </span>
                 <span>
-                  <i className="bi bi-calendar me-1"></i>Created:{' '}
+                  <i className="bi bi-calendar3 me-1"></i>Created:{' '}
                   {new Date(ticket.created_at).toLocaleString()}
                 </span>
                 {ticket.department_name && (
@@ -218,40 +249,50 @@ export const TicketDetailPage = () => {
                     <i className="bi bi-building me-1"></i>Dept: {ticket.department_name}
                   </span>
                 )}
+                {ticket.assignee_name && (
+                  <span>
+                    <i className="bi bi-person-check me-1"></i>Assigned to:{' '}
+                    <b className="text-primary-emphasis">{ticket.assignee_name}</b>
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Workflow Action Buttons */}
             <div className="d-flex flex-wrap gap-2">
               {canManageWorkflow && (
                 <>
                   <button
                     onClick={openAssignModal}
-                    className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                    className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
                   >
                     <i className="bi bi-person-plus"></i>
                     <span>Assign</span>
                   </button>
+
                   {ticket.status === 'NEW' && (
                     <button
                       onClick={() => {
                         setTargetStatus('IN_PROGRESS');
                         setShowTransitionModal(true);
                       }}
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-primary btn-sm d-flex align-items-center gap-1.5"
                     >
-                      Start Progress
+                      <i className="bi bi-play-circle"></i>
+                      <span>Start Progress</span>
                     </button>
                   )}
+
                   {['ASSIGNED', 'IN_PROGRESS', 'PENDING_CUSTOMER'].includes(ticket.status) && (
                     <button
                       onClick={() => {
                         setTargetStatus('RESOLVED');
                         setShowTransitionModal(true);
                       }}
-                      className="btn btn-success btn-sm"
+                      className="btn btn-success btn-sm d-flex align-items-center gap-1.5"
                     >
-                      Resolve Ticket
+                      <i className="bi bi-check2-circle"></i>
+                      <span>Resolve Ticket</span>
                     </button>
                   )}
                 </>
@@ -263,9 +304,10 @@ export const TicketDetailPage = () => {
                     setTargetStatus('CLOSED');
                     setShowTransitionModal(true);
                   }}
-                  className="btn btn-secondary btn-sm"
+                  className="btn btn-secondary btn-sm d-flex align-items-center gap-1.5"
                 >
-                  Close Ticket
+                  <i className="bi bi-archive"></i>
+                  <span>Close Ticket</span>
                 </button>
               )}
 
@@ -275,9 +317,10 @@ export const TicketDetailPage = () => {
                     setTargetStatus('REOPENED');
                     setShowTransitionModal(true);
                   }}
-                  className="btn btn-outline-danger btn-sm"
+                  className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5"
                 >
-                  Reopen
+                  <i className="bi bi-arrow-clockwise"></i>
+                  <span>Reopen</span>
                 </button>
               )}
             </div>
@@ -290,11 +333,17 @@ export const TicketDetailPage = () => {
         <div className="col-lg-8">
           {/* Ticket Description Card */}
           <div className="card shadow-sm mb-4">
-            <div className="card-header bg-white py-3">
-              <h6 className="fw-bold mb-0">Issue Description</h6>
+            <div className="card-header py-3 d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-file-text text-primary fs-5"></i>
+                <h6 className="fw-bold mb-0 text-primary-emphasis">Issue Description</h6>
+              </div>
             </div>
             <div className="card-body">
-              <p className="mb-0 text-dark" style={{ whiteSpace: 'pre-wrap' }}>
+              <p
+                className="mb-0 text-primary-emphasis text-sm"
+                style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+              >
                 {ticket.description}
               </p>
             </div>
@@ -302,67 +351,83 @@ export const TicketDetailPage = () => {
 
           {/* Comment Stream */}
           <div className="card shadow-sm mb-4">
-            <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-              <h6 className="fw-bold mb-0">Conversation & Activity</h6>
-              <span className="badge bg-light text-muted border">
+            <div className="card-header py-3 d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-chat-left-dots text-primary fs-5"></i>
+                <h6 className="fw-bold mb-0 text-primary-emphasis">Conversation & Updates</h6>
+              </div>
+              <span className="badge bg-surface-subtle text-muted border border-default">
                 {comments.length} message{comments.length === 1 ? '' : 's'}
               </span>
             </div>
+
             <div className="card-body p-4">
               {comments.length === 0 ? (
                 <div className="text-center py-4 text-muted">
                   <i className="bi bi-chat-square-dots fs-3 text-secondary d-block mb-1"></i>
-                  No messages yet. Send a response below.
+                  <p className="text-sm mb-0">No responses yet. Send a message to the user below.</p>
                 </div>
               ) : (
-                comments.map((c) => (
-                  <div
-                    key={c.id}
-                    className={`comment-box ${c.is_internal ? 'internal' : 'public'}`}
-                  >
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="d-flex align-items-center gap-2">
-                        <span className="fw-semibold text-sm">{c.author_name}</span>
-                        <span className="badge bg-secondary-subtle text-secondary text-xs">
-                          {c.author_role}
+                <div className="d-flex flex-column gap-3 mb-4">
+                  {comments.map((c) => (
+                    <div
+                      key={c.id}
+                      className={`comment-card ${c.is_internal ? 'internal' : ''}`}
+                    >
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="comment-avatar">
+                            {c.author_name ? c.author_name[0].toUpperCase() : 'U'}
+                          </div>
+                          <div>
+                            <span className="fw-semibold text-sm text-primary-emphasis">
+                              {c.author_name}
+                            </span>
+                            <span className="badge bg-secondary-subtle text-secondary text-xs ms-1.5">
+                              {c.author_role}
+                            </span>
+                          </div>
+                          {c.is_internal && (
+                            <span className="badge bg-warning text-dark text-xs fw-bold ms-1">
+                              <i className="bi bi-eye-slash-fill me-1"></i>Internal Note
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted">
+                          {new Date(c.created_at).toLocaleString()}
                         </span>
-                        {c.is_internal && (
-                          <span className="badge bg-warning text-dark text-xs fw-bold">
-                            <i className="bi bi-eye-slash me-1"></i>Internal Agent Note
-                          </span>
-                        )}
                       </div>
-                      <span className="text-xs text-muted">
-                        {new Date(c.created_at).toLocaleString()}
-                      </span>
+                      <div
+                        className="text-sm text-primary-emphasis ps-4 ms-2"
+                        style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
+                      >
+                        {c.content}
+                      </div>
                     </div>
-                    <div className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>
-                      {c.content}
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
 
               {/* Add Comment Composer */}
-              <form onSubmit={handleCommentSubmit} className="mt-4 pt-3 border-top">
+              <form onSubmit={handleCommentSubmit} className="pt-3 border-top border-subtle">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <label className="form-label fw-semibold text-sm mb-0">Add a Response</label>
+                  <label className="form-label mb-0">Add a Response</label>
                   {canManageWorkflow && (
                     <button
                       type="button"
                       disabled={aiDraftLoading}
                       onClick={handleAIAssistInsert}
-                      className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 py-1 px-2 rounded-pill text-xs"
+                      className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-3 rounded-pill text-xs fw-semibold"
                     >
                       {aiDraftLoading ? (
                         <>
                           <span className="spinner-border spinner-border-sm" role="status"></span>
-                          <span>Drafting with RAG...</span>
+                          <span>Drafting with Local RAG...</span>
                         </>
                       ) : (
                         <>
-                          <i className="bi bi-magic"></i>
-                          <span>Insert AI Solution Draft</span>
+                          <i className="bi bi-stars"></i>
+                          <span>Draft Response with AI</span>
                         </>
                       )}
                     </button>
@@ -373,12 +438,12 @@ export const TicketDetailPage = () => {
                   rows={4}
                   required
                   className="form-control mb-3"
-                  placeholder="Type your response to the user..."
+                  placeholder="Type a helpful response to the requester..."
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
                 ></textarea>
 
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                   <div>
                     {canManageWorkflow && (
                       <div className="form-check">
@@ -393,8 +458,8 @@ export const TicketDetailPage = () => {
                           htmlFor="internalNoteCheck"
                           className="form-check-label text-xs fw-medium text-muted cursor-pointer"
                         >
-                          <i className="bi bi-lock me-1"></i>Post as Internal Agent Note (Hidden
-                          from requester)
+                          <i className="bi bi-lock-fill me-1 text-warning"></i>
+                          Post as Internal Note (Hidden from requester)
                         </label>
                       </div>
                     )}
@@ -408,7 +473,7 @@ export const TicketDetailPage = () => {
                       <span className="spinner-border spinner-border-sm" role="status"></span>
                     ) : (
                       <>
-                        <i className="bi bi-send"></i>
+                        <i className="bi bi-send-fill"></i>
                         <span>Send Reply</span>
                       </>
                     )}
@@ -420,32 +485,37 @@ export const TicketDetailPage = () => {
 
           {/* Audit History Timeline */}
           <div className="card shadow-sm">
-            <div className="card-header bg-white py-3">
-              <h6 className="fw-bold mb-0">System Audit Trail & History</h6>
+            <div className="card-header py-3 d-flex align-items-center gap-2">
+              <i className="bi bi-clock-history text-secondary fs-5"></i>
+              <h6 className="fw-bold mb-0 text-primary-emphasis">System Audit Trail & History</h6>
             </div>
             <div className="card-body p-0">
               <div className="list-group list-group-flush">
-                {history.map((ev) => (
-                  <div key={ev.id} className="list-group-item py-3 px-4">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <span className="badge bg-light text-dark border me-2">
-                          {ev.event_type}
-                        </span>
-                        <span className="text-sm fw-medium">
-                          {ev.actor_name || 'System'}:{' '}
-                        </span>
-                        <span className="text-sm text-secondary">
-                          {ev.old_value && `from "${ev.old_value}" `}
-                          {ev.new_value && `to "${ev.new_value}"`}
+                {history.length === 0 ? (
+                  <div className="text-center py-4 text-muted text-xs">No audit events recorded yet.</div>
+                ) : (
+                  history.map((ev) => (
+                    <div key={ev.id} className="list-group-item py-3 px-4 border-subtle">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                          <span className="badge bg-surface-subtle text-muted border border-default me-2 font-monospace text-xs">
+                            {ev.event_type}
+                          </span>
+                          <span className="text-sm fw-semibold text-primary-emphasis">
+                            {ev.actor_name || 'System'}:{' '}
+                          </span>
+                          <span className="text-sm text-secondary">
+                            {ev.old_value && `from "${ev.old_value}" `}
+                            {ev.new_value && `to "${ev.new_value}"`}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted">
+                          {new Date(ev.created_at).toLocaleString()}
                         </span>
                       </div>
-                      <span className="text-xs text-muted">
-                        {new Date(ev.created_at).toLocaleString()}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -455,32 +525,33 @@ export const TicketDetailPage = () => {
         <div className="col-lg-4">
           {/* SLA Tracking Info Card */}
           <div className="card shadow-sm mb-4">
-            <div className="card-header bg-white py-3">
-              <h6 className="fw-bold mb-0">SLA Status & Deadlines</h6>
+            <div className="card-header py-3 d-flex align-items-center gap-2">
+              <i className="bi bi-stopwatch text-danger fs-5"></i>
+              <h6 className="fw-bold mb-0 text-primary-emphasis">SLA Status & Deadlines</h6>
             </div>
             <div className="card-body">
               <div className="mb-3">
-                <span className="text-xs text-muted d-block">Policy Applied</span>
-                <span className="fw-medium text-sm">
-                  {ticket.sla_info?.policy_name || 'Standard SLA'}
+                <span className="text-xs text-muted d-block mb-1">Applied SLA Policy</span>
+                <span className="fw-semibold text-sm text-primary-emphasis">
+                  {ticket.sla_info?.policy_name || 'Standard Organization SLA'}
                 </span>
               </div>
               <div className="mb-3">
-                <span className="text-xs text-muted d-block">Resolution Due</span>
-                <span className="fw-semibold text-sm">
+                <span className="text-xs text-muted d-block mb-1">Resolution Deadline</span>
+                <span className="fw-semibold text-sm text-primary-emphasis">
                   {ticket.resolution_due_at
                     ? new Date(ticket.resolution_due_at).toLocaleString()
-                    : 'Not calculated'}
+                    : 'Target not calculated'}
                 </span>
               </div>
               <div>
-                <span className="text-xs text-muted d-block">Breach Status</span>
+                <span className="text-xs text-muted d-block mb-1">Current Breach Status</span>
                 {ticket.is_sla_breached ? (
-                  <span className="badge bg-danger text-white py-1 px-2 d-inline-flex align-items-center gap-1">
+                  <span className="badge bg-danger text-white py-1.5 px-2.5 d-inline-flex align-items-center gap-1.5">
                     <span className="pulse-danger"></span> SLA Breached
                   </span>
                 ) : (
-                  <span className="badge bg-success-subtle text-success py-1 px-2">
+                  <span className="badge bg-success-subtle text-success py-1.5 px-2.5">
                     <i className="bi bi-check-circle me-1"></i>Within Target Window
                   </span>
                 )}
@@ -490,43 +561,44 @@ export const TicketDetailPage = () => {
 
           {/* AI Predictions & Classification Panel */}
           {ticket.latest_ai_prediction && (
-            <div className="card shadow-sm mb-4 border-primary border-opacity-25">
-              <div className="card-header bg-primary bg-opacity-10 py-3 d-flex align-items-center justify-content-between">
+            <div className="card shadow-sm mb-4 border-default">
+              <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
                 <div className="d-flex align-items-center gap-2">
                   <i className="bi bi-cpu text-primary fs-5"></i>
-                  <h6 className="fw-bold mb-0 text-primary">AI ML Classification</h6>
+                  <h6 className="fw-bold mb-0 text-primary-emphasis">AI Machine Learning Insights</h6>
                 </div>
-                <span className="badge bg-light text-muted border text-xs">
+                <span className="badge bg-primary-subtle text-primary border border-primary-border text-xs">
                   {ticket.latest_ai_prediction.model_name}
                 </span>
               </div>
               <div className="card-body">
-                <div className="mb-2">
-                  <span className="text-xs text-muted d-block">Predicted Category</span>
-                  <span className="fw-bold text-dark text-sm">
-                    {ticket.latest_ai_prediction.predicted_category_name || 'N/A'}
+                <div className="mb-2.5">
+                  <span className="text-xs text-muted d-block mb-1">Predicted Category</span>
+                  <span className="fw-bold text-primary-emphasis text-sm">
+                    {ticket.latest_ai_prediction.predicted_category_name || 'General'}
                   </span>
                 </div>
 
-                <div className="mb-2">
-                  <span className="text-xs text-muted d-block">Predicted Priority</span>
-                  <span
-                    className={`badge badge-priority-${ticket.latest_ai_prediction.predicted_priority?.toLowerCase() || 'medium'}`}
-                  >
-                    {ticket.latest_ai_prediction.predicted_priority}
-                  </span>
+                <div className="mb-2.5">
+                  <span className="text-xs text-muted d-block mb-1">Predicted Priority</span>
+                  <PriorityBadge
+                    priority={ticket.latest_ai_prediction.predicted_priority || 'MEDIUM'}
+                  />
                 </div>
 
                 {ticket.latest_ai_prediction.rationale && (
                   <div className="mb-3">
-                    <span className="text-xs text-muted d-block">Decision Rationale</span>
-                    <p className="text-xs bg-light p-2 rounded-2 mb-0 text-secondary">
+                    <span className="text-xs text-muted d-block mb-1">Decision Rationale</span>
+                    <p
+                      className="text-xs p-2.5 rounded-3 mb-0 text-secondary border border-subtle"
+                      style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
+                    >
                       {ticket.latest_ai_prediction.rationale}
                     </p>
                   </div>
                 )}
 
-                <div className="d-flex align-items-center justify-content-between pt-2 border-top">
+                <div className="d-flex align-items-center justify-content-between pt-2.5 border-top border-subtle">
                   <span className="text-xs text-muted">Feedback accuracy:</span>
                   {feedbackSent ? (
                     <span className="text-success text-xs fw-semibold">
@@ -536,17 +608,17 @@ export const TicketDetailPage = () => {
                     <div className="btn-group btn-group-sm">
                       <button
                         onClick={() => handleFeedback(true)}
-                        className="btn btn-outline-success btn-sm py-0 px-2"
+                        className="btn btn-outline-success btn-sm py-1 px-2.5"
                         title="Prediction was accurate"
                       >
-                        <i className="bi bi-hand-thumbs-up"></i>
+                        <i className="bi bi-hand-thumbs-up me-1"></i>Accurate
                       </button>
                       <button
                         onClick={() => handleFeedback(false)}
-                        className="btn btn-outline-danger btn-sm py-0 px-2"
+                        className="btn btn-outline-danger btn-sm py-1 px-2.5"
                         title="Prediction was inaccurate"
                       >
-                        <i className="bi bi-hand-thumbs-down"></i>
+                        <i className="bi bi-hand-thumbs-down me-1"></i>Inaccurate
                       </button>
                     </div>
                   )}
@@ -555,11 +627,12 @@ export const TicketDetailPage = () => {
             </div>
           )}
 
-          {/* SLA Risk Prediction */}
+          {/* Predictive SLA Risk Analysis */}
           {ticket.latest_sla_risk && (
-            <div className="card shadow-sm mb-4">
-              <div className="card-header bg-white py-3">
-                <h6 className="fw-bold mb-0">Predictive SLA Risk Analysis</h6>
+            <div className="card shadow-sm mb-4 border-default">
+              <div className="card-header py-3 d-flex align-items-center gap-2">
+                <i className="bi bi-graph-up-arrow text-warning fs-5"></i>
+                <h6 className="fw-bold mb-0 text-primary-emphasis">Predictive SLA Risk Analysis</h6>
               </div>
               <div className="card-body">
                 <div className="d-flex align-items-center justify-content-between mb-2">
@@ -567,10 +640,10 @@ export const TicketDetailPage = () => {
                   <span
                     className={`badge ${
                       ticket.latest_sla_risk.risk_level === 'CRITICAL'
-                        ? 'bg-danger'
+                        ? 'bg-danger text-white'
                         : ticket.latest_sla_risk.risk_level === 'HIGH'
                         ? 'bg-warning text-dark'
-                        : 'bg-info text-dark'
+                        : 'bg-info text-white'
                     }`}
                   >
                     {Math.round(ticket.latest_sla_risk.risk_score * 100)}% (
@@ -578,8 +651,21 @@ export const TicketDetailPage = () => {
                   </span>
                 </div>
 
+                <div className="progress mb-3" style={{ height: '6px' }}>
+                  <div
+                    className={`progress-bar ${
+                      ticket.latest_sla_risk.risk_score > 0.75
+                        ? 'bg-danger'
+                        : ticket.latest_sla_risk.risk_score > 0.4
+                        ? 'bg-warning'
+                        : 'bg-info'
+                    }`}
+                    style={{ width: `${Math.round(ticket.latest_sla_risk.risk_score * 100)}%` }}
+                  ></div>
+                </div>
+
                 {ticket.latest_sla_risk.risk_factors?.length > 0 && (
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <span className="text-xs text-muted d-block mb-1">Operational Factors</span>
                     <ul className="text-xs ps-3 mb-0 text-secondary">
                       {ticket.latest_sla_risk.risk_factors.map((f, i) => (
@@ -590,8 +676,13 @@ export const TicketDetailPage = () => {
                 )}
 
                 {ticket.latest_sla_risk.suggested_mitigation && (
-                  <div className="mt-3 bg-light p-2 rounded-2">
-                    <span className="text-xs fw-bold text-dark d-block">Suggested Action</span>
+                  <div
+                    className="p-2.5 rounded-3 border border-default"
+                    style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
+                  >
+                    <span className="text-xs fw-bold text-primary-emphasis d-block mb-0.5">
+                      <i className="bi bi-lightbulb-fill text-warning me-1"></i>Suggested Mitigation
+                    </span>
                     <span className="text-xs text-secondary">
                       {ticket.latest_sla_risk.suggested_mitigation}
                     </span>
@@ -604,141 +695,110 @@ export const TicketDetailPage = () => {
       </div>
 
       {/* Transition Modal */}
-      {showTransitionModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content rounded-4 border-0 shadow">
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title fw-bold">Update Ticket Status</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowTransitionModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body py-3">
-                <p className="text-sm text-muted">
-                  Moving ticket from <b>{ticket.status}</b> to <b>{targetStatus}</b>.
-                </p>
-                <div className="mb-3">
-                  <label className="form-label text-sm fw-semibold">
-                    Optional Resolution Note / Reason
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="form-control"
-                    placeholder="Enter notes about this status transition..."
-                    value={transitionComment}
-                    onChange={(e) => setTransitionComment(e.target.value)}
-                  ></textarea>
-                </div>
-              </div>
-              <div className="modal-footer border-0 pt-0">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  onClick={() => setShowTransitionModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleTransitionSubmit}
-                  className="btn btn-primary"
-                >
-                  Confirm Transition
-                </button>
-              </div>
-            </div>
-          </div>
+      <ModernModal
+        isOpen={showTransitionModal}
+        onClose={() => setShowTransitionModal(false)}
+        title="Update Ticket Status"
+        subtitle={`Transitioning status from ${ticket.status} to ${targetStatus}`}
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => setShowTransitionModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleTransitionSubmit}
+              className="btn btn-primary btn-sm px-3"
+            >
+              Confirm Status Transition
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="form-label">Optional Resolution Note / Transition Comment</label>
+          <textarea
+            rows={3}
+            className="form-control"
+            placeholder="Enter reason or summary for this status change..."
+            value={transitionComment}
+            onChange={(e) => setTransitionComment(e.target.value)}
+          ></textarea>
         </div>
-      )}
+      </ModernModal>
 
       {/* Assign Modal */}
-      {showAssignModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content rounded-4 border-0 shadow">
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title fw-bold">Assign Ticket</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowAssignModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body py-3">
-                <div className="mb-3">
-                  <label className="form-label text-sm fw-semibold">Assign to Agent</label>
-                  <select
-                    className="form-select"
-                    value={selectedAgentId}
-                    onChange={(e) => setSelectedAgentId(e.target.value)}
-                  >
-                    <option value="">Select Agent...</option>
-                    {availableAgents.map((ag) => (
-                      <option key={ag.id} value={ag.id}>
-                        {ag.full_name} ({ag.email})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label text-sm fw-semibold">Assign to Team</label>
-                  <select
-                    className="form-select"
-                    value={selectedTeamId}
-                    onChange={(e) => setSelectedTeamId(e.target.value)}
-                  >
-                    <option value="">Select Team...</option>
-                    {availableTeams.map((tm) => (
-                      <option key={tm.id} value={tm.id}>
-                        {tm.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label text-sm fw-semibold">Reason for Assignment</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Specialized in Network & VPN troubleshooting"
-                    value={assignReason}
-                    onChange={(e) => setAssignReason(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="modal-footer border-0 pt-0">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  onClick={() => setShowAssignModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAssignSubmit}
-                  className="btn btn-primary"
-                >
-                  Save Assignment
-                </button>
-              </div>
-            </div>
-          </div>
+      <ModernModal
+        isOpen={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        title="Assign Ticket Incident"
+        subtitle="Route this ticket to an individual support agent or responsible team."
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => setShowAssignModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleAssignSubmit}
+              className="btn btn-primary btn-sm px-3"
+            >
+              Save Assignment
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="form-label">Assign to Support Agent</label>
+          <select
+            className="form-select"
+            value={selectedAgentId}
+            onChange={(e) => setSelectedAgentId(e.target.value)}
+          >
+            <option value="">Select Agent...</option>
+            {availableAgents.map((ag) => (
+              <option key={ag.id} value={ag.id}>
+                {ag.full_name} ({ag.email})
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+
+        <div className="mb-3">
+          <label className="form-label">Assign to Department / Team</label>
+          <select
+            className="form-select"
+            value={selectedTeamId}
+            onChange={(e) => setSelectedTeamId(e.target.value)}
+          >
+            <option value="">Select Team...</option>
+            {availableTeams.map((tm) => (
+              <option key={tm.id} value={tm.id}>
+                {tm.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-2">
+          <label className="form-label">Assignment Reason</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="e.g. Specialized in Network & VPN troubleshooting"
+            value={assignReason}
+            onChange={(e) => setAssignReason(e.target.value)}
+          />
+        </div>
+      </ModernModal>
     </div>
   );
 };

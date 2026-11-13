@@ -2,6 +2,15 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, EmailStr, Field
 
+try:
+    import email_validator
+    email_validator.TEST_ENVIRONMENT = True
+    email_validator.SPECIAL_USE_DOMAIN_NAMES = [
+        d for d in email_validator.SPECIAL_USE_DOMAIN_NAMES if d not in ("local", "localhost")
+    ]
+except ImportError:
+    pass
+
 
 # ==========================================
 # Common & Pagination Schemas

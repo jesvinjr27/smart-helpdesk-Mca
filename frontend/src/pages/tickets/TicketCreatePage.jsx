@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTicketApi, getCategoriesApi, searchKnowledgeApi } from '../../api';
+import { PageHeader } from '../../components/common/PageHeader';
 
 export const TicketCreatePage = () => {
   const navigate = useNavigate();
@@ -99,33 +100,40 @@ export const TicketCreatePage = () => {
   };
 
   return (
-    <div className="container" style={{ maxWidth: '960px' }}>
-      <div className="d-flex align-items-center justify-content-between mb-4">
-        <div>
-          <h4 className="fw-bold mb-1">Create Support Ticket</h4>
-          <p className="text-muted text-sm mb-0">
-            Submit an incident or service request. Our AI automatically classifies and routes your ticket.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate('/tickets')}
-          className="btn btn-outline-secondary btn-sm"
-        >
-          <i className="bi bi-x-lg me-1"></i>Cancel
-        </button>
-      </div>
+    <div className="container px-0" style={{ maxWidth: '1080px' }}>
+      <PageHeader
+        title="Create New Support Ticket"
+        subtitle="Submit an incident or service request. Our local AI classifies and routes your ticket with zero cloud leakage."
+        breadcrumbs={[
+          { label: 'Dashboard', link: '/dashboard' },
+          { label: 'Tickets', link: '/tickets' },
+          { label: 'Create Ticket' },
+        ]}
+        actions={
+          <button
+            type="button"
+            onClick={() => navigate('/tickets')}
+            className="btn btn-outline-secondary btn-sm rounded-3 px-3"
+          >
+            <i className="bi bi-x-lg me-1"></i>Cancel
+          </button>
+        }
+      />
 
       <div className="row g-4">
-        {/* Ticket Submission Form */}
+        {/* Ticket Submission Form Column */}
         <div className="col-lg-7">
           <div className="card shadow-sm p-4">
             {errorMessage && (
-              <div className="alert alert-danger py-2 small mb-3">{errorMessage}</div>
+              <div className="alert alert-danger py-2.5 px-3 text-sm rounded-3 mb-4 d-flex align-items-center gap-2">
+                <i className="bi bi-exclamation-octagon-fill text-danger"></i>
+                <span>{errorMessage}</span>
+              </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label fw-semibold small">
+              <div className="mb-3.5">
+                <label className="form-label">
                   Ticket Subject / Title <span className="text-danger">*</span>
                 </label>
                 <input
@@ -137,11 +145,14 @@ export const TicketCreatePage = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
+                <span className="text-muted text-xs mt-1 d-block">
+                  Be descriptive so AI can search knowledge articles accurately.
+                </span>
               </div>
 
-              <div className="row g-3 mb-3">
+              <div className="row g-3 mb-3.5">
                 <div className="col-sm-6">
-                  <label className="form-label fw-semibold small">
+                  <label className="form-label">
                     Category <span className="text-danger">*</span>
                   </label>
                   <select
@@ -159,22 +170,22 @@ export const TicketCreatePage = () => {
                 </div>
 
                 <div className="col-sm-6">
-                  <label className="form-label fw-semibold small">Priority</label>
+                  <label className="form-label">Priority Level</label>
                   <select
                     className="form-select"
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
                   >
-                    <option value="LOW">Low (Routine query)</option>
-                    <option value="MEDIUM">Medium (Normal business impact)</option>
+                    <option value="LOW">Low (Routine question)</option>
+                    <option value="MEDIUM">Medium (Normal business task)</option>
                     <option value="HIGH">High (Major task blocker)</option>
                     <option value="CRITICAL">Critical (Total work stoppage)</option>
                   </select>
                 </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label fw-semibold small">
+              <div className="mb-3.5">
+                <label className="form-label">
                   Detailed Description <span className="text-danger">*</span>
                 </label>
                 <textarea
@@ -182,28 +193,28 @@ export const TicketCreatePage = () => {
                   minLength={5}
                   rows={6}
                   className="form-control"
-                  placeholder="Provide steps to reproduce, error codes, device name, and screenshots..."
+                  placeholder="Provide steps to reproduce, device name, operating system, and specific error codes..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
               </div>
 
               <div className="mb-4">
-                <label className="form-label fw-semibold small">Tags (comma-separated)</label>
+                <label className="form-label">Tags (comma-separated)</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="vpn, macos, remote, wifi"
+                  placeholder="vpn, macos, wifi, authentication"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                 />
               </div>
 
-              <div className="d-flex justify-content-end gap-2">
+              <div className="d-flex justify-content-end gap-2 pt-3 border-top border-subtle">
                 <button
                   type="button"
                   onClick={() => navigate('/tickets')}
-                  className="btn btn-light"
+                  className="btn btn-outline-secondary px-3"
                 >
                   Discard
                 </button>
@@ -219,7 +230,7 @@ export const TicketCreatePage = () => {
                     </>
                   ) : (
                     <>
-                      <i className="bi bi-send"></i>
+                      <i className="bi bi-send-fill"></i>
                       <span>Submit Ticket</span>
                     </>
                   )}
@@ -229,58 +240,86 @@ export const TicketCreatePage = () => {
           </div>
         </div>
 
-        {/* AI Copilot & Pre-Submission Assistance */}
+        {/* AI Copilot & Pre-Submission Assistance Column */}
         <div className="col-lg-5">
           {/* Critical Emergency Alert */}
           {criticalNotice && (
-            <div className="alert alert-danger border-danger p-3 mb-3 rounded-3 shadow-sm">
-              <div className="d-flex gap-2">
-                <i className="bi bi-exclamation-octagon-fill fs-4 text-danger"></i>
+            <div className="alert alert-danger border-danger p-3 mb-3 rounded-4 shadow-sm">
+              <div className="d-flex gap-2.5">
+                <i className="bi bi-exclamation-octagon-fill fs-4 text-danger flex-shrink-0"></i>
                 <div>
-                  <h6 className="fw-bold mb-1">Critical Priority Detected</h6>
-                  <p className="text-xs mb-0">
-                    Your description matches critical system failure keywords. This ticket is
-                    automatically elevated to CRITICAL priority with accelerated 1-hour SLA.
+                  <h6 className="fw-bold mb-1 text-danger">Critical Outage / Emergency Detected</h6>
+                  <p className="text-xs text-danger mb-0" style={{ lineHeight: 1.4 }}>
+                    Your ticket contains emergency keywords matching system failure. The priority has been
+                    elevated to <b>CRITICAL</b> with an accelerated 1-hour resolution target.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* AI Knowledge Suggestions */}
-          <div className="card shadow-sm border-primary border-opacity-25 bg-light h-100">
-            <div className="card-header bg-white border-0 pt-3 pb-2 d-flex align-items-center justify-content-between">
+          {/* AI Knowledge Suggestions Card */}
+          <div className="card shadow-sm border-default h-100">
+            <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
               <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-stars text-primary fs-5"></i>
-                <h6 className="fw-bold mb-0 text-primary">AI Instant Self-Service</h6>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center text-primary"
+                  style={{ width: '28px', height: '28px', background: 'var(--primary-subtle)' }}
+                >
+                  <i className="bi bi-stars"></i>
+                </div>
+                <div>
+                  <h6 className="fw-bold mb-0 text-primary-emphasis text-sm">Instant AI Self-Service</h6>
+                  <span className="text-xs text-muted">Local FAISS Vector Engine</span>
+                </div>
               </div>
               {aiSearching && (
                 <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
               )}
             </div>
-            <div className="card-body">
+
+            <div className="card-body p-3">
               <p className="text-xs text-muted mb-3">
-                As you type, our local AI searches authorized knowledge articles to help you solve
-                the problem immediately without waiting for an agent.
+                As you type, our zero-cloud-leakage semantic search looks for verified troubleshooting steps
+                to help resolve your issue immediately without waiting for support.
               </p>
 
               {suggestedKb.length === 0 ? (
-                <div className="text-center py-4 text-muted text-xs">
-                  <i className="bi bi-lightbulb fs-3 text-secondary d-block mb-1"></i>
-                  Type in your title and description to see live solution guides.
+                <div className="text-center py-5 text-muted">
+                  <div
+                    className="rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                    style={{ width: '48px', height: '48px', background: 'var(--bg-surface-subtle)' }}
+                  >
+                    <i className="bi bi-lightbulb fs-3 text-muted"></i>
+                  </div>
+                  <p className="text-xs text-muted mb-0">
+                    Type a subject and description to view live verified solution guides.
+                  </p>
                 </div>
               ) : (
-                <div className="d-flex flex-column gap-2">
+                <div className="d-flex flex-column gap-2.5">
                   {suggestedKb.map((kb) => (
-                    <div key={kb.chunk_id} className="p-3 bg-white rounded-3 border shadow-sm">
-                      <div className="d-flex justify-content-between align-items-center mb-1">
+                    <div
+                      key={kb.chunk_id}
+                      className="p-3 rounded-3 border border-default card-hover-lift"
+                      style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
+                    >
+                      <div className="d-flex justify-content-between align-items-center mb-1.5">
                         <span className="badge bg-primary-subtle text-primary text-xs">
+                          <i className="bi bi-check2-circle me-1"></i>
                           Match: {Math.round(kb.similarity_score * 100)}%
                         </span>
-                        <span className="text-xs text-muted">ID: {kb.chunk_id.slice(0, 8)}</span>
+                        <span className="text-xs text-muted font-monospace">
+                          #{kb.chunk_id.slice(0, 8)}
+                        </span>
                       </div>
-                      <h6 className="fw-semibold text-sm mb-1">{kb.article_title}</h6>
-                      <p className="text-xs text-secondary mb-2 line-clamp-3" style={{ maxHeight: '80px', overflow: 'hidden' }}>
+                      <h6 className="fw-semibold text-sm text-primary-emphasis mb-1">
+                        {kb.article_title}
+                      </h6>
+                      <p
+                        className="text-xs text-secondary mb-0 line-clamp-3"
+                        style={{ maxHeight: '80px', overflow: 'hidden' }}
+                      >
                         {kb.content}
                       </p>
                     </div>

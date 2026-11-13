@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuditLogsApi } from '../../api';
+import { PageHeader } from '../../components/common/PageHeader';
+import { EmptyState } from '../../components/common/EmptyState';
+import { TableSkeleton } from '../../components/common/LoadingSkeleton';
 
 export const AuditLogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -22,24 +25,36 @@ export const AuditLogsPage = () => {
 
   return (
     <div>
-      <div className="mb-4">
-        <h4 className="fw-bold mb-1">System Audit & Compliance Logs</h4>
-        <p className="text-muted text-sm mb-0">
-          Immutable event log of security actions, tenant access, role changes, and administrative operations.
-        </p>
-      </div>
+      <PageHeader
+        title="Security & System Audit Logs"
+        subtitle="Immutable event log of security actions, tenant access, role changes, and administrative operations."
+        badge={
+          <span className="badge bg-surface-subtle text-muted border border-default">
+            <i className="bi bi-shield-lock me-1"></i>Tamper-Evident
+          </span>
+        }
+      />
 
-      <div className="card shadow-sm">
+      <div className="card shadow-sm border-default">
+        <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
+          <div className="d-flex align-items-center gap-2">
+            <i className="bi bi-journal-text text-primary fs-5"></i>
+            <h6 className="fw-bold mb-0 text-primary-emphasis">Audit Trail Events</h6>
+          </div>
+          <span className="badge bg-surface-subtle text-muted border border-default">
+            {logs.length} Recorded Events
+          </span>
+        </div>
+
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
+            <TableSkeleton rows={7} cols={5} />
           ) : logs.length === 0 ? (
-            <div className="text-center py-5 text-muted">
-              <i className="bi bi-shield-check fs-2 text-secondary d-block mb-1"></i>
-              No audit log entries recorded yet.
-            </div>
+            <EmptyState
+              icon="bi-shield-check"
+              title="No audit log entries recorded"
+              description="System security events and access modifications will be recorded here automatically."
+            />
           ) : (
             <div className="table-responsive">
               <table className="table table-custom mb-0">
@@ -49,21 +64,40 @@ export const AuditLogsPage = () => {
                     <th>Actor</th>
                     <th>Action</th>
                     <th>Entity Type</th>
-                    <th>IP Address</th>
+                    <th>Client IP</th>
                   </tr>
                 </thead>
                 <tbody>
                   {logs.map((l) => (
                     <tr key={l.id}>
-                      <td className="text-xs text-muted">
+                      <td className="text-xs text-muted font-monospace">
                         {new Date(l.created_at).toLocaleString()}
                       </td>
-                      <td className="fw-semibold text-dark">{l.actor_name || 'System'}</td>
                       <td>
-                        <span className="badge bg-light text-dark border">{l.action}</span>
+                        <div className="d-flex align-items-center gap-2">
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold shadow-sm"
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              background: 'var(--primary-gradient)',
+                              fontSize: '0.65rem',
+                            }}
+                          >
+                            {l.actor_name ? l.actor_name[0].toUpperCase() : 'S'}
+                          </div>
+                          <span className="fw-semibold text-primary-emphasis text-sm">
+                            {l.actor_name || 'System Service'}
+                          </span>
+                        </div>
                       </td>
-                      <td className="text-sm">{l.entity_type}</td>
-                      <td className="text-xs text-secondary">{l.ip_address || '127.0.0.1'}</td>
+                      <td>
+                        <span className="badge bg-surface-subtle text-primary-emphasis border border-default text-xs">
+                          {l.action}
+                        </span>
+                      </td>
+                      <td className="text-sm text-secondary font-monospace">{l.entity_type}</td>
+                      <td className="text-xs text-muted font-monospace">{l.ip_address || '127.0.0.1'}</td>
                     </tr>
                   ))}
                 </tbody>

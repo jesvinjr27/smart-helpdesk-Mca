@@ -38,7 +38,17 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Login failed. Please check credentials.';
+      let msg = 'Login failed. Please check credentials.';
+      const detail = err.response?.data?.detail;
+      if (typeof detail === 'string') {
+        msg = detail;
+      } else if (Array.isArray(detail)) {
+        msg = detail.map((d) => d.msg || JSON.stringify(d)).join(', ');
+      } else if (detail && typeof detail === 'object') {
+        msg = detail.msg || detail.message || JSON.stringify(detail);
+      } else if (err.message) {
+        msg = err.message;
+      }
       setError(msg);
       throw new Error(msg);
     }

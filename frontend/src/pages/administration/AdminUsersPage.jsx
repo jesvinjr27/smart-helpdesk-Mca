@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { getUsersApi, createUserApi, getDepartmentsApi } from '../../api';
+import { PageHeader } from '../../components/common/PageHeader';
+import { ModernModal } from '../../components/common/ModernModal';
+import { TableSkeleton } from '../../components/common/LoadingSkeleton';
 
 export const AdminUsersPage = () => {
   const { user } = useAuth();
@@ -66,45 +69,69 @@ export const AdminUsersPage = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="fw-bold mb-1">User & Role Administration</h4>
-          <p className="text-muted text-sm mb-0">
-            Manage organization members, assign roles, and configure department access.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
-        >
-          <i className="bi bi-person-plus"></i>
-          <span>Add New Member</span>
-        </button>
-      </div>
+      <PageHeader
+        title="User & Role Administration"
+        subtitle="Manage organization members, configure department memberships, and assign security roles."
+        actions={
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
+          >
+            <i className="bi bi-person-plus-fill"></i>
+            <span>Add Organization Member</span>
+          </button>
+        }
+      />
 
-      <div className="card shadow-sm">
+      <div className="card shadow-sm border-default">
+        <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
+          <div className="d-flex align-items-center gap-2">
+            <i className="bi bi-people text-primary fs-5"></i>
+            <h6 className="fw-bold mb-0 text-primary-emphasis">Registered Members</h6>
+          </div>
+          <span className="badge bg-surface-subtle text-muted border border-default">
+            {users.length} Total Users
+          </span>
+        </div>
+
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
+            <TableSkeleton rows={5} cols={5} />
           ) : (
             <div className="table-responsive">
               <table className="table table-custom mb-0">
                 <thead>
                   <tr>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Assigned Roles</th>
-                    <th>Status</th>
-                    <th>Joined</th>
+                    <th>Member</th>
+                    <th>Email Address</th>
+                    <th>Assigned Security Roles</th>
+                    <th>Account Status</th>
+                    <th>Joined Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.id}>
-                      <td className="fw-semibold text-dark">{u.full_name}</td>
-                      <td className="text-muted">{u.email}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2.5">
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold shadow-sm"
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              background: 'var(--primary-gradient)',
+                            }}
+                          >
+                            {u.full_name ? u.full_name[0].toUpperCase() : 'U'}
+                          </div>
+                          <div>
+                            <span className="fw-semibold text-primary-emphasis text-sm d-block">
+                              {u.full_name}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-secondary text-sm">{u.email}</td>
                       <td>
                         <div className="d-flex flex-wrap gap-1">
                           {u.roles?.map((r, i) => (
@@ -112,10 +139,10 @@ export const AdminUsersPage = () => {
                               key={i}
                               className={`badge text-xs ${
                                 r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
-                                  ? 'bg-danger-subtle text-danger'
+                                  ? 'bg-danger-subtle text-danger border border-danger-subtle'
                                   : r === 'AGENT' || r === 'LEAD'
-                                  ? 'bg-primary-subtle text-primary'
-                                  : 'bg-secondary-subtle text-secondary'
+                                  ? 'bg-primary-subtle text-primary border border-primary-border'
+                                  : 'bg-secondary-subtle text-secondary border border-default'
                               }`}
                             >
                               {r}
@@ -125,9 +152,13 @@ export const AdminUsersPage = () => {
                       </td>
                       <td>
                         {u.is_active ? (
-                          <span className="badge bg-success-subtle text-success">Active</span>
+                          <span className="badge bg-success-subtle text-success border border-success-subtle">
+                            <span className="badge-dot bg-success me-1"></span>Active
+                          </span>
                         ) : (
-                          <span className="badge bg-danger-subtle text-danger">Deactivated</span>
+                          <span className="badge bg-secondary-subtle text-muted border border-default">
+                            Deactivated
+                          </span>
                         )}
                       </td>
                       <td className="text-xs text-muted">
@@ -143,108 +174,101 @@ export const AdminUsersPage = () => {
       </div>
 
       {/* Add User Modal */}
-      {showModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content rounded-4 border-0 shadow">
-              <div className="modal-header border-bottom py-3">
-                <h5 className="modal-title fw-bold">Add Organization User</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
-              </div>
-              <form onSubmit={handleCreateUser}>
-                <div className="modal-body p-4">
-                  <div className="mb-3">
-                    <label className="form-label text-sm fw-semibold">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      className="form-control"
-                      placeholder="e.g. Johnathan Vance"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                    />
-                  </div>
+      <ModernModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Add Organization Member"
+        subtitle="Provision credentials and assign system access permissions."
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => setShowModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleCreateUser}
+              className="btn btn-primary btn-sm px-3"
+            >
+              {saving ? 'Creating Member...' : 'Create Member'}
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="form-label">Full Name</label>
+          <input
+            type="text"
+            required
+            className="form-control"
+            placeholder="e.g. Jonathan Vance"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+        </div>
 
-                  <div className="mb-3">
-                    <label className="form-label text-sm fw-semibold">Email Address</label>
-                    <input
-                      type="email"
-                      required
-                      className="form-control"
-                      placeholder="e.g. jvance@apex.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
+        <div className="mb-3">
+          <label className="form-label">Email Address</label>
+          <input
+            type="email"
+            required
+            className="form-control"
+            placeholder="e.g. jvance@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-                  <div className="mb-3">
-                    <label className="form-label text-sm fw-semibold">Initial Password</label>
-                    <input
-                      type="text"
-                      required
-                      className="form-control"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
+        <div className="mb-3">
+          <label className="form-label">Initial Password</label>
+          <input
+            type="text"
+            required
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="text-muted text-xs mt-1 d-block">
+            Member will use this initial password on first sign-in.
+          </span>
+        </div>
 
-                  <div className="row g-3 mb-2">
-                    <div className="col-sm-6">
-                      <label className="form-label text-sm fw-semibold">Role</label>
-                      <select
-                        className="form-select"
-                        value={roleName}
-                        onChange={(e) => setRoleName(e.target.value)}
-                      >
-                        <option value="REQUESTER">Requester (Employee / Student)</option>
-                        <option value="AGENT">Support Agent</option>
-                        <option value="LEAD">Department Manager / Team Lead</option>
-                        <option value="ORG_ADMIN">Organization Admin</option>
-                      </select>
-                    </div>
+        <div className="row g-3 mb-2">
+          <div className="col-sm-6">
+            <label className="form-label">System Role</label>
+            <select
+              className="form-select"
+              value={roleName}
+              onChange={(e) => setRoleName(e.target.value)}
+            >
+              <option value="REQUESTER">Requester (Employee / Student)</option>
+              <option value="AGENT">Support Agent</option>
+              <option value="LEAD">Department Manager / Team Lead</option>
+              <option value="ORG_ADMIN">Organization Admin</option>
+            </select>
+          </div>
 
-                    <div className="col-sm-6">
-                      <label className="form-label text-sm fw-semibold">Department</label>
-                      <select
-                        className="form-select"
-                        value={deptId}
-                        onChange={(e) => setDeptId(e.target.value)}
-                      >
-                        <option value="">None</option>
-                        {departments.map((d) => (
-                          <option key={d.id} value={d.id}>
-                            {d.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer border-0 pt-0">
-                  <button
-                    type="button"
-                    className="btn btn-light"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={saving} className="btn btn-primary">
-                    {saving ? 'Creating...' : 'Create Member'}
-                  </button>
-                </div>
-              </form>
-            </div>
+          <div className="col-sm-6">
+            <label className="form-label">Department</label>
+            <select
+              className="form-select"
+              value={deptId}
+              onChange={(e) => setDeptId(e.target.value)}
+            >
+              <option value="">None / Unassigned</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+      </ModernModal>
     </div>
   );
 };
