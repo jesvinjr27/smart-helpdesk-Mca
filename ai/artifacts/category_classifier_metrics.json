@@ -1,0 +1,131 @@
+{
+  "model_name": "SmartHelpdesk-TFIDF-Classifier",
+  "algorithm": "TF-IDF (1,2 ngrams) + Logistic Regression (C=2.0, balanced)",
+  "version": "1.0.0",
+  "total_samples": 50,
+  "train_samples": 37,
+  "test_samples": 13,
+  "classes": [
+    "Access & Identity Management",
+    "Hardware & Workstation",
+    "Hostel & Facilities",
+    "Human Resources & Benefits",
+    "Network & VPN",
+    "Software & Applications",
+    "Student Portal & LMS"
+  ],
+  "accuracy": 0.4615,
+  "macro_f1": 0.4444,
+  "weighted_f1": 0.4017,
+  "macro_precision": 0.4694,
+  "macro_recall": 0.5,
+  "confusion_matrix": [
+    [
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0
+    ]
+  ],
+  "per_class_metrics": {
+    "Access & Identity Management": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "Hardware & Workstation": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "Hostel & Facilities": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "Human Resources & Benefits": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "Network & VPN": {
+      "precision": 0.2857142857142857,
+      "recall": 1.0,
+      "f1-score": 0.4444444444444444,
+      "support": 2.0
+    },
+    "Software & Applications": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "Student Portal & LMS": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    }
+  }
+}
