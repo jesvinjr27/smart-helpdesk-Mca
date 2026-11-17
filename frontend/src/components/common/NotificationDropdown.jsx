@@ -61,85 +61,112 @@ export const NotificationDropdown = () => {
     if (n.link) navigate(n.link);
   };
 
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'danger':
+        return {
+          icon: 'bi-exclamation-octagon-fill',
+          bg: 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400',
+        };
+      case 'warning':
+        return {
+          icon: 'bi-clock-history',
+          bg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
+        };
+      case 'ai':
+        return {
+          icon: 'bi-stars',
+          bg: 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400',
+        };
+      default:
+        return {
+          icon: 'bi-bell-fill',
+          bg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+        };
+    }
+  };
+
   return (
-    <div className="position-relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="btn btn-sm btn-outline-secondary position-relative border-0 rounded-circle p-2 text-secondary"
-        style={{ width: '38px', height: '38px' }}
+        className="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         onClick={() => setOpen(!open)}
         title="Notifications"
       >
-        <i className="bi bi-bell fs-5"></i>
+        <i className="bi bi-bell text-lg" />
         {unreadCount > 0 && (
-          <span
-            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem' }}
-          >
+          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-rose-500 rounded-full border-2 border-white dark:border-slate-900">
             {unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div
-          className="position-absolute end-0 mt-2 card shadow-lg border-default"
-          style={{ width: '340px', zIndex: 1060, animation: 'scaleUp 180ms ease' }}
-        >
-          <div className="card-header bg-transparent py-2.5 px-3 d-flex align-items-center justify-content-between">
-            <span className="fw-bold text-sm">Notifications</span>
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-scaleUp">
+          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                Notifications
+              </span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 rounded-full">
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="btn btn-link btn-sm p-0 text-xs text-primary text-decoration-none"
+                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
               >
                 Mark all read
               </button>
             )}
           </div>
-          <div className="list-group list-group-flush overflow-y-auto" style={{ maxHeight: '320px' }}>
+
+          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80">
             {notifications.length === 0 ? (
-              <div className="text-center py-4 text-muted text-xs">
-                No notifications right now.
+              <div className="py-8 text-center text-xs text-slate-400">
+                No notifications right now
               </div>
             ) : (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  onClick={() => handleNotificationClick(n)}
-                  className={`list-group-item list-group-item-action p-3 cursor-pointer border-bottom border-subtle ${
-                    !n.read ? 'bg-surface-subtle' : ''
-                  }`}
-                  style={{ backgroundColor: !n.read ? 'var(--bg-surface-subtle)' : 'var(--bg-surface)' }}
-                >
-                  <div className="d-flex align-items-start gap-2.5">
-                    <span
-                      className={`badge-dot mt-1.5 ${
-                        n.type === 'danger'
-                          ? 'bg-danger'
-                          : n.type === 'ai'
-                          ? 'bg-primary'
-                          : 'bg-warning'
-                      }`}
-                      style={{ width: '8px', height: '8px' }}
-                    ></span>
-                    <div className="flex-grow-1 overflow-hidden">
-                      <div className="d-flex justify-content-between align-items-center mb-0.5">
-                        <span className={`text-xs fw-semibold ${!n.read ? 'text-primary' : 'text-primary-emphasis'}`}>
+              notifications.map((n) => {
+                const iconMeta = getTypeIcon(n.type);
+                return (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => handleNotificationClick(n)}
+                    className={`w-full p-3.5 flex items-start gap-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+                      !n.read ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm ${iconMeta.bg}`}
+                    >
+                      <i className={`bi ${iconMeta.icon}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                           {n.title}
                         </span>
-                        <span className="text-muted" style={{ fontSize: '0.7rem' }}>
+                        <span className="text-[10px] text-slate-400 flex-shrink-0">
                           {n.time}
                         </span>
                       </div>
-                      <p className="text-muted text-xs mb-0 line-clamp-2" style={{ lineHeight: 1.35 }}>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                         {n.message}
                       </p>
                     </div>
-                  </div>
-                </div>
-              ))
+                    {!n.read && (
+                      <span className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1.5" />
+                    )}
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -147,4 +174,3 @@ export const NotificationDropdown = () => {
     </div>
   );
 };
-

@@ -21,9 +21,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-vh-100 d-flex align-items-center justify-content-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-brand-200 dark:border-brand-900 border-t-brand-600 rounded-full animate-spin"></div>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Loading Smart Help Desk...</span>
         </div>
       </div>
     );

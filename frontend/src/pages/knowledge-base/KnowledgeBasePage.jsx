@@ -111,30 +111,23 @@ export const KnowledgeBasePage = () => {
 
   const handleTriggerIngest = async () => {
     setIngesting(true);
-    setIngestMsg('Triggering background vector embedding...');
+    setIngestMsg('Triggering local FAISS vector indexing...');
     try {
-      const resp = await triggerKnowledgeIngestApi({ rebuild_index: true });
-      const jobId = resp.data.job_id;
-
-      // Poll status
-      const interval = setInterval(async () => {
+      await triggerKnowledgeIngestApi();
+      const poll = setInterval(async () => {
         try {
-          const statusResp = await getKnowledgeIngestStatusApi(jobId);
-          if (statusResp.data.status === 'COMPLETED') {
-            clearInterval(interval);
+          const sResp = await getKnowledgeIngestStatusApi();
+          if (sResp.data.status === 'COMPLETED') {
+            clearInterval(poll);
             setIngesting(false);
-            setIngestMsg(`Success: ${statusResp.data.message}`);
-            setTimeout(() => setIngestMsg(''), 5000);
-          } else if (statusResp.data.status === 'FAILED') {
-            clearInterval(interval);
-            setIngesting(false);
-            setIngestMsg(`Failed: ${statusResp.data.message}`);
+            setIngestMsg('Vector store successfully indexed with all approved articles.');
+            setTimeout(() => setIngestMsg(''), 4000);
           }
         } catch (e) {
-          clearInterval(interval);
+          clearInterval(poll);
           setIngesting(false);
         }
-      }, 1000);
+      }, 2000);
     } catch (err) {
       setIngesting(false);
       alert('Failed to trigger ingestion');
@@ -142,31 +135,32 @@ export const KnowledgeBasePage = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title="Knowledge Base & Solution Guides"
-        subtitle="Explore verified technical troubleshooting articles, procedures, and setup documentation."
+        title="Knowledge Base & Documentation"
+        subtitle="Verified troubleshooting guides, IT policy documentation, and local RAG retrieval sources."
         actions={
           canManageArticles && (
-            <div className="d-flex align-items-center gap-2">
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleTriggerIngest}
+                type="button"
                 disabled={ingesting}
-                className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5"
-                title="Embeds approved articles into local FAISS vector index"
+                onClick={handleTriggerIngest}
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
               >
                 {ingesting ? (
-                  <span className="spinner-border spinner-border-sm" role="status"></span>
+                  <span className="w-3.5 h-3.5 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <i className="bi bi-arrow-repeat"></i>
+                  <i className="bi bi-arrow-repeat text-xs" />
                 )}
                 <span>Sync Vector Store</span>
               </button>
               <button
+                type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors inline-flex items-center gap-1.5"
               >
-                <i className="bi bi-plus-lg"></i>
+                <i className="bi bi-plus-lg text-xs" />
                 <span>Create Article</span>
               </button>
             </div>
@@ -175,43 +169,42 @@ export const KnowledgeBasePage = () => {
       />
 
       {ingestMsg && (
-        <div className="alert alert-info py-2.5 px-3 text-sm d-flex align-items-center gap-2 mb-4 rounded-3">
-          <i className="bi bi-info-circle-fill text-info flex-shrink-0"></i>
+        <div className="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 flex items-center gap-2.5 text-xs text-sky-800 dark:text-sky-300">
+          <i className="bi bi-info-circle-fill text-sky-500 text-sm flex-shrink-0" />
           <span>{ingestMsg}</span>
         </div>
       )}
 
       {/* Semantic Search Hero Card */}
-      <div
-        className="card border-0 text-white p-4 p-md-5 mb-4 rounded-4 shadow-sm"
-        style={{
-          background: 'radial-gradient(ellipse at top, #1e3a8a 0%, #0f172a 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div className="text-center position-relative" style={{ zIndex: 1 }}>
-          <span className="badge bg-white bg-opacity-15 text-white px-3 py-1 rounded-pill text-xs mb-2.5">
-            <i className="bi bi-stars me-1 text-warning"></i>FAISS Dense Vector Search
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-6 sm:p-10 text-white shadow-md text-center">
+        <div className="relative z-10 max-w-2xl mx-auto space-y-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-white backdrop-blur-sm border border-white/15">
+            <i className="bi bi-stars text-amber-400" />
+            <span>FAISS Dense Vector Search</span>
           </span>
-          <h3 className="fw-bold mb-2">Search Knowledge Base with Semantic AI</h3>
-          <p className="text-white-50 text-sm mb-4 mx-auto" style={{ maxWidth: '520px' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Search Knowledge Base with Semantic AI
+          </h2>
+          <p className="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
             Our vector engine searches concepts, symptoms, and error codes across all verified articles to find exact answers.
           </p>
 
-          <form onSubmit={handleSemanticSearch} className="mx-auto" style={{ maxWidth: '640px' }}>
-            <div className="input-group input-group-lg shadow rounded-pill overflow-hidden bg-surface p-1">
-              <span className="input-group-text bg-transparent border-0 ps-3 text-muted">
-                <i className="bi bi-search fs-5"></i>
+          <form onSubmit={handleSemanticSearch} className="pt-2">
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full shadow-lg p-1.5 focus-within:ring-2 focus-within:ring-blue-500/20 text-slate-900 dark:text-slate-100 transition-all">
+              <span className="pl-3.5 text-slate-400 text-base">
+                <i className="bi bi-search" />
               </span>
               <input
                 type="text"
-                className="form-control border-0 text-sm ps-2"
+                className="flex-1 bg-transparent border-0 px-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
                 placeholder="e.g. How to connect to Eduroam Wi-Fi or fix VPN error 403..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="btn btn-primary px-4 fw-semibold rounded-pill">
+              <button
+                type="submit"
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-full shadow-xs transition-colors flex-shrink-0"
+              >
                 Search
               </button>
             </div>
@@ -221,44 +214,48 @@ export const KnowledgeBasePage = () => {
 
       {/* Semantic Search Results Section (if active) */}
       {searchResults && (
-        <div className="mb-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h6 className="fw-bold mb-0 text-primary d-flex align-items-center gap-1.5">
-              <i className="bi bi-stars"></i>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1.5">
+              <i className="bi bi-stars" />
               <span>Semantic AI Results ({searchResults.length})</span>
-            </h6>
+            </h3>
             <button
+              type="button"
               onClick={() => setSearchResults(null)}
-              className="btn btn-sm btn-link text-decoration-none text-muted text-xs"
+              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 inline-flex items-center gap-1"
             >
-              <i className="bi bi-x-circle me-1"></i>Clear Search
+              <i className="bi bi-x-circle" />
+              <span>Clear Search</span>
             </button>
           </div>
 
-          <div className="row g-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {searchResults.length === 0 ? (
-              <div className="col-12">
-                <div className="card p-4 text-center text-muted">
-                  No matching chunks found above similarity threshold. Try broadening your terms.
-                </div>
+              <div className="col-span-full p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400">
+                No matching chunks found above similarity threshold. Try broadening your terms.
               </div>
             ) : (
               searchResults.map((sr) => (
-                <div key={sr.chunk_id} className="col-md-6">
-                  <div className="card h-100 shadow-sm border-default p-3 card-hover-lift">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <span className="badge bg-primary-subtle text-primary text-xs">
-                        <i className="bi bi-check2-circle me-1"></i>Match: {Math.round(sr.similarity_score * 100)}%
-                      </span>
-                      <span className="badge bg-surface-subtle text-muted border border-default text-xs">
-                        {sr.visibility}
-                      </span>
-                    </div>
-                    <h6 className="fw-bold text-primary-emphasis mb-1">{sr.article_title}</h6>
-                    <p className="text-xs text-secondary mb-0 line-clamp-3" style={{ whiteSpace: 'pre-wrap' }}>
-                      {sr.content}
-                    </p>
+                <div
+                  key={sr.chunk_id}
+                  className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 inline-flex items-center gap-1">
+                      <i className="bi bi-check2-circle text-xs" />
+                      <span>Match: {Math.round(sr.similarity_score * 100)}%</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
+                      {sr.visibility}
+                    </span>
                   </div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
+                    {sr.article_title}
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+                    {sr.content}
+                  </p>
                 </div>
               ))
             )}
@@ -267,13 +264,14 @@ export const KnowledgeBasePage = () => {
       )}
 
       {/* Category Pills Filter */}
-      <div className="d-flex flex-wrap gap-2 mb-4">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <button
+          type="button"
           onClick={() => setSelectedCategory('')}
-          className={`btn btn-sm rounded-pill px-3 py-1.5 text-xs fw-semibold ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
             selectedCategory === ''
-              ? 'btn-primary shadow-sm'
-              : 'btn-outline-secondary'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           All Categories
@@ -281,11 +279,12 @@ export const KnowledgeBasePage = () => {
         {categories.map((c) => (
           <button
             key={c.id}
+            type="button"
             onClick={() => setSelectedCategory(c.id)}
-            className={`btn btn-sm rounded-pill px-3 py-1.5 text-xs fw-semibold ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
               selectedCategory === c.id
-                ? 'btn-primary shadow-sm'
-                : 'btn-outline-secondary'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             {c.name}
@@ -295,10 +294,10 @@ export const KnowledgeBasePage = () => {
 
       {/* Articles Grid */}
       {loading ? (
-        <div className="row g-4">
-          <div className="col-md-6 col-lg-4"><CardSkeleton height="200px" /></div>
-          <div className="col-md-6 col-lg-4"><CardSkeleton height="200px" /></div>
-          <div className="col-md-6 col-lg-4"><CardSkeleton height="200px" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <CardSkeleton height="200px" />
+          <CardSkeleton height="200px" />
+          <CardSkeleton height="200px" />
         </div>
       ) : articles.length === 0 ? (
         <EmptyState
@@ -309,45 +308,50 @@ export const KnowledgeBasePage = () => {
             canManageArticles && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="btn btn-primary btn-sm rounded-3 px-3 shadow-sm"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
               >
-                <i className="bi bi-plus-lg me-1"></i>Create First Article
+                <i className="bi bi-plus-lg text-xs" />
+                <span>Create First Article</span>
               </button>
             )
           }
         />
       ) : (
-        <div className="row g-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {articles.map((art) => (
-            <div key={art.id} className="col-md-6 col-lg-4">
-              <div
-                className="card h-100 shadow-sm cursor-pointer card-hover-lift"
-                onClick={() => setActiveArticle(art)}
-              >
-                <div className="card-body p-4 d-flex flex-column">
-                  <div className="d-flex justify-content-between align-items-center mb-2.5">
-                    <span className="badge bg-surface-subtle text-primary-emphasis border border-default text-xs">
-                      {art.category_name || 'General'}
-                    </span>
-                    <span className="text-xs text-muted d-flex align-items-center gap-1">
-                      <i className="bi bi-eye"></i>
-                      <span>{art.view_count || 0} views</span>
-                    </span>
-                  </div>
-
-                  <h6 className="fw-bold text-primary-emphasis mb-2 line-clamp-2">{art.title}</h6>
-                  <p className="text-xs text-secondary flex-grow-1 line-clamp-3 mb-3">
-                    {art.summary || art.content.slice(0, 140) + '...'}
-                  </p>
-
-                  <div className="d-flex flex-wrap gap-1 mt-auto pt-2 border-top border-subtle">
-                    {art.tags?.slice(0, 3).map((tg, i) => (
-                      <span key={i} className="badge bg-secondary-subtle text-secondary text-xs">
-                        #{tg}
-                      </span>
-                    ))}
-                  </div>
+            <div
+              key={art.id}
+              onClick={() => setActiveArticle(art)}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    {art.category_name || 'General'}
+                  </span>
+                  <span className="text-[11px] text-slate-400 inline-flex items-center gap-1">
+                    <i className="bi bi-eye text-xs" />
+                    <span>{art.view_count || 0} views</span>
+                  </span>
                 </div>
+
+                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                  {art.title}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                  {art.summary || art.content.slice(0, 140) + '...'}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-1 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                {art.tags?.slice(0, 3).map((tg, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500"
+                  >
+                    #{tg}
+                  </span>
+                ))}
               </div>
             </div>
           ))}
@@ -364,14 +368,14 @@ export const KnowledgeBasePage = () => {
         footer={
           <button
             type="button"
-            className="btn btn-outline-secondary btn-sm"
+            className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setActiveArticle(null)}
           >
             Close Guide
           </button>
         }
       >
-        <div className="text-sm text-primary-emphasis" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+        <div className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed space-y-2">
           {activeArticle?.content}
         </div>
       </ModernModal>
@@ -387,7 +391,7 @@ export const KnowledgeBasePage = () => {
           <>
             <button
               type="button"
-              className="btn btn-outline-secondary btn-sm"
+              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               onClick={() => setShowCreateModal(false)}
             >
               Cancel
@@ -396,87 +400,101 @@ export const KnowledgeBasePage = () => {
               type="button"
               disabled={savingArticle}
               onClick={handleCreateArticle}
-              className="btn btn-primary btn-sm px-3"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
             >
               {savingArticle ? 'Publishing...' : 'Publish Article'}
             </button>
           </>
         }
       >
-        <div className="mb-3">
-          <label className="form-label">Article Title</label>
-          <input
-            type="text"
-            required
-            className="form-control"
-            placeholder="e.g. How to configure GlobalProtect VPN on macOS"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-          />
-        </div>
-
-        <div className="row g-3 mb-3">
-          <div className="col-sm-6">
-            <label className="form-label">Category</label>
-            <select
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              Article Title
+            </label>
+            <input
+              type="text"
               required
-              className="form-select"
-              value={newCatId}
-              onChange={(e) => setNewCatId(e.target.value)}
-            >
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              placeholder="e.g. How to configure GlobalProtect VPN on macOS"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+            />
           </div>
 
-          <div className="col-sm-6">
-            <label className="form-label">Visibility</label>
-            <select
-              className="form-select"
-              value={newVisibility}
-              onChange={(e) => setNewVisibility(e.target.value)}
-            >
-              <option value="PUBLIC">Public (All users & students)</option>
-              <option value="INTERNAL">Internal (Only agents & leads)</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                Category
+              </label>
+              <select
+                required
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                value={newCatId}
+                onChange={(e) => setNewCatId(e.target.value)}
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                Visibility
+              </label>
+              <select
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                value={newVisibility}
+                onChange={(e) => setNewVisibility(e.target.value)}
+              >
+                <option value="PUBLIC">Public (All users & students)</option>
+                <option value="INTERNAL">Internal (Only agents & leads)</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div className="mb-3">
-          <label className="form-label">Brief Summary</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="One-sentence description for search preview"
-            value={newSummary}
-            onChange={(e) => setNewSummary(e.target.value)}
-          />
-        </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              Brief Summary
+            </label>
+            <input
+              type="text"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              placeholder="One-sentence description for search preview"
+              value={newSummary}
+              onChange={(e) => setNewSummary(e.target.value)}
+            />
+          </div>
 
-        <div className="mb-3">
-          <label className="form-label">Article Content</label>
-          <textarea
-            rows={8}
-            required
-            className="form-control"
-            placeholder="Step 1: Open the application...&#10;Step 2: Enter server portal..."
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-          ></textarea>
-        </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              Article Content
+            </label>
+            <textarea
+              rows={8}
+              required
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-y"
+              placeholder="Step 1: Open the application...&#10;Step 2: Enter server portal..."
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+            />
+          </div>
 
-        <div className="mb-2">
-          <label className="form-label">Tags (comma-separated)</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="vpn, security, network, macos"
-            value={newTags}
-            onChange={(e) => setNewTags(e.target.value)}
-          />
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              Tags (comma-separated)
+            </label>
+            <input
+              type="text"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              placeholder="vpn, security, network, macos"
+              value={newTags}
+              onChange={(e) => setNewTags(e.target.value)}
+            />
+          </div>
         </div>
       </ModernModal>
     </div>
