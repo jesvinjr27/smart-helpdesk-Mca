@@ -112,7 +112,7 @@ export const TicketListPage = () => {
         actions={
           <button
             onClick={() => navigate('/tickets/new')}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
+            className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
           >
             <i className="bi bi-plus-lg" />
             <span>Create Ticket</span>
@@ -121,14 +121,14 @@ export const TicketListPage = () => {
       />
 
       {/* Quick View Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-brand-primary/15 pb-3 overflow-x-auto">
         <button
           type="button"
           onClick={() => handleTabChange('all')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
             activeTab === 'all'
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
           }`}
         >
           All Tickets
@@ -136,10 +136,10 @@ export const TicketListPage = () => {
         <button
           type="button"
           onClick={() => handleTabChange('open')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
             activeTab === 'open'
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
           }`}
         >
           In Progress
@@ -147,22 +147,22 @@ export const TicketListPage = () => {
         <button
           type="button"
           onClick={() => handleTabChange('critical')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap inline-flex items-center gap-1.5 ${
             activeTab === 'critical'
-              ? 'bg-rose-600 text-white shadow-xs'
-              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60'
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/25'
           }`}
         >
-          <i className="bi bi-exclamation-octagon-fill" />
+          <i className="bi bi-exclamation-octagon-fill text-brand-accent" />
           <span>Critical Incidents</span>
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('resolved')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
             activeTab === 'resolved'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
           }`}
         >
           Resolved
@@ -172,7 +172,7 @@ export const TicketListPage = () => {
           <button
             type="button"
             onClick={clearAllFilters}
-            className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 ml-auto whitespace-nowrap inline-flex items-center gap-1"
+            className="text-xs text-brand-secondary hover:text-brand-primary ml-auto whitespace-nowrap inline-flex items-center gap-1"
           >
             <i className="bi bi-x-circle" />
             <span>Clear all filters</span>
@@ -181,12 +181,12 @@ export const TicketListPage = () => {
       </div>
 
       {/* Filter and Search Bar Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 shadow-sm">
+      <div className="bg-app-background border border-brand-primary/15 rounded-xl p-3.5 shadow-subtle">
         <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
           {/* Search Input */}
           <div className="lg:col-span-4">
             <div className="relative flex items-center">
-              <span className="absolute left-3 text-slate-400 text-sm pointer-events-none">
+              <span className="absolute left-3 text-brand-secondary text-sm pointer-events-none">
                 <i className="bi bi-search" />
               </span>
               <input
@@ -194,7 +194,7 @@ export const TicketListPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search subject, description, ticket #..."
-                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               />
             </div>
           </div>
@@ -208,7 +208,7 @@ export const TicketListPage = () => {
                 setActiveTab('custom');
                 setPage(1);
               }}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
             >
               <option value="">All Statuses</option>
               <option value="NEW">New</option>
@@ -230,7 +230,7 @@ export const TicketListPage = () => {
                 setActiveTab('custom');
                 setPage(1);
               }}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
             >
               <option value="">All Priorities</option>
               <option value="CRITICAL">Critical</option>
@@ -248,7 +248,7 @@ export const TicketListPage = () => {
                 setCategoryFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -269,7 +269,7 @@ export const TicketListPage = () => {
                 setSortOrder(ord);
                 setPage(1);
               }}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
             >
               <option value="created_at:desc">Newest First</option>
               <option value="created_at:asc">Oldest First</option>
@@ -280,7 +280,7 @@ export const TicketListPage = () => {
       </div>
 
       {/* Tickets Table Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle overflow-hidden flex flex-col">
         <div className="flex-1 overflow-x-auto">
           {loading ? (
             <TableSkeleton rows={7} cols={8} />
@@ -292,7 +292,7 @@ export const TicketListPage = () => {
               action={
                 <button
                   onClick={() => navigate('/tickets/new')}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
+                  className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-medium text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
                 >
                   <i className="bi bi-plus-lg" />
                   <span>Create Ticket</span>
@@ -301,7 +301,7 @@ export const TicketListPage = () => {
             />
           ) : (
             <table className="w-full text-left border-collapse min-w-[760px]">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
                 <tr>
                   <th className="px-4 py-3.5">Ticket #</th>
                   <th className="px-4 py-3.5">Subject & Summary</th>
@@ -313,28 +313,28 @@ export const TicketListPage = () => {
                   <th className="px-4 py-3.5">SLA Deadlines</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
+              <tbody className="divide-y divide-brand-primary/10 text-sm">
                 {tickets.map((t) => (
                   <tr
                     key={t.id}
                     onClick={() => navigate(`/tickets/${t.id}`)}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
+                    className="hover:bg-brand-accent/15 cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-3.5">
-                      <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
+                      <span className="font-mono font-bold text-xs text-brand-primary">
                         {t.ticket_number}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="font-semibold text-slate-900 dark:text-slate-100 max-w-[280px] truncate">
+                      <div className="font-semibold text-brand-primary max-w-[280px] truncate">
                         {t.title}
                       </div>
-                      <div className="text-xs text-slate-400 mt-0.5">
+                      <div className="text-xs text-brand-secondary mt-0.5">
                         {new Date(t.created_at).toLocaleString()}
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                         {t.category_name || 'General'}
                       </span>
                     </td>
@@ -345,34 +345,34 @@ export const TicketListPage = () => {
                       <StatusBadge status={t.status} />
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs sm:text-sm text-slate-800 dark:text-slate-200">
+                      <span className="text-xs sm:text-sm text-brand-primary">
                         {t.requester_name || 'Requester'}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
                       {t.assignee_name ? (
                         <div className="flex items-center gap-1.5">
-                          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold shadow-xs flex-shrink-0">
+                          <div className="w-6 h-6 rounded-lg bg-brand-primary flex items-center justify-center text-white text-[10px] font-bold shadow-xs flex-shrink-0">
                             {t.assignee_name[0].toUpperCase()}
                           </div>
-                          <span className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
+                          <span className="text-xs sm:text-sm font-medium text-brand-primary truncate max-w-[120px]">
                             {t.assignee_name}
                           </span>
                         </div>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400">
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-brand-secondary/15 text-brand-secondary">
                           Unassigned
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       {t.is_sla_breached ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white border border-brand-primary shadow-xs">
+                          <i className="bi bi-exclamation-triangle-fill text-brand-accent text-xs" />
                           <span>Breached</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
                           <i className="bi bi-check-circle text-xs" />
                           <span>Within SLA</span>
                         </span>
@@ -387,27 +387,27 @@ export const TicketListPage = () => {
 
         {/* Modern Pagination Footer */}
         {totalPages > 1 && (
-          <div className="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <span className="text-slate-500 dark:text-slate-400">
-              Showing page <b className="text-slate-800 dark:text-slate-200">{page}</b> of{' '}
-              <b className="text-slate-800 dark:text-slate-200">{totalPages}</b>
+          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span className="text-brand-secondary">
+              Showing page <b className="text-brand-primary">{page}</b> of{' '}
+              <b className="text-brand-primary">{totalPages}</b>
             </span>
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
               >
                 <i className="bi bi-chevron-left" />
                 <span>Previous</span>
               </button>
-              <span className="px-2 font-semibold text-blue-600 dark:text-blue-400">{page}</span>
+              <span className="px-2 font-semibold text-brand-primary">{page}</span>
               <button
                 type="button"
                 disabled={page >= totalPages}
                 onClick={() => setPage(page + 1)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
               >
                 <span>Next</span>
                 <i className="bi bi-chevron-right" />

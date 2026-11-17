@@ -2,21 +2,21 @@ import React from 'react';
 
 const VARIANT_STYLES = {
   primary:
-    'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs focus:ring-blue-500/30',
+    'bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary text-white shadow-subtle focus:ring-brand-accent/40',
   secondary:
-    'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:ring-slate-400/20',
+    'bg-brand-secondary hover:bg-brand-secondary/90 active:bg-brand-secondary text-white shadow-subtle focus:ring-brand-accent/40',
   outline:
-    'bg-transparent hover:bg-slate-100 text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-slate-400/20',
+    'bg-transparent hover:bg-brand-secondary/15 active:bg-brand-secondary/25 text-brand-primary border border-brand-primary/30 focus:ring-brand-accent/30',
   'outline-primary':
-    'bg-transparent hover:bg-blue-50 text-blue-600 dark:text-blue-400 dark:hover:bg-blue-950/40 border border-blue-200 dark:border-blue-800/80 focus:ring-blue-500/20',
+    'bg-transparent hover:bg-brand-accent/20 active:bg-brand-accent/30 text-brand-primary border border-brand-primary/40 focus:ring-brand-accent/30',
   danger:
-    'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-xs focus:ring-rose-500/30',
+    'bg-brand-primary hover:bg-brand-primary/85 active:bg-brand-primary text-white border border-brand-primary/50 shadow-subtle focus:ring-brand-accent/30',
   'outline-danger':
-    'bg-transparent hover:bg-rose-50 text-rose-600 dark:text-rose-400 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 focus:ring-rose-500/20',
+    'bg-transparent hover:bg-brand-primary/10 active:bg-brand-primary/20 text-brand-primary border border-brand-primary/50 focus:ring-brand-accent/30',
   success:
-    'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-xs focus:ring-emerald-500/30',
+    'bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary text-white shadow-subtle focus:ring-brand-accent/40',
   ai:
-    'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white shadow-ai-glow focus:ring-purple-500/30',
+    'bg-brand-primary hover:bg-brand-primary/90 text-white border border-brand-secondary/50 shadow-glow-primary focus:ring-brand-accent/40',
 };
 
 const SIZE_STYLES = {

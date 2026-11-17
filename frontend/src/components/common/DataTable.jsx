@@ -11,7 +11,7 @@ export const DataTable = ({ children, className = '' }) => {
 };
 
 export const TableHead = ({ children }) => (
-  <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none">
+  <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary select-none">
     {children}
   </thead>
 );
@@ -19,8 +19,8 @@ export const TableHead = ({ children }) => (
 export const TableRow = ({ children, onClick, className = '' }) => (
   <tr
     onClick={onClick}
-    className={`border-b border-slate-100 dark:border-slate-800/80 transition-colors ${
-      onClick ? 'cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/40' : ''
+    className={`border-b border-brand-primary/10 transition-colors ${
+      onClick ? 'cursor-pointer hover:bg-brand-accent/15' : ''
     } ${className}`}
   >
     {children}
@@ -28,13 +28,13 @@ export const TableRow = ({ children, onClick, className = '' }) => (
 );
 
 export const TableHeaderCell = ({ children, className = '' }) => (
-  <th className={`px-4 py-3.5 whitespace-nowrap text-xs font-semibold ${className}`}>
+  <th className={`px-4 py-3.5 whitespace-nowrap text-xs font-semibold text-brand-primary ${className}`}>
     {children}
   </th>
 );
 
 export const TableCell = ({ children, className = '' }) => (
-  <td className={`px-4 py-3 text-sm text-slate-700 dark:text-slate-300 align-middle ${className}`}>
+  <td className={`px-4 py-3 text-sm text-brand-primary align-middle ${className}`}>
     {children}
   </td>
 );

@@ -14,7 +14,7 @@ export const ModernModal = ({
   subtitle,
   children,
   footer,
-  size = 'md', // 'sm' | 'md' | 'lg' | 'xl'
+  size = 'md',
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -40,30 +40,30 @@ export const ModernModal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
+      className="fixed inset-0 bg-brand-primary/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className={`w-full ${sizeClass} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh] animate-scaleUp`}
+        className={`w-full ${sizeClass} bg-app-background border border-brand-primary/20 rounded-2xl shadow-elevated overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh] animate-scaleUp`}
         role="dialog"
         aria-modal="true"
       >
-        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-5 py-4 border-b border-brand-primary/15 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+            <h3 className="text-base font-bold text-brand-primary truncate">
               {title}
             </h3>
             {subtitle && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              <p className="text-xs text-brand-secondary mt-0.5 truncate">
                 {subtitle}
               </p>
             )}
           </div>
           <button
             type="button"
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0"
+            className="p-1 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-secondary/15 transition-colors flex-shrink-0"
             onClick={onClose}
             aria-label="Close"
           >
@@ -71,12 +71,12 @@ export const ModernModal = ({
           </button>
         </div>
 
-        <div className="p-5 overflow-y-auto max-h-[calc(85vh-130px)] text-sm text-slate-700 dark:text-slate-300">
+        <div className="p-5 overflow-y-auto max-h-[calc(85vh-130px)] text-sm text-brand-primary">
           {children}
         </div>
 
         {footer && (
-          <div className="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-end gap-2.5">
+          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

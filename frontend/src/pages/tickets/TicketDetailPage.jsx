@@ -187,10 +187,10 @@ export const TicketDetailPage = () => {
   if (!ticket) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Ticket not found</h3>
+        <h3 className="text-lg font-bold text-brand-primary">Ticket not found</h3>
         <button
           onClick={() => navigate('/tickets')}
-          className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm"
+          className="mt-3 px-4 py-2 bg-brand-primary text-white rounded-xl text-sm hover:bg-brand-primary/90 transition-all"
         >
           Return to Tickets
         </button>
@@ -211,7 +211,7 @@ export const TicketDetailPage = () => {
         actions={
           <button
             onClick={() => navigate('/tickets')}
-            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
           >
             <i className="bi bi-arrow-left text-xs" />
             <span>Back to List</span>
@@ -220,28 +220,28 @@ export const TicketDetailPage = () => {
       />
 
       {/* Top Header Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
         <div className="flex flex-wrap justify-between items-start gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
-              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white">
+              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-brand-primary text-white">
                 {ticket.ticket_number}
               </span>
               <PriorityBadge priority={ticket.priority} />
               <StatusBadge status={ticket.status} />
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                 {ticket.category_name || 'General'}
               </span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 leading-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-brand-primary mb-2 leading-tight">
               {ticket.title}
             </h2>
 
-            <div className="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <div className="text-xs text-brand-secondary flex flex-wrap items-center gap-x-4 gap-y-1.5">
               <span>
                 <i className="bi bi-person mr-1" />
-                Requester: <b className="text-slate-700 dark:text-slate-200">{ticket.requester_name}</b>
+                Requester: <b className="text-brand-primary">{ticket.requester_name}</b>
               </span>
               <span>
                 <i className="bi bi-calendar3 mr-1" />
@@ -256,7 +256,7 @@ export const TicketDetailPage = () => {
               {ticket.assignee_name && (
                 <span>
                   <i className="bi bi-person-check mr-1" />
-                  Assigned to: <b className="text-slate-700 dark:text-slate-200">{ticket.assignee_name}</b>
+                  Assigned to: <b className="text-brand-primary">{ticket.assignee_name}</b>
                 </span>
               )}
             </div>
@@ -268,7 +268,7 @@ export const TicketDetailPage = () => {
               <>
                 <button
                   onClick={openAssignModal}
-                  className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-xl border border-brand-primary/30 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
                 >
                   <i className="bi bi-person-plus text-xs" />
                   <span>Assign</span>
@@ -280,7 +280,7 @@ export const TicketDetailPage = () => {
                       setTargetStatus('IN_PROGRESS');
                       setShowTransitionModal(true);
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors inline-flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white text-xs sm:text-sm font-semibold transition-all inline-flex items-center gap-1.5"
                   >
                     <i className="bi bi-play-circle text-xs" />
                     <span>Start Progress</span>
@@ -293,7 +293,7 @@ export const TicketDetailPage = () => {
                       setTargetStatus('RESOLVED');
                       setShowTransitionModal(true);
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold transition-colors inline-flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white text-xs sm:text-sm font-semibold transition-all inline-flex items-center gap-1.5"
                   >
                     <i className="bi bi-check2-circle text-xs" />
                     <span>Resolve Ticket</span>
@@ -308,7 +308,7 @@ export const TicketDetailPage = () => {
                   setTargetStatus('CLOSED');
                   setShowTransitionModal(true);
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-colors inline-flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-brand-secondary hover:bg-brand-secondary/90 text-white text-xs sm:text-sm font-semibold transition-all inline-flex items-center gap-1.5"
               >
                 <i className="bi bi-archive text-xs" />
                 <span>Close Ticket</span>
@@ -321,7 +321,7 @@ export const TicketDetailPage = () => {
                   setTargetStatus('REOPENED');
                   setShowTransitionModal(true);
                 }}
-                className="px-3.5 py-1.5 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl border border-brand-primary/30 text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
               >
                 <i className="bi bi-arrow-clockwise text-xs" />
                 <span>Reopen</span>
@@ -335,35 +335,35 @@ export const TicketDetailPage = () => {
         {/* Main Conversation & Timeline Column */}
         <div className="lg:col-span-8 space-y-6">
           {/* Ticket Description Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
-              <i className="bi bi-file-text text-blue-600 text-lg" />
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-brand-primary/15">
+              <i className="bi bi-file-text text-brand-primary text-lg" />
+              <h3 className="font-bold text-sm text-brand-primary">
                 Issue Description
               </h3>
             </div>
-            <p className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+            <p className="text-sm text-brand-primary whitespace-pre-wrap leading-relaxed">
               {ticket.description}
             </p>
           </div>
 
           {/* Comment Stream */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-brand-primary/15">
               <div className="flex items-center gap-2">
-                <i className="bi bi-chat-left-dots text-blue-600 text-lg" />
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                <i className="bi bi-chat-left-dots text-brand-primary text-lg" />
+                <h3 className="font-bold text-sm text-brand-primary">
                   Conversation & Updates
                 </h3>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                 {comments.length} message{comments.length === 1 ? '' : 's'}
               </span>
             </div>
 
             {comments.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
-                <i className="bi bi-chat-square-dots text-3xl block mb-1 text-slate-300 dark:text-slate-600" />
+              <div className="text-center py-8 text-brand-secondary">
+                <i className="bi bi-chat-square-dots text-3xl block mb-1 text-brand-secondary/60" />
                 <p className="text-xs">No responses yet. Send a message to the user below.</p>
               </div>
             ) : (
@@ -373,33 +373,33 @@ export const TicketDetailPage = () => {
                     key={c.id}
                     className={`p-4 rounded-xl border transition-colors ${
                       c.is_internal
-                        ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/60'
-                        : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
+                        ? 'bg-brand-secondary/15 border-brand-secondary/40'
+                        : 'bg-app-background border-brand-primary/15'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                           {c.author_name ? c.author_name[0].toUpperCase() : 'U'}
                         </div>
-                        <span className="font-semibold text-xs text-slate-900 dark:text-slate-100">
+                        <span className="font-semibold text-xs text-brand-primary">
                           {c.author_name}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-brand-secondary/20 text-brand-primary">
                           {c.author_role}
                         </span>
                         {c.is_internal && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 inline-flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-primary text-white inline-flex items-center gap-1">
                             <i className="bi bi-eye-slash-fill text-[9px]" />
                             <span>Internal Note</span>
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-400 flex-shrink-0">
+                      <span className="text-[11px] text-brand-secondary flex-shrink-0">
                         {new Date(c.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed pl-9">
+                    <div className="text-xs sm:text-sm text-brand-primary whitespace-pre-wrap leading-relaxed pl-9">
                       {c.content}
                     </div>
                   </div>
@@ -408,9 +408,9 @@ export const TicketDetailPage = () => {
             )}
 
             {/* Add Comment Composer */}
-            <form onSubmit={handleCommentSubmit} className="pt-4 border-t border-slate-100 dark:border-slate-800">
+            <form onSubmit={handleCommentSubmit} className="pt-4 border-t border-brand-primary/15">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                <label className="text-xs font-semibold uppercase tracking-wider text-brand-primary">
                   Add a Response
                 </label>
                 {canManageWorkflow && (
@@ -418,16 +418,16 @@ export const TicketDetailPage = () => {
                     type="button"
                     disabled={aiDraftLoading}
                     onClick={handleAIAssistInsert}
-                    className="px-3 py-1 rounded-full text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors inline-flex items-center gap-1.5"
+                    className="px-3 py-1 rounded-full text-xs font-semibold text-brand-primary bg-brand-secondary/20 hover:bg-brand-accent/30 border border-brand-secondary/40 transition-colors inline-flex items-center gap-1.5"
                   >
                     {aiDraftLoading ? (
                       <>
-                        <span className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        <span className="w-3 h-3 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
                         <span>Drafting with Local RAG...</span>
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-stars" />
+                        <i className="bi bi-stars text-brand-primary" />
                         <span>Draft Response with AI</span>
                       </>
                     )}
@@ -438,7 +438,7 @@ export const TicketDetailPage = () => {
               <textarea
                 rows={4}
                 required
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors mb-3 resize-y"
+                className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors mb-3 resize-y"
                 placeholder="Type a helpful response to the requester..."
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
@@ -446,14 +446,14 @@ export const TicketDetailPage = () => {
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {canManageWorkflow ? (
-                  <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none">
+                  <label className="inline-flex items-center gap-2 text-xs font-medium text-brand-primary cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isInternal}
                       onChange={(e) => setIsInternal(e.target.checked)}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
+                      className="rounded border-brand-secondary text-brand-primary focus:ring-brand-accent/40"
                     />
-                    <i className="bi bi-lock-fill text-amber-500" />
+                    <i className="bi bi-lock-fill text-brand-primary" />
                     <span>Post as Internal Note (Hidden from requester)</span>
                   </label>
                 ) : (
@@ -463,7 +463,7 @@ export const TicketDetailPage = () => {
                 <button
                   type="submit"
                   disabled={submittingComment}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-2 disabled:opacity-50"
                 >
                   {submittingComment ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -479,34 +479,34 @@ export const TicketDetailPage = () => {
           </div>
 
           {/* Audit History Timeline */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
-              <i className="bi bi-clock-history text-slate-400 text-lg" />
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-brand-primary/15">
+              <i className="bi bi-clock-history text-brand-primary text-lg" />
+              <h3 className="font-bold text-sm text-brand-primary">
                 System Audit Trail & History
               </h3>
             </div>
-            <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+            <div className="divide-y divide-brand-primary/10">
               {history.length === 0 ? (
-                <div className="text-center py-6 text-xs text-slate-400">
+                <div className="text-center py-6 text-xs text-brand-secondary">
                   No audit events recorded yet.
                 </div>
               ) : (
                 history.map((ev) => (
                   <div key={ev.id} className="py-3 flex flex-wrap items-start justify-between gap-2 text-xs">
                     <div>
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 mr-2">
+                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30 mr-2">
                         {ev.event_type}
                       </span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      <span className="font-semibold text-brand-primary">
                         {ev.actor_name || 'System'}:{' '}
                       </span>
-                      <span className="text-slate-500 dark:text-slate-400">
+                      <span className="text-brand-secondary">
                         {ev.old_value && `from "${ev.old_value}" `}
                         {ev.new_value && `to "${ev.new_value}"`}
                       </span>
                     </div>
-                    <span className="text-[11px] text-slate-400 flex-shrink-0">
+                    <span className="text-[11px] text-brand-secondary flex-shrink-0">
                       {new Date(ev.created_at).toLocaleString()}
                     </span>
                   </div>
@@ -519,42 +519,42 @@ export const TicketDetailPage = () => {
         {/* Right Info Column (AI Predictions, SLA Risk, Assignment) */}
         <div className="lg:col-span-4 space-y-5">
           {/* SLA Tracking Info Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3.5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <i className="bi bi-stopwatch text-rose-500 text-lg" />
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+            <div className="flex items-center gap-2 pb-3 border-b border-brand-primary/15">
+              <i className="bi bi-stopwatch text-brand-primary text-lg" />
+              <h3 className="font-bold text-sm text-brand-primary">
                 SLA Status & Deadlines
               </h3>
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                 Applied SLA Policy
               </span>
-              <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">
+              <span className="font-semibold text-sm text-brand-primary">
                 {ticket.sla_info?.policy_name || 'Standard Organization SLA'}
               </span>
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                 Resolution Deadline
               </span>
-              <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">
+              <span className="font-semibold text-sm text-brand-primary">
                 {ticket.resolution_due_at
                   ? new Date(ticket.resolution_due_at).toLocaleString()
                   : 'Target not calculated'}
               </span>
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+              <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                 Current Breach Status
               </span>
               {ticket.is_sla_breached ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-primary text-white border border-brand-primary shadow-subtle">
+                  <i className="bi bi-exclamation-triangle-fill text-brand-accent text-xs" />
                   <span>SLA Breached</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
                   <i className="bi bi-check-circle text-xs" />
                   <span>Within Target Window</span>
                 </span>
@@ -564,30 +564,30 @@ export const TicketDetailPage = () => {
 
           {/* AI Predictions & Classification Panel */}
           {ticket.latest_ai_prediction && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+              <div className="flex items-center justify-between pb-3 border-b border-brand-primary/15">
                 <div className="flex items-center gap-2">
-                  <i className="bi bi-cpu text-blue-600 text-lg" />
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <i className="bi bi-cpu text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
                     AI Insights
                   </h3>
                 </div>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/35">
                   {ticket.latest_ai_prediction.model_name}
                 </span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                   Predicted Category
                 </span>
-                <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                <span className="font-bold text-sm text-brand-primary">
                   {ticket.latest_ai_prediction.predicted_category_name || 'General'}
                 </span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                   Predicted Priority
                 </span>
                 <PriorityBadge
@@ -597,28 +597,28 @@ export const TicketDetailPage = () => {
 
               {ticket.latest_ai_prediction.rationale && (
                 <div>
-                  <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                     Decision Rationale
                   </span>
-                  <p className="text-xs p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 leading-relaxed">
+                  <p className="text-xs p-3 rounded-xl bg-brand-secondary/10 text-brand-primary border border-brand-secondary/30 leading-relaxed">
                     {ticket.latest_ai_prediction.rationale}
                   </p>
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-                <span className="text-slate-400">Feedback:</span>
+              <div className="flex items-center justify-between pt-3 border-t border-brand-primary/15 text-xs">
+                <span className="text-brand-secondary">Feedback:</span>
                 {feedbackSent ? (
-                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1">
-                    <i className="bi bi-check2" />
+                  <span className="text-brand-primary font-semibold inline-flex items-center gap-1">
+                    <i className="bi bi-check2 text-brand-secondary" />
                     <span>Recorded</span>
                   </span>
                 ) : (
-                  <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="inline-flex rounded-lg border border-brand-primary/25 overflow-hidden">
                     <button
                       type="button"
                       onClick={() => handleFeedback(true)}
-                      className="px-2.5 py-1 text-xs text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors inline-flex items-center gap-1 border-r border-slate-200 dark:border-slate-700"
+                      className="px-2.5 py-1 text-xs text-brand-primary hover:bg-brand-secondary/15 transition-colors inline-flex items-center gap-1 border-r border-brand-primary/25"
                     >
                       <i className="bi bi-hand-thumbs-up" />
                       <span>Accurate</span>
@@ -626,7 +626,7 @@ export const TicketDetailPage = () => {
                     <button
                       type="button"
                       onClick={() => handleFeedback(false)}
-                      className="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors inline-flex items-center gap-1"
+                      className="px-2.5 py-1 text-xs text-brand-primary hover:bg-brand-secondary/15 transition-colors inline-flex items-center gap-1"
                     >
                       <i className="bi bi-hand-thumbs-down" />
                       <span>Inaccurate</span>
@@ -639,48 +639,36 @@ export const TicketDetailPage = () => {
 
           {/* Predictive SLA Risk Analysis */}
           {ticket.latest_sla_risk && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3.5">
-              <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <i className="bi bi-graph-up-arrow text-amber-500 text-lg" />
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+            <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+              <div className="flex items-center gap-2 pb-3 border-b border-brand-primary/15">
+                <i className="bi bi-graph-up-arrow text-brand-primary text-lg" />
+                <h3 className="font-bold text-sm text-brand-primary">
                   Predictive SLA Risk Analysis
                 </h3>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400">Breach Probability</span>
+                <span className="text-xs text-brand-secondary">Breach Probability</span>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    ticket.latest_sla_risk.risk_level === 'CRITICAL'
-                      ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
-                      : ticket.latest_sla_risk.risk_level === 'HIGH'
-                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
-                      : 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400'
-                  }`}
+                  className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/35"
                 >
                   {Math.round(ticket.latest_sla_risk.risk_score * 100)}% ({ticket.latest_sla_risk.risk_level})
                 </span>
               </div>
 
-              <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-brand-secondary/20 h-2 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    ticket.latest_sla_risk.risk_score > 0.75
-                      ? 'bg-rose-500'
-                      : ticket.latest_sla_risk.risk_score > 0.4
-                      ? 'bg-amber-500'
-                      : 'bg-sky-500'
-                  }`}
+                  className="h-full rounded-full transition-all duration-300 bg-brand-primary"
                   style={{ width: `${Math.round(ticket.latest_sla_risk.risk_score * 100)}%` }}
                 />
               </div>
 
               {ticket.latest_sla_risk.risk_factors?.length > 0 && (
                 <div>
-                  <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-[11px] text-brand-secondary uppercase tracking-wider block mb-1">
                     Operational Factors
                   </span>
-                  <ul className="text-xs list-disc list-inside text-slate-600 dark:text-slate-300 space-y-1">
+                  <ul className="text-xs list-disc list-inside text-brand-primary space-y-1">
                     {ticket.latest_sla_risk.risk_factors.map((f, i) => (
                       <li key={i}>{f}</li>
                     ))}
@@ -689,12 +677,12 @@ export const TicketDetailPage = () => {
               )}
 
               {ticket.latest_sla_risk.suggested_mitigation && (
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block mb-0.5">
-                    <i className="bi bi-lightbulb-fill text-amber-500 mr-1" />
+                <div className="p-3 rounded-xl bg-brand-secondary/10 border border-brand-secondary/30">
+                  <span className="text-xs font-bold text-brand-primary block mb-0.5">
+                    <i className="bi bi-lightbulb-fill text-brand-secondary mr-1" />
                     Suggested Mitigation
                   </span>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-0">
+                  <p className="text-xs text-brand-secondary leading-relaxed mb-0">
                     {ticket.latest_sla_risk.suggested_mitigation}
                   </p>
                 </div>
@@ -714,7 +702,7 @@ export const TicketDetailPage = () => {
           <>
             <button
               type="button"
-              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
               onClick={() => setShowTransitionModal(false)}
             >
               Cancel
@@ -722,7 +710,7 @@ export const TicketDetailPage = () => {
             <button
               type="button"
               onClick={handleTransitionSubmit}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-all shadow-subtle"
             >
               Confirm Status Transition
             </button>
@@ -730,12 +718,12 @@ export const TicketDetailPage = () => {
         }
       >
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
             Optional Resolution Note / Transition Comment
           </label>
           <textarea
             rows={3}
-            className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-y"
+            className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors resize-y"
             placeholder="Enter reason or summary for this status change..."
             value={transitionComment}
             onChange={(e) => setTransitionComment(e.target.value)}
@@ -753,7 +741,7 @@ export const TicketDetailPage = () => {
           <>
             <button
               type="button"
-              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
               onClick={() => setShowAssignModal(false)}
             >
               Cancel
@@ -761,7 +749,7 @@ export const TicketDetailPage = () => {
             <button
               type="button"
               onClick={handleAssignSubmit}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-all shadow-subtle"
             >
               Save Assignment
             </button>
@@ -770,11 +758,11 @@ export const TicketDetailPage = () => {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Assign to Support Agent
             </label>
             <select
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
               value={selectedAgentId}
               onChange={(e) => setSelectedAgentId(e.target.value)}
             >
@@ -788,11 +776,11 @@ export const TicketDetailPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Assign to Department / Team
             </label>
             <select
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
               value={selectedTeamId}
               onChange={(e) => setSelectedTeamId(e.target.value)}
             >
@@ -806,12 +794,12 @@ export const TicketDetailPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Assignment Reason
             </label>
             <input
               type="text"
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="e.g. Specialized in Network & VPN troubleshooting"
               value={assignReason}
               onChange={(e) => setAssignReason(e.target.value)}

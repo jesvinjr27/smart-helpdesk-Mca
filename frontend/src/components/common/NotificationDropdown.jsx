@@ -66,22 +66,22 @@ export const NotificationDropdown = () => {
       case 'danger':
         return {
           icon: 'bi-exclamation-octagon-fill',
-          bg: 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400',
+          bg: 'bg-brand-primary text-white',
         };
       case 'warning':
         return {
           icon: 'bi-clock-history',
-          bg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
+          bg: 'bg-brand-secondary/30 text-brand-primary',
         };
       case 'ai':
         return {
           icon: 'bi-stars',
-          bg: 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400',
+          bg: 'bg-brand-accent/35 text-brand-primary',
         };
       default:
         return {
           icon: 'bi-bell-fill',
-          bg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+          bg: 'bg-brand-secondary/20 text-brand-primary',
         };
     }
   };
@@ -90,27 +90,27 @@ export const NotificationDropdown = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        className="relative p-2 rounded-xl text-brand-primary hover:bg-brand-secondary/15 transition-colors"
         onClick={() => setOpen(!open)}
         title="Notifications"
       >
         <i className="bi bi-bell text-lg" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-rose-500 rounded-full border-2 border-white dark:border-slate-900">
+          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-brand-primary rounded-full border-2 border-app-background">
             {unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-scaleUp">
-          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-app-background border border-brand-primary/20 rounded-2xl shadow-elevated z-50 overflow-hidden animate-scaleUp">
+          <div className="px-4 py-3 border-b border-brand-primary/15 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              <span className="text-sm font-bold text-brand-primary">
                 Notifications
               </span>
               {unreadCount > 0 && (
-                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 rounded-full">
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded-full">
                   {unreadCount} new
                 </span>
               )}
@@ -119,16 +119,16 @@ export const NotificationDropdown = () => {
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                className="text-xs text-brand-primary hover:underline font-semibold"
               >
                 Mark all read
               </button>
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80">
+          <div className="max-h-80 overflow-y-auto divide-y divide-brand-primary/10">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-8 text-center text-xs text-brand-secondary">
                 No notifications right now
               </div>
             ) : (
@@ -139,8 +139,8 @@ export const NotificationDropdown = () => {
                     key={n.id}
                     type="button"
                     onClick={() => handleNotificationClick(n)}
-                    className={`w-full p-3.5 flex items-start gap-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
-                      !n.read ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''
+                    className={`w-full p-3.5 flex items-start gap-3 text-left transition-colors hover:bg-brand-secondary/15 ${
+                      !n.read ? 'bg-brand-secondary/10' : ''
                     }`}
                   >
                     <div
@@ -150,19 +150,19 @@ export const NotificationDropdown = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1 mb-0.5">
-                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+                        <span className="text-xs font-semibold text-brand-primary truncate">
                           {n.title}
                         </span>
-                        <span className="text-[10px] text-slate-400 flex-shrink-0">
+                        <span className="text-[10px] text-brand-secondary flex-shrink-0">
                           {n.time}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-brand-secondary line-clamp-2 leading-relaxed">
                         {n.message}
                       </p>
                     </div>
                     {!n.read && (
-                      <span className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1.5" />
+                      <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 mt-1.5" />
                     )}
                   </button>
                 );

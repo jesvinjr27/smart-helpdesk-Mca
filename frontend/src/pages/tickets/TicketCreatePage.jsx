@@ -113,7 +113,7 @@ export const TicketCreatePage = () => {
           <button
             type="button"
             onClick={() => navigate('/tickets')}
-            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
           >
             <i className="bi bi-x-lg text-xs" />
             <span>Cancel</span>
@@ -124,18 +124,18 @@ export const TicketCreatePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Ticket Submission Form Column */}
         <div className="lg:col-span-7">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-7 shadow-sm">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-7 shadow-subtle">
             {errorMessage && (
-              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 flex items-start gap-2.5 text-xs text-rose-700 dark:text-rose-300 mb-5">
-                <i className="bi bi-exclamation-octagon-fill text-rose-500 text-base flex-shrink-0" />
+              <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
+                <i className="bi bi-exclamation-octagon-fill text-brand-primary text-base flex-shrink-0" />
                 <span className="leading-relaxed">{errorMessage}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                  Ticket Subject / Title <span className="text-rose-500">*</span>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                  Ticket Subject / Title <span className="text-brand-primary font-bold">*</span>
                 </label>
                 <input
                   type="text"
@@ -144,23 +144,23 @@ export const TicketCreatePage = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Cannot connect to GlobalProtect VPN from home"
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
                 />
-                <span className="text-slate-400 text-xs mt-1 block">
+                <span className="text-brand-secondary text-xs mt-1 block">
                   Be descriptive so AI can search knowledge articles accurately.
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                    Category <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                    Category <span className="text-brand-primary font-bold">*</span>
                   </label>
                   <select
                     required
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -171,13 +171,13 @@ export const TicketCreatePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                     Priority Level
                   </label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                   >
                     <option value="LOW">Low (Routine question)</option>
                     <option value="MEDIUM">Medium (Normal business task)</option>
@@ -188,8 +188,8 @@ export const TicketCreatePage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                  Detailed Description <span className="text-rose-500">*</span>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                  Detailed Description <span className="text-brand-primary font-bold">*</span>
                 </label>
                 <textarea
                   required
@@ -198,12 +198,12 @@ export const TicketCreatePage = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Provide steps to reproduce, device name, operating system, and specific error codes..."
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-y"
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors resize-y"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                   Tags (comma-separated)
                 </label>
                 <input
@@ -211,22 +211,22 @@ export const TicketCreatePage = () => {
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="vpn, macos, wifi, authentication"
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-brand-primary/10">
                 <button
                   type="button"
                   onClick={() => navigate('/tickets')}
-                  className="px-4 py-2 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="px-4 py-2 text-sm font-medium rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white shadow-subtle transition-all inline-flex items-center gap-2 disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -249,14 +249,14 @@ export const TicketCreatePage = () => {
         <div className="lg:col-span-5 space-y-4">
           {/* Critical Emergency Alert */}
           {criticalNotice && (
-            <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 shadow-sm animate-scaleUp">
+            <div className="p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/30 shadow-subtle animate-scaleUp">
               <div className="flex items-start gap-3">
-                <i className="bi bi-exclamation-octagon-fill text-xl text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+                <i className="bi bi-exclamation-octagon-fill text-xl text-brand-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-sm text-rose-800 dark:text-rose-200 mb-1">
+                  <h4 className="font-bold text-sm text-brand-primary mb-1">
                     Critical Outage / Emergency Detected
                   </h4>
-                  <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
+                  <p className="text-xs text-brand-secondary leading-relaxed">
                     Your ticket contains emergency keywords matching system failure. The priority has been
                     elevated to <b>CRITICAL</b> with an accelerated 1-hour resolution target.
                   </p>
@@ -266,32 +266,32 @@ export const TicketCreatePage = () => {
           )}
 
           {/* AI Knowledge Suggestions Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+            <div className="flex items-center justify-between pb-4 border-b border-brand-primary/15 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-brand-secondary/20 text-brand-primary flex items-center justify-center flex-shrink-0">
                   <i className="bi bi-stars" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <h3 className="font-bold text-sm text-brand-primary">
                     Instant AI Self-Service
                   </h3>
-                  <span className="text-[11px] text-slate-400">Local FAISS Vector Engine</span>
+                  <span className="text-[11px] text-brand-secondary">Local FAISS Vector Engine</span>
                 </div>
               </div>
               {aiSearching && (
-                <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
               )}
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+            <p className="text-xs text-brand-secondary mb-4 leading-relaxed">
               As you type, our zero-cloud-leakage semantic search looks for verified troubleshooting steps
               to help resolve your issue immediately without waiting for support.
             </p>
 
             {suggestedKb.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
-                <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-2 text-xl">
+              <div className="text-center py-8 text-brand-secondary">
+                <div className="w-12 h-12 mx-auto rounded-full bg-brand-secondary/15 flex items-center justify-center mb-2 text-xl text-brand-primary">
                   <i className="bi bi-lightbulb" />
                 </div>
                 <p className="text-xs max-w-xs mx-auto">
@@ -303,21 +303,21 @@ export const TicketCreatePage = () => {
                 {suggestedKb.map((kb) => (
                   <div
                     key={kb.chunk_id}
-                    className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all hover:-translate-y-0.5 shadow-xs"
+                    className="p-3.5 rounded-xl border border-brand-primary/15 bg-app-background hover:bg-brand-accent/15 hover:border-brand-primary/30 transition-all hover:-translate-y-0.5 shadow-subtle"
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
                         <i className="bi bi-check2-circle text-xs" />
                         <span>Match: {Math.round(kb.similarity_score * 100)}%</span>
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
+                      <span className="text-[10px] text-brand-secondary font-mono">
                         #{kb.chunk_id.slice(0, 8)}
                       </span>
                     </div>
-                    <h4 className="font-semibold text-xs text-slate-900 dark:text-slate-100 mb-1">
+                    <h4 className="font-semibold text-xs text-brand-primary mb-1">
                       {kb.article_title}
                     </h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+                    <p className="text-xs text-brand-secondary line-clamp-3 leading-relaxed">
                       {kb.content}
                     </p>
                   </div>

@@ -14,37 +14,41 @@ export default {
     './frontend/index.html',
     './frontend/src/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
+        // Official 4-color palette tokens
+        'brand-primary': '#355872',     // rgb(53, 88, 114)
+        'brand-secondary': '#7aaace',   // rgb(122, 170, 206)
+        'brand-accent': '#9cd5ff',      // rgb(156, 213, 255)
+        'app-background': '#f7f8f0',    // rgb(247, 248, 240)
+
+        // Brand scale mapped directly to the official palette
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-        },
-        ai: {
-          light: '#f5f3ff',
-          DEFAULT: '#7c3aed',
-          dark: '#6d28d9',
+          primary: '#355872',
+          secondary: '#7aaace',
+          accent: '#9cd5ff',
+          50: '#f7f8f0',
+          100: '#eaf2f8',
+          200: '#9cd5ff',
+          300: '#9cd5ff',
+          400: '#7aaace',
+          500: '#5684a6',
+          600: '#355872',
+          700: '#2c4a60',
+          800: '#233b4e',
+          900: '#1a2c3a',
+          950: '#101d27',
         },
       },
       boxShadow: {
-        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'subtle': '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)',
-        'elevated': '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)',
-        'ai-glow': '0 0 20px -3px rgba(124, 58, 237, 0.25)',
+        'subtle': '0 1px 3px 0 rgba(53, 88, 114, 0.08), 0 1px 2px -1px rgba(53, 88, 114, 0.06)',
+        'elevated': '0 4px 6px -1px rgba(53, 88, 114, 0.1), 0 2px 4px -2px rgba(53, 88, 114, 0.06)',
+        'glow-primary': '0 0 20px -3px rgba(53, 88, 114, 0.3)',
+        'glow-accent': '0 0 20px -3px rgba(156, 213, 255, 0.5)',
       },
       keyframes: {
         shimmer: {

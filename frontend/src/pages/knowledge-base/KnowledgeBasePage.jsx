@@ -146,19 +146,19 @@ export const KnowledgeBasePage = () => {
                 type="button"
                 disabled={ingesting}
                 onClick={handleTriggerIngest}
-                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                className="px-3.5 py-1.5 rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
               >
                 {ingesting ? (
-                  <span className="w-3.5 h-3.5 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="w-3.5 h-3.5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <i className="bi bi-arrow-repeat text-xs" />
+                  <i className="bi bi-arrow-repeat text-xs text-brand-primary" />
                 )}
                 <span>Sync Vector Store</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors inline-flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary text-white text-xs sm:text-sm font-semibold shadow-subtle transition-colors inline-flex items-center gap-1.5"
               >
                 <i className="bi bi-plus-lg text-xs" />
                 <span>Create Article</span>
@@ -169,41 +169,41 @@ export const KnowledgeBasePage = () => {
       />
 
       {ingestMsg && (
-        <div className="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 flex items-center gap-2.5 text-xs text-sky-800 dark:text-sky-300">
-          <i className="bi bi-info-circle-fill text-sky-500 text-sm flex-shrink-0" />
+        <div className="p-3.5 rounded-xl bg-brand-secondary/15 border border-brand-secondary/40 flex items-center gap-2.5 text-xs text-brand-primary">
+          <i className="bi bi-info-circle-fill text-brand-primary text-sm flex-shrink-0" />
           <span>{ingestMsg}</span>
         </div>
       )}
 
       {/* Semantic Search Hero Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-6 sm:p-10 text-white shadow-md text-center">
+      <div className="relative overflow-hidden rounded-2xl bg-brand-primary p-6 sm:p-10 text-white shadow-subtle text-center">
         <div className="relative z-10 max-w-2xl mx-auto space-y-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-white backdrop-blur-sm border border-white/15">
-            <i className="bi bi-stars text-amber-400" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-accent border border-brand-accent/30">
+            <i className="bi bi-stars text-brand-accent" />
             <span>FAISS Dense Vector Search</span>
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Search Knowledge Base with Semantic AI
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
+          <p className="text-brand-accent/90 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
             Our vector engine searches concepts, symptoms, and error codes across all verified articles to find exact answers.
           </p>
 
           <form onSubmit={handleSemanticSearch} className="pt-2">
-            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full shadow-lg p-1.5 focus-within:ring-2 focus-within:ring-blue-500/20 text-slate-900 dark:text-slate-100 transition-all">
-              <span className="pl-3.5 text-slate-400 text-base">
+            <div className="flex items-center bg-app-background border border-brand-secondary/40 rounded-full shadow-subtle p-1.5 focus-within:ring-2 focus-within:ring-brand-accent/40 text-brand-primary transition-all">
+              <span className="pl-3.5 text-brand-secondary text-base">
                 <i className="bi bi-search" />
               </span>
               <input
                 type="text"
-                className="flex-1 bg-transparent border-0 px-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
+                className="flex-1 bg-transparent border-0 px-3 text-xs sm:text-sm text-brand-primary placeholder-brand-secondary/60 focus:outline-none"
                 placeholder="e.g. How to connect to Eduroam Wi-Fi or fix VPN error 403..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button
                 type="submit"
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-full shadow-xs transition-colors flex-shrink-0"
+                className="px-5 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-full shadow-subtle transition-colors flex-shrink-0"
               >
                 Search
               </button>
@@ -216,14 +216,14 @@ export const KnowledgeBasePage = () => {
       {searchResults && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1.5">
-              <i className="bi bi-stars" />
+            <h3 className="font-bold text-sm text-brand-primary inline-flex items-center gap-1.5">
+              <i className="bi bi-stars text-brand-secondary" />
               <span>Semantic AI Results ({searchResults.length})</span>
             </h3>
             <button
               type="button"
               onClick={() => setSearchResults(null)}
-              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 inline-flex items-center gap-1"
+              className="text-xs text-brand-secondary hover:text-brand-primary inline-flex items-center gap-1 transition-colors"
             >
               <i className="bi bi-x-circle" />
               <span>Clear Search</span>
@@ -232,28 +232,28 @@ export const KnowledgeBasePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {searchResults.length === 0 ? (
-              <div className="col-span-full p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400">
+              <div className="col-span-full p-6 rounded-xl bg-app-background border border-brand-primary/15 text-center text-xs text-brand-secondary">
                 No matching chunks found above similarity threshold. Try broadening your terms.
               </div>
             ) : (
               searchResults.map((sr) => (
                 <div
                   key={sr.chunk_id}
-                  className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-2"
+                  className="p-4 rounded-xl bg-app-background border border-brand-primary/15 shadow-subtle hover:border-brand-primary/30 transition-all space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 inline-flex items-center gap-1">
-                      <i className="bi bi-check2-circle text-xs" />
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40 inline-flex items-center gap-1">
+                      <i className="bi bi-check2-circle text-xs text-brand-primary" />
                       <span>Match: {Math.round(sr.similarity_score * 100)}%</span>
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-brand-secondary/10 text-brand-primary border border-brand-secondary/20">
                       {sr.visibility}
                     </span>
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
+                  <h4 className="font-bold text-sm text-brand-primary truncate">
                     {sr.article_title}
                   </h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-brand-primary/80 line-clamp-3 leading-relaxed">
                     {sr.content}
                   </p>
                 </div>
@@ -270,8 +270,8 @@ export const KnowledgeBasePage = () => {
           onClick={() => setSelectedCategory('')}
           className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
             selectedCategory === ''
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
           }`}
         >
           All Categories
@@ -283,8 +283,8 @@ export const KnowledgeBasePage = () => {
             onClick={() => setSelectedCategory(c.id)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
               selectedCategory === c.id
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? 'bg-brand-primary text-white shadow-subtle'
+                : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
             }`}
           >
             {c.name}
@@ -308,7 +308,7 @@ export const KnowledgeBasePage = () => {
             canManageArticles && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-medium text-xs sm:text-sm rounded-xl shadow-subtle transition-colors inline-flex items-center gap-1.5"
               >
                 <i className="bi bi-plus-lg text-xs" />
                 <span>Create First Article</span>
@@ -322,32 +322,32 @@ export const KnowledgeBasePage = () => {
             <div
               key={art.id}
               onClick={() => setActiveArticle(art)}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle hover:border-brand-primary/30 transition-all cursor-pointer flex flex-col justify-between group"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                     {art.category_name || 'General'}
                   </span>
-                  <span className="text-[11px] text-slate-400 inline-flex items-center gap-1">
+                  <span className="text-[11px] text-brand-secondary inline-flex items-center gap-1">
                     <i className="bi bi-eye text-xs" />
                     <span>{art.view_count || 0} views</span>
                   </span>
                 </div>
 
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                <h3 className="font-bold text-sm text-brand-primary group-hover:text-brand-secondary transition-colors line-clamp-2 mb-2">
                   {art.title}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                <p className="text-xs text-brand-primary/75 line-clamp-3 leading-relaxed mb-4">
                   {art.summary || art.content.slice(0, 140) + '...'}
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-1 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex flex-wrap gap-1 pt-3 border-t border-brand-primary/10">
                 {art.tags?.slice(0, 3).map((tg, i) => (
                   <span
                     key={i}
-                    className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500"
+                    className="px-2 py-0.5 rounded text-[10px] font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/20"
                   >
                     #{tg}
                   </span>
@@ -368,14 +368,14 @@ export const KnowledgeBasePage = () => {
         footer={
           <button
             type="button"
-            className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
             onClick={() => setActiveArticle(null)}
           >
             Close Guide
           </button>
         }
       >
-        <div className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed space-y-2">
+        <div className="text-sm text-brand-primary whitespace-pre-wrap leading-relaxed space-y-2">
           {activeArticle?.content}
         </div>
       </ModernModal>
@@ -391,7 +391,7 @@ export const KnowledgeBasePage = () => {
           <>
             <button
               type="button"
-              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-medium rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
               onClick={() => setShowCreateModal(false)}
             >
               Cancel
@@ -400,7 +400,7 @@ export const KnowledgeBasePage = () => {
               type="button"
               disabled={savingArticle}
               onClick={handleCreateArticle}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-colors disabled:opacity-50"
             >
               {savingArticle ? 'Publishing...' : 'Publish Article'}
             </button>
@@ -409,13 +409,13 @@ export const KnowledgeBasePage = () => {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Article Title
             </label>
             <input
               type="text"
               required
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="e.g. How to configure GlobalProtect VPN on macOS"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -424,12 +424,12 @@ export const KnowledgeBasePage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                 Category
               </label>
               <select
                 required
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                 value={newCatId}
                 onChange={(e) => setNewCatId(e.target.value)}
               >
@@ -442,11 +442,11 @@ export const KnowledgeBasePage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                 Visibility
               </label>
               <select
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer"
+                className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                 value={newVisibility}
                 onChange={(e) => setNewVisibility(e.target.value)}
               >
@@ -457,12 +457,12 @@ export const KnowledgeBasePage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Brief Summary
             </label>
             <input
               type="text"
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="One-sentence description for search preview"
               value={newSummary}
               onChange={(e) => setNewSummary(e.target.value)}
@@ -470,13 +470,13 @@ export const KnowledgeBasePage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Article Content
             </label>
             <textarea
               rows={8}
               required
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-y"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors resize-y"
               placeholder="Step 1: Open the application...&#10;Step 2: Enter server portal..."
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
@@ -484,12 +484,12 @@ export const KnowledgeBasePage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Tags (comma-separated)
             </label>
             <input
               type="text"
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+              className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="vpn, security, network, macos"
               value={newTags}
               onChange={(e) => setNewTags(e.target.value)}

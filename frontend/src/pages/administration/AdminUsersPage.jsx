@@ -75,7 +75,7 @@ export const AdminUsersPage = () => {
         actions={
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white shadow-subtle transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent/40 active:scale-[0.98]"
           >
             <i className="bi bi-person-plus-fill"></i>
             <span>Add Organization Member</span>
@@ -83,17 +83,17 @@ export const AdminUsersPage = () => {
         }
       />
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle overflow-hidden">
+        <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
               <i className="bi bi-people text-lg"></i>
             </div>
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
+            <h2 className="text-base font-semibold text-brand-primary m-0">
               Registered Members
             </h2>
           </div>
-          <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
             {users.length} Total Users
           </span>
         </div>
@@ -107,43 +107,43 @@ export const AdminUsersPage = () => {
             <div className="overflow-x-auto w-full">
               <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50">
-                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <tr className="border-b border-brand-primary/10 bg-brand-secondary/15">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
                       Member
                     </th>
-                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
                       Email Address
                     </th>
-                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
                       Assigned Security Roles
                     </th>
-                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
                       Account Status
                     </th>
-                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
                       Joined Date
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                <tbody className="divide-y divide-brand-primary/10">
                   {users.map((u) => (
                     <tr
                       key={u.id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      className="hover:bg-brand-accent/15 transition-colors"
                     >
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-gradient-to-tr from-brand-600 to-indigo-600 shadow-sm flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-brand-primary shadow-subtle flex-shrink-0">
                             {u.full_name ? u.full_name[0].toUpperCase() : 'U'}
                           </div>
                           <div>
-                            <span className="font-medium text-slate-900 dark:text-slate-100 text-sm block">
+                            <span className="font-medium text-brand-primary text-sm block">
                               {u.full_name}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-sm">
+                      <td className="py-3.5 px-4 text-brand-secondary text-sm">
                         {u.email}
                       </td>
                       <td className="py-3.5 px-4">
@@ -153,10 +153,10 @@ export const AdminUsersPage = () => {
                               key={i}
                               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium tracking-wide ${
                                 r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
-                                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50'
+                                  ? 'bg-brand-primary text-white border border-brand-primary'
                                   : r === 'AGENT' || r === 'LEAD'
-                                  ? 'bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border border-brand-200 dark:border-brand-900/50'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                  ? 'bg-brand-secondary/25 text-brand-primary border border-brand-secondary/40'
+                                  : 'bg-brand-accent/25 text-brand-primary border border-brand-accent/40'
                               }`}
                             >
                               {r}
@@ -166,17 +166,17 @@ export const AdminUsersPage = () => {
                       </td>
                       <td className="py-3.5 px-4">
                         {u.is_active ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary"></span>
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20">
                             Deactivated
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-xs text-brand-secondary whitespace-nowrap">
                         {new Date(u.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -198,7 +198,7 @@ export const AdminUsersPage = () => {
           <>
             <button
               type="button"
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-xl border border-brand-secondary/40 text-brand-primary bg-app-background hover:bg-brand-secondary/15 transition-colors"
               onClick={() => setShowModal(false)}
             >
               Cancel
@@ -207,7 +207,7 @@ export const AdminUsersPage = () => {
               type="button"
               disabled={saving}
               onClick={handleCreateUser}
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-all shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-all shadow-subtle disabled:opacity-50"
             >
               {saving ? 'Creating Member...' : 'Create Member'}
             </button>
@@ -216,13 +216,13 @@ export const AdminUsersPage = () => {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Full Name
             </label>
             <input
               type="text"
               required
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="e.g. Jonathan Vance"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -230,13 +230,13 @@ export const AdminUsersPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Email Address
             </label>
             <input
               type="email"
               required
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               placeholder="e.g. jvance@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -244,28 +244,28 @@ export const AdminUsersPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
               Initial Password
             </label>
             <input
               type="text"
               required
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <span className="text-slate-500 dark:text-slate-400 text-xs mt-1 block">
+            <span className="text-brand-secondary text-xs mt-1 block">
               Member will use this initial password on first sign-in.
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                 System Role
               </label>
               <select
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                 value={roleName}
                 onChange={(e) => setRoleName(e.target.value)}
               >
@@ -277,11 +277,11 @@ export const AdminUsersPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
                 Department
               </label>
               <select
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                 value={deptId}
                 onChange={(e) => setDeptId(e.target.value)}
               >

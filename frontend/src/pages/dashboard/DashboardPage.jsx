@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactECharts from 'echarts-for-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../hooks/useTheme';
 import {
   getDashboardSummaryApi,
   getDashboardTrendsApi,
@@ -17,7 +16,6 @@ import { CardSkeleton, TableSkeleton } from '../../components/common/LoadingSkel
 
 export const DashboardPage = () => {
   const { user, hasRole } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [summary, setSummary] = useState(null);
@@ -28,8 +26,6 @@ export const DashboardPage = () => {
 
   const isRequesterOnly =
     hasRole(['REQUESTER']) && !hasRole(['AGENT', 'LEAD', 'ORG_ADMIN', 'SYS_ADMIN']);
-
-  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -62,7 +58,7 @@ export const DashboardPage = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="space-y-6">
         <PageHeader title="Dashboard" subtitle="Loading operational telemetry..." />
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
           <CardSkeleton />
@@ -70,7 +66,7 @@ export const DashboardPage = () => {
           <CardSkeleton />
           <CardSkeleton />
         </div>
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle">
           <TableSkeleton rows={4} cols={5} />
         </div>
       </div>
@@ -82,16 +78,16 @@ export const DashboardPage = () => {
     return (
       <div className="space-y-6">
         {/* Welcome Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div className="relative overflow-hidden bg-brand-primary rounded-2xl p-6 sm:p-8 text-white shadow-subtle border border-brand-primary/30 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="relative z-10 max-w-xl">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-accent border border-white/20 mb-3">
               <i className="bi bi-stars" />
               <span>AI-Powered Help Desk</span>
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2 text-white">
               Welcome back, {user?.full_name}! 👋
             </h2>
-            <p className="text-blue-100 text-sm leading-relaxed">
+            <p className="text-white/80 text-sm leading-relaxed">
               Have an IT issue, equipment problem, or software access question? Submit a ticket or
               explore our local AI-indexed knowledge base for verified step-by-step solutions.
             </p>
@@ -99,7 +95,7 @@ export const DashboardPage = () => {
           <div className="relative z-10 flex-shrink-0">
             <button
               onClick={() => navigate('/tickets/new')}
-              className="px-5 py-2.5 bg-white text-blue-700 hover:bg-blue-50 font-semibold text-sm rounded-xl shadow-sm transition-colors inline-flex items-center gap-2"
+              className="px-5 py-2.5 bg-brand-accent text-brand-primary hover:bg-brand-accent/90 font-semibold text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-2"
             >
               <i className="bi bi-plus-circle text-base" />
               <span>Create New Ticket</span>
@@ -110,17 +106,17 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* My Tickets */}
           <div className="lg:col-span-8">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden h-full flex flex-col">
-              <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle overflow-hidden h-full flex flex-col">
+              <div className="px-5 py-4 border-b border-brand-primary/15 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <i className="bi bi-ticket-detailed text-blue-600 text-lg" />
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <i className="bi bi-ticket-detailed text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
                     My Recent Tickets
                   </h3>
                 </div>
                 <button
                   onClick={() => navigate('/tickets')}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center gap-1"
+                  className="text-xs font-medium text-brand-primary hover:underline inline-flex items-center gap-1"
                 >
                   <span>View All Tickets</span>
                   <i className="bi bi-arrow-right" />
@@ -129,13 +125,13 @@ export const DashboardPage = () => {
 
               <div className="flex-1 overflow-x-auto">
                 {myTickets.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400">
+                  <div className="text-center py-12 text-brand-secondary">
                     <i className="bi bi-inbox text-3xl block mb-2" />
                     <p className="text-sm">You have no active tickets right now.</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse min-w-[500px]">
-                    <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
                       <tr>
                         <th className="px-4 py-3">Ticket #</th>
                         <th className="px-4 py-3">Subject</th>
@@ -144,17 +140,17 @@ export const DashboardPage = () => {
                         <th className="px-4 py-3">Created</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
+                    <tbody className="divide-y divide-brand-primary/10 text-sm">
                       {myTickets.map((t) => (
                         <tr
                           key={t.id}
                           onClick={() => navigate(`/tickets/${t.id}`)}
-                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
+                          className="hover:bg-brand-accent/15 cursor-pointer transition-colors"
                         >
-                          <td className="px-4 py-3 font-semibold text-blue-600 dark:text-blue-400 font-mono text-xs">
+                          <td className="px-4 py-3 font-semibold text-brand-primary font-mono text-xs">
                             {t.ticket_number}
                           </td>
-                          <td className="px-4 py-3 max-w-[240px] truncate font-medium text-slate-800 dark:text-slate-200">
+                          <td className="px-4 py-3 max-w-[240px] truncate font-medium text-brand-primary">
                             {t.title}
                           </td>
                           <td className="px-4 py-3">
@@ -163,7 +159,7 @@ export const DashboardPage = () => {
                           <td className="px-4 py-3">
                             <StatusBadge status={t.status} />
                           </td>
-                          <td className="px-4 py-3 text-xs text-slate-400">
+                          <td className="px-4 py-3 text-xs text-brand-secondary">
                             {new Date(t.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -177,17 +173,17 @@ export const DashboardPage = () => {
 
           {/* Popular Self-Service Guides */}
           <div className="lg:col-span-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 h-full flex flex-col">
-              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle p-5 h-full flex flex-col">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-brand-primary/15">
                 <div className="flex items-center gap-2">
-                  <i className="bi bi-book text-cyan-600 text-lg" />
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <i className="bi bi-book text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
                     Self-Service Guides
                   </h3>
                 </div>
                 <button
                   onClick={() => navigate('/knowledge-base')}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  className="text-xs font-medium text-brand-primary hover:underline"
                 >
                   Browse KB
                 </button>
@@ -198,15 +194,15 @@ export const DashboardPage = () => {
                   <div
                     key={art.id}
                     onClick={() => navigate('/knowledge-base')}
-                    className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors cursor-pointer group"
+                    className="p-3 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all cursor-pointer group"
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      <span className="text-xs font-semibold text-brand-primary truncate">
                         {art.title}
                       </span>
-                      <i className="bi bi-chevron-right text-xs text-slate-400 flex-shrink-0" />
+                      <i className="bi bi-chevron-right text-xs text-brand-secondary flex-shrink-0" />
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                    <p className="text-[11px] text-brand-secondary line-clamp-1">
                       {art.summary || 'Click to view troubleshooting steps...'}
                     </p>
                   </div>
@@ -220,16 +216,16 @@ export const DashboardPage = () => {
   }
 
   // Admin / Agent / Team Lead View
-  const axisLabelColor = isDark ? '#94a3b8' : '#64748b';
-  const splitLineColor = isDark ? '#1e293b' : '#f1f5f9';
+  const axisLabelColor = '#7aaace';
+  const splitLineColor = 'rgba(122, 170, 206, 0.2)';
 
-  // Volume Trends Chart
+  // Volume Trends Chart - Using Official Palette (#355872, #7aaace, #9cd5ff)
   const volumeChartOptions = {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
     grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
     xAxis: {
@@ -252,8 +248,8 @@ export const DashboardPage = () => {
         type: 'line',
         smooth: true,
         showSymbol: false,
-        itemStyle: { color: '#2563eb' },
-        lineStyle: { width: 3 },
+        itemStyle: { color: '#355872' },
+        lineStyle: { width: 3, color: '#355872' },
         areaStyle: {
           color: {
             type: 'linear',
@@ -262,8 +258,8 @@ export const DashboardPage = () => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(37, 99, 235, 0.35)' },
-              { offset: 1, color: 'rgba(37, 99, 235, 0.0)' },
+              { offset: 0, color: 'rgba(53, 88, 114, 0.35)' },
+              { offset: 1, color: 'rgba(156, 213, 255, 0.05)' },
             ],
           },
         },
@@ -271,14 +267,15 @@ export const DashboardPage = () => {
     ],
   };
 
-  // Status Distribution Donut Chart
+  // Status Distribution Donut Chart - Using Official Palette
   const statusChartOptions = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
+    color: ['#355872', '#7aaace', '#9cd5ff', 'rgba(53, 88, 114, 0.5)'],
     legend: {
       bottom: '0%',
       left: 'center',
@@ -294,7 +291,7 @@ export const DashboardPage = () => {
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 6,
-          borderColor: isDark ? '#0f172a' : '#ffffff',
+          borderColor: '#f7f8f0',
           borderWidth: 2,
         },
         label: { show: false },
@@ -308,14 +305,14 @@ export const DashboardPage = () => {
     ],
   };
 
-  // Category Breakdown Bar Chart
+  // Category Breakdown Bar Chart - Using Official Palette
   const categoryChartOptions = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
     xAxis: {
       type: 'value',
@@ -335,7 +332,7 @@ export const DashboardPage = () => {
         name: 'Tickets',
         type: 'bar',
         data: trends?.category_breakdown?.map((c) => c.count) || [],
-        itemStyle: { color: '#6366f1', borderRadius: [0, 6, 6, 0] },
+        itemStyle: { color: '#7aaace', borderRadius: [0, 6, 6, 0] },
       },
     ],
   };
@@ -348,7 +345,7 @@ export const DashboardPage = () => {
         actions={
           <button
             onClick={() => navigate('/tickets/new')}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
+            className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
           >
             <i className="bi bi-plus-lg" />
             <span>Create Ticket</span>
@@ -396,17 +393,17 @@ export const DashboardPage = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-8">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm h-full">
+          <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                <h3 className="font-bold text-sm text-brand-primary">
                   Ticket Volume Ingestion (7 Days)
                 </h3>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
+                <span className="text-xs text-brand-secondary">
                   Daily ticket arrival rates across all categories
                 </span>
               </div>
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                 Daily Intake
               </span>
             </div>
@@ -415,12 +412,12 @@ export const DashboardPage = () => {
         </div>
 
         <div className="lg:col-span-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm h-full">
+          <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+              <h3 className="font-bold text-sm text-brand-primary">
                 Status Distribution
               </h3>
-              <i className="bi bi-pie-chart text-slate-400" />
+              <i className="bi bi-pie-chart text-brand-secondary" />
             </div>
             <ReactECharts option={statusChartOptions} style={{ height: '290px', width: '100%' }} />
           </div>
@@ -429,42 +426,42 @@ export const DashboardPage = () => {
 
       {/* Category Breakdown & Agent Queue Workload */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm h-full">
+        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+            <h3 className="font-bold text-sm text-brand-primary">
               Tickets by Category
             </h3>
-            <span className="text-xs text-slate-400">Volume breakdown</span>
+            <span className="text-xs text-brand-secondary">Volume breakdown</span>
           </div>
           <ReactECharts option={categoryChartOptions} style={{ height: '260px', width: '100%' }} />
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm h-full flex flex-col">
+        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+              <h3 className="font-bold text-sm text-brand-primary">
                 Agent Queue Workload
               </h3>
-              <span className="text-xs text-slate-400">Live assignment capacity</span>
+              <span className="text-xs text-brand-secondary">Live assignment capacity</span>
             </div>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
               Active Queue
             </span>
           </div>
 
           <div className="flex-1 overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[360px]">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
                 <tr>
                   <th className="px-3.5 py-2.5">Support Agent</th>
                   <th className="px-3.5 py-2.5">Load Distribution</th>
                   <th className="px-3.5 py-2.5 text-right">Assigned</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
+              <tbody className="divide-y divide-brand-primary/10 text-sm">
                 {!trends?.agent_workload || trends.agent_workload.length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="text-center text-slate-400 py-6 text-xs">
+                    <td colSpan="3" className="text-center text-brand-secondary py-6 text-xs">
                       No assigned agents currently.
                     </td>
                   </tr>
@@ -475,29 +472,27 @@ export const DashboardPage = () => {
                     const percent = Math.min(Math.round((count / max) * 100), 100);
 
                     return (
-                      <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                      <tr key={i} className="hover:bg-brand-accent/15 transition-colors">
                         <td className="px-3.5 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-xs flex-shrink-0">
+                            <div className="w-7 h-7 rounded-lg bg-brand-primary flex items-center justify-center text-white text-xs font-bold shadow-xs flex-shrink-0">
                               {a.agent_name?.[0]?.toUpperCase() || 'A'}
                             </div>
-                            <span className="font-medium text-slate-800 dark:text-slate-200 text-xs truncate">
+                            <span className="font-medium text-brand-primary text-xs truncate">
                               {a.agent_name}
                             </span>
                           </div>
                         </td>
                         <td className="px-3.5 py-3 w-[35%]">
-                          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                          <div className="w-full bg-brand-secondary/20 h-2 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-300 ${
-                                count > 8 ? 'bg-rose-500' : count > 4 ? 'bg-amber-500' : 'bg-blue-600'
-                              }`}
+                              className="h-full rounded-full transition-all duration-300 bg-brand-primary"
                               style={{ width: `${percent}%` }}
                             />
                           </div>
                         </td>
                         <td className="px-3.5 py-3 text-right">
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                             {count} active
                           </span>
                         </td>

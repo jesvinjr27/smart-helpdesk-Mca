@@ -2,10 +2,10 @@ import React from 'react';
 
 export const FormLabel = ({ children, required = false, className = '' }) => (
   <label
-    className={`block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5 ${className}`}
+    className={`block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5 ${className}`}
   >
     {children}
-    {required && <span className="text-rose-500 ml-1">*</span>}
+    {required && <span className="text-brand-primary font-bold ml-1">*</span>}
   </label>
 );
 
@@ -23,7 +23,7 @@ export const FormInput = ({
   if (icon) {
     return (
       <div className="relative flex items-center">
-        <span className="absolute left-3 text-slate-400 dark:text-slate-500 text-sm pointer-events-none">
+        <span className="absolute left-3 text-brand-secondary text-sm pointer-events-none">
           <i className={`bi ${icon}`} />
         </span>
         <input
@@ -33,7 +33,7 @@ export const FormInput = ({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
-          className={`w-full pl-9 pr-3.5 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed ${className}`}
+          className={`w-full pl-9 pr-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
           {...props}
         />
       </div>
@@ -48,7 +48,7 @@ export const FormInput = ({
       placeholder={placeholder}
       disabled={disabled}
       required={required}
-      className={`w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed ${className}`}
+      className={`w-full px-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       {...props}
     />
   );
@@ -68,7 +68,7 @@ export const FormSelect = ({
     onChange={onChange}
     disabled={disabled}
     required={required}
-    className={`w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed cursor-pointer ${className}`}
+    className={`w-full px-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${className}`}
     {...props}
   >
     {children}
@@ -92,7 +92,7 @@ export const FormTextarea = ({
     placeholder={placeholder}
     disabled={disabled}
     required={required}
-    className={`w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed resize-y ${className}`}
+    className={`w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed resize-y ${className}`}
     {...props}
   />
 );
