@@ -5,6 +5,8 @@ export { DataTable, TableHead, TableRow, TableHeaderCell, TableCell } from './Da
 export { EmptyState } from './EmptyState';
 export { FormLabel, FormInput, FormSelect, FormTextarea } from './FormControls';
 export { LoadingSkeleton, TableSkeleton, CardSkeleton } from './LoadingSkeleton';
+export { LoadingOverlay, InfinityLoader } from './LoadingOverlay';
+export { GlobalLoader } from './GlobalLoader';
 export { ModernModal } from './ModernModal';
 export { NotificationDropdown } from './NotificationDropdown';
 export { PageHeader } from './PageHeader';

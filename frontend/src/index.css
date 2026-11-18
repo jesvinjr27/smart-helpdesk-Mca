@@ -141,3 +141,68 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(53, 88, 114, 0.65);
 }
+
+/* Infinity Loop Loader Animation */
+.fbottom,
+.ll {
+  fill: none;
+}
+
+.fbottom {
+  stroke-width: inherit;
+  stroke: var(--neutral, #87AEAF);
+  stroke-opacity: 0.3;
+}
+
+.ll {
+  stroke: var(--brand, #3DBABA);
+  animation: loop 3s linear infinite;
+  stroke-width: 0.35;
+  stroke-dasharray: 3 24.5;
+  stroke-linecap: round;
+  animation-delay: -1.5s;
+}
+
+.finny {
+  stroke-width: 1.43;
+}
+
+.shad {
+  animation: raise 3s linear infinite;
+}
+
+.shad.odd {
+  animation-delay: -1.5s;
+}
+
+@keyframes raise {
+  0%,
+  20% {
+    opacity: 1;
+  }
+  30%,
+  70% {
+    opacity: 0;
+  }
+  80%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes loop {
+  0% {
+    stroke-dashoffset: 0.5;
+  }
+  100% {
+    stroke-dashoffset: 28;
+  }
+}
+
+.clip-shadow {
+  stroke-linecap: butt;
+  fill: none;
+  opacity: 0.3;
+  stroke-width: inherit;
+  stroke: url(#sgrad);
+}
