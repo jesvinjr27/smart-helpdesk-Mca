@@ -131,9 +131,18 @@ class User(Base):
     phone = Column(String(50), nullable=True)
     avatar_url = Column(String(500), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
+    account_status = Column(String(50), default="ACTIVE", nullable=False)
     is_verified = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=utc_now, nullable=False)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
+
+    @property
+    def password_hash(self) -> str:
+        return self.hashed_password
+
+    @password_hash.setter
+    def password_hash(self, value: str):
+        self.hashed_password = value
 
     __table_args__ = (
         UniqueConstraint("org_id", "email", name="uq_org_user_email"),
@@ -145,6 +154,8 @@ class User(Base):
     team_memberships = relationship("TeamMember", back_populates="user", cascade="all, delete-orphan")
     user_roles = relationship("UserRole", back_populates="user", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete-orphan")
+    identities = relationship("UserIdentity", back_populates="user", cascade="all, delete-orphan")
     created_tickets = relationship("Ticket", back_populates="requester", foreign_keys="Ticket.requester_id")
     assigned_tickets = relationship("Ticket", back_populates="assignee", foreign_keys="Ticket.assigned_to_id")
     comments = relationship("TicketComment", back_populates="author")
@@ -157,6 +168,7 @@ class UserRole(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role_id = Column(String(36), ForeignKey("roles.id", ondelete="CASCADE"), nullable=False, index=True)
+    organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True, index=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 
     __table_args__ = (
@@ -167,14 +179,46 @@ class UserRole(Base):
     role = relationship("Role", back_populates="user_roles")
 
 
+class UserIdentity(Base):
+    __tablename__ = "user_identities"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider = Column(String(50), nullable=False)  # e.g., 'microsoft'
+    provider_tenant_id = Column(String(255), nullable=True)
+    provider_object_id = Column(String(255), nullable=False, index=True)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_object_id", name="uq_provider_object_id"),
+    )
+
+    user = relationship("User", back_populates="identities")
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash = Column(String(255), nullable=False, index=True)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+    user = relationship("User", back_populates="password_reset_tokens")
+
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    token = Column(String(500), nullable=False, index=True)
+    token = Column(String(500), nullable=True, index=True)
+    token_hash = Column(String(255), nullable=True, index=True)
     expires_at = Column(DateTime, nullable=False)
     revoked = Column(Boolean, default=False, nullable=False)
+    revoked_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 
     user = relationship("User", back_populates="refresh_tokens")

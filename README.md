@@ -120,6 +120,7 @@ smart-helpdesk/
 5. **Start the FastAPI Backend**:
    ```bash
    uvicorn backend.app.main:app --reload --port 8000
+   ..\.venv\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000 --reload
    ```
    - API Documentation (Swagger UI): [http://localhost:8000/docs](http://localhost:8000/docs)
    - Health Probe: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)

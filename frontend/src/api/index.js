@@ -4,7 +4,11 @@ import apiClient from './client';
 export const loginApi = (credentials) => apiClient.post('/auth/login', credentials);
 export const refreshApi = (refreshToken) => apiClient.post('/auth/refresh', { refresh_token: refreshToken });
 export const logoutApi = () => apiClient.post('/auth/logout');
-export const getMeApi = () => apiClient.get('/users/me');
+export const getMeApi = () => apiClient.get('/auth/me');
+export const forgotPasswordApi = (data) => apiClient.post('/auth/forgot-password', data);
+export const resetPasswordApi = (data) => apiClient.post('/auth/reset-password', data);
+export const getMicrosoftConfigApi = () => apiClient.get('/auth/microsoft/config');
+export const exchangeMicrosoftTokenApi = (data) => apiClient.post('/auth/microsoft/exchange', data);
 
 // Users
 export const getUsersApi = (params) => apiClient.get('/users', { params });

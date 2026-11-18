@@ -1,7 +1,10 @@
 import os
-from typing import List, Union
+from pathlib import Path
+from typing import List, Union, Optional
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -15,9 +18,30 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Password Recovery & Security
+    RESET_TOKEN_EXPIRE_MINUTES: int = 15
+    RATE_LIMIT_LOGIN_MAX_ATTEMPTS: int = 5
+    RATE_LIMIT_LOGIN_WINDOW_SECONDS: int = 300
+
+    # Microsoft SSO Configuration (Disabled by default)
+    MICROSOFT_AUTH_ENABLED: bool = False
+    MICROSOFT_TENANT_ID: Optional[str] = None
+    MICROSOFT_CLIENT_ID: Optional[str] = None
+    MICROSOFT_API_AUDIENCE: Optional[str] = None
+    MICROSOFT_REDIRECT_URI: Optional[str] = None
+
     # Database
     DATABASE_URL: str = "sqlite:///./smart_helpdesk.db"
     DB_ECHO: bool = False
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def resolve_sqlite_path(cls, v: str) -> str:
+        if v.startswith("sqlite:///./") or v.startswith("sqlite:////./") or v == "sqlite:///smart_helpdesk.db":
+            filename = v.split("/")[-1].lstrip("./")
+            db_file = _PROJECT_ROOT / filename
+            return f"sqlite:///{db_file.as_posix()}"
+        return v
 
     # AI & RAG Subsystem
     OLLAMA_BASE_URL: str = "http://localhost:11434"
@@ -27,6 +51,14 @@ class Settings(BaseSettings):
     AI_FAISS_INDEX_DIR: str = "./ai/artifacts"
     AI_CLASSIFICATION_MODEL_PATH: str = "./ai/artifacts/category_classifier.joblib"
     AI_SLA_MODEL_PATH: str = "./ai/artifacts/sla_risk_model.joblib"
+
+    @field_validator("AI_FAISS_INDEX_DIR", "AI_CLASSIFICATION_MODEL_PATH", "AI_SLA_MODEL_PATH", mode="after")
+    @classmethod
+    def resolve_ai_artifact_paths(cls, v: str) -> str:
+        if v.startswith("./") or not Path(v).is_absolute():
+            clean_rel = v.lstrip("./")
+            return str((_PROJECT_ROOT / clean_rel).resolve())
+        return v
     
     # CORS
     CORS_ORIGINS: List[str] = [
