@@ -11,3 +11,9 @@ def get_user_roles(user: User, db: Session) -> List[str]:
         .all()
     )
     return [r[0] for r in roles]
+
+
+class AuthorizationService:
+    """Authorization service providing role and permission checks."""
+    get_user_roles = staticmethod(get_user_roles)
+

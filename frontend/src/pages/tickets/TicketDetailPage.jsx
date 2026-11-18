@@ -10,6 +10,8 @@ import {
   assignTicketApi,
   submitAIFeedbackApi,
   generateAIAssistApi,
+  getSimilarTicketsApi,
+  summarizeTicketApi,
   getUsersApi,
   getTeamsApi,
 } from '../../api';
@@ -49,6 +51,11 @@ export const TicketDetailPage = () => {
   // AI Feedback & Assistance state
   const [aiDraftLoading, setAiDraftLoading] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [similarTickets, setSimilarTickets] = useState([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
+  const [summaryText, setSummaryText] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const canManageWorkflow = hasRole(['AGENT', 'LEAD', 'ORG_ADMIN', 'SYS_ADMIN']);
 
@@ -62,10 +69,38 @@ export const TicketDetailPage = () => {
       setTicket(tResp.data);
       setComments(cResp.data);
       setHistory(hResp.data);
+      if (canManageWorkflow) {
+        loadSimilarTickets();
+      }
     } catch (err) {
       console.error('Failed to load ticket details:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSimilarTickets = async () => {
+    setLoadingSimilar(true);
+    try {
+      const resp = await getSimilarTicketsApi(id, 3);
+      setSimilarTickets(resp.data?.similar_tickets || []);
+    } catch (err) {
+      console.error('Failed to fetch similar tickets:', err);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
+
+  const handleSummarizeTicket = async () => {
+    setSummaryLoading(true);
+    setShowSummaryModal(true);
+    try {
+      const resp = await summarizeTicketApi(id);
+      setSummaryText(resp.data?.summary || 'No summary could be generated.');
+    } catch (err) {
+      setSummaryText('Failed to generate summary.');
+    } finally {
+      setSummaryLoading(false);
     }
   };
 
@@ -356,9 +391,21 @@ export const TicketDetailPage = () => {
                   Conversation & Updates
                 </h3>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
-                {comments.length} message{comments.length === 1 ? '' : 's'}
-              </span>
+              <div className="flex items-center gap-2">
+                {canManageWorkflow && (
+                  <button
+                    type="button"
+                    onClick={handleSummarizeTicket}
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-primary bg-brand-secondary/15 hover:bg-brand-secondary/25 border border-brand-secondary/30 transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <i className="bi bi-card-text text-xs" />
+                    <span>Summarize</span>
+                  </button>
+                )}
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
+                  {comments.length} message{comments.length === 1 ? '' : 's'}
+                </span>
+              </div>
             </div>
 
             {comments.length === 0 ? (
@@ -437,11 +484,18 @@ export const TicketDetailPage = () => {
               <textarea
                 rows={4}
                 required
-                className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors mb-3 resize-y"
+                className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors mb-2 resize-y"
                 placeholder="Type a helpful response to the requester..."
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
               />
+
+              {commentContent && (
+                <div className="flex items-center gap-1.5 mb-3 text-[11px] text-brand-secondary">
+                  <i className="bi bi-shield-check text-brand-primary" />
+                  <span>Human-in-the-loop: Review and adjust AI suggestions before posting.</span>
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {canManageWorkflow ? (
@@ -688,6 +742,60 @@ export const TicketDetailPage = () => {
               )}
             </div>
           )}
+
+          {/* Similar Tickets Panel */}
+          {canManageWorkflow && (
+            <div className="card-glow p-5 rounded-2xl space-y-3.5">
+              <div className="flex items-center justify-between pb-3 border-b border-brand-primary/15">
+                <div className="flex items-center gap-2">
+                  <i className="bi bi-files text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
+                    Similar Tickets
+                  </h3>
+                </div>
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/35">
+                  TF-IDF Cosine
+                </span>
+              </div>
+
+              {loadingSimilar ? (
+                <div className="text-center py-4 text-xs text-brand-secondary">
+                  <span className="w-3.5 h-3.5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin inline-block mr-2" />
+                  Scanning tenant incidents...
+                </div>
+              ) : similarTickets.length === 0 ? (
+                <p className="text-xs text-brand-secondary py-2 m-0">
+                  No similar historical incidents found above similarity threshold.
+                </p>
+              ) : (
+                <div className="space-y-2.5">
+                  {similarTickets.map((st) => (
+                    <div
+                      key={st.ticket_id}
+                      onClick={() => navigate(`/tickets/${st.ticket_id}`)}
+                      className="p-3 rounded-xl bg-app-background border border-brand-primary/15 hover:border-brand-primary/40 cursor-pointer transition-all space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-mono text-[10px] font-bold text-brand-primary">
+                          {st.ticket_number}
+                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-secondary/20 text-brand-primary">
+                          {Math.round(st.similarity_score * 100)}% Match
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-brand-primary truncate m-0">
+                        {st.title}
+                      </p>
+                      <div className="flex items-center justify-between text-[10px] text-brand-secondary">
+                        <span>{st.status}</span>
+                        <span>{st.category}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -804,6 +912,36 @@ export const TicketDetailPage = () => {
               onChange={(e) => setAssignReason(e.target.value)}
             />
           </div>
+        </div>
+      </ModernModal>
+
+      {/* Conversation Summary Modal */}
+      <ModernModal
+        isOpen={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        title="Ticket Conversation Summary"
+        subtitle={`Summary of incident ${ticket.ticket_number} and all thread updates`}
+        footer={
+          <button
+            type="button"
+            className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-all shadow-subtle"
+            onClick={() => setShowSummaryModal(false)}
+          >
+            Close
+          </button>
+        }
+      >
+        <div className="space-y-3">
+          {summaryLoading ? (
+            <div className="text-center py-8">
+              <span className="w-6 h-6 border-2 border-brand-primary border-t-transparent rounded-full animate-spin inline-block mb-2" />
+              <p className="text-xs text-brand-secondary">Generating extractive conversation summary...</p>
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl bg-brand-secondary/10 border border-brand-secondary/30 text-xs sm:text-sm text-brand-primary whitespace-pre-wrap leading-relaxed">
+              {summaryText}
+            </div>
+          )}
         </div>
       </ModernModal>
     </div>

@@ -1,0 +1,18 @@
+{
+  "model_name": "SmartHelpdesk-TFIDF-Classifier",
+  "version": "v2.0-4gb-hybrid",
+  "accuracy": 1.0,
+  "macro_f1": 1.0,
+  "classes": [
+    "Access & Identity Management",
+    "Hardware & Workstation",
+    "Hostel & Facilities",
+    "Human Resources & Benefits",
+    "Network & VPN",
+    "Software & Applications",
+    "Student Portal & LMS"
+  ],
+  "num_classes": 7,
+  "vocabulary_size": 512,
+  "description": "Lightweight CPU-only multi-class ticket classification model."
+}

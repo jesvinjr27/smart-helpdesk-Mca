@@ -65,3 +65,8 @@ class MicrosoftAuthService:
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Microsoft Entra ID token validation requires active Microsoft Azure AD credentials and live identity keys."
         )
+
+
+# Backward-compatible alias
+MicrosoftAuthProvider = MicrosoftAuthService
+

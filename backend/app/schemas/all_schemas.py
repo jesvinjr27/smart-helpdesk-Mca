@@ -463,6 +463,36 @@ class AIAssistResponse(BaseModel):
     note: Optional[str] = None
 
 
+class SimilarTicketItem(BaseModel):
+    id: str
+    ticket_number: str
+    title: str
+    status: str
+    priority: str
+    category_name: Optional[str] = None
+    similarity_score: float
+
+
+class SimilarTicketsResponse(BaseModel):
+    ticket_id: str
+    similar_tickets: List[SimilarTicketItem]
+    total_found: int
+    execution_time_ms: float
+
+
+class TicketSummaryRequest(BaseModel):
+    max_sentences: int = 3
+
+
+class TicketSummaryResponse(BaseModel):
+    ticket_id: str
+    summary: str
+    key_points: List[str]
+    sentence_count: int
+    compression_ratio: float
+    execution_time_ms: float
+
+
 class AIPredictionResponse(BaseModel):
     id: str
     ticket_id: str

@@ -111,7 +111,7 @@ export const KnowledgeBasePage = () => {
 
   const handleTriggerIngest = async () => {
     setIngesting(true);
-    setIngestMsg('Triggering local FAISS vector indexing...');
+    setIngestMsg('Syncing knowledge base index...');
     try {
       await triggerKnowledgeIngestApi();
       const poll = setInterval(async () => {
@@ -120,7 +120,7 @@ export const KnowledgeBasePage = () => {
           if (sResp.data.status === 'COMPLETED') {
             clearInterval(poll);
             setIngesting(false);
-            setIngestMsg('Vector store successfully indexed with all approved articles.');
+            setIngestMsg('Knowledge base index successfully updated with all approved articles.');
             setTimeout(() => setIngestMsg(''), 4000);
           }
         } catch (e) {
@@ -153,7 +153,7 @@ export const KnowledgeBasePage = () => {
                 ) : (
                   <i className="bi bi-arrow-repeat text-xs text-brand-primary" />
                 )}
-                <span>Sync Vector Store</span>
+                <span>Sync KB Index</span>
               </button>
               <button
                 type="button"
@@ -180,13 +180,13 @@ export const KnowledgeBasePage = () => {
         <div className="relative z-10 max-w-2xl mx-auto space-y-3">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-accent border border-brand-accent/30">
             <i className="bi bi-stars text-brand-accent" />
-            <span>FAISS Dense Vector Search</span>
+            <span>Semantic Knowledge Search</span>
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Search Knowledge Base with Semantic AI
           </h2>
           <p className="text-brand-accent/90 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
-            Our vector engine searches concepts, symptoms, and error codes across all verified articles to find exact answers.
+            Our RAG engine searches concepts, symptoms, and error codes across all verified articles to find exact answers.
           </p>
 
           <form onSubmit={handleSemanticSearch} className="pt-2">

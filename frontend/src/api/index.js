@@ -42,6 +42,8 @@ export const getTicketHistoryApi = (id) => apiClient.get(`/tickets/${id}/history
 export const triggerTicketAIAnalysisApi = (id) => apiClient.post(`/tickets/${id}/ai/analyze`);
 export const getTicketAIPredictionsApi = (id) => apiClient.get(`/tickets/${id}/ai/predictions`);
 export const submitAIFeedbackApi = (id, data) => apiClient.post(`/tickets/${id}/ai/feedback`, data);
+export const getSimilarTicketsApi = (id, params) => apiClient.get(`/tickets/${id}/similar`, { params });
+export const summarizeTicketApi = (id, data) => apiClient.post(`/tickets/${id}/summarize`, data);
 export const searchKnowledgeApi = (data) => apiClient.post('/ai/knowledge/search', data);
 export const generateAIAssistApi = (data) => apiClient.post('/ai/assist', data);
 

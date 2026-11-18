@@ -43,16 +43,26 @@ class Settings(BaseSettings):
             return f"sqlite:///{db_file.as_posix()}"
         return v
 
-    # AI & RAG Subsystem
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL: str = "qwen2.5:3b"
-    OLLAMA_TIMEOUT_SECONDS: float = 30.0
-    AI_EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
-    AI_FAISS_INDEX_DIR: str = "./ai/artifacts"
-    AI_CLASSIFICATION_MODEL_PATH: str = "./ai/artifacts/category_classifier.joblib"
-    AI_SLA_MODEL_PATH: str = "./ai/artifacts/sla_risk_model.joblib"
+    # Hybrid AI Architecture (4 GB RAM, CPU-Only Optimized)
+    AI_ML_MODEL_DIR: str = "./backend/app/ai/ml/models"
+    AI_CLASSIFIER_PATH: str = "./backend/app/ai/ml/models/category_classifier.joblib"
+    AI_SLA_MODEL_PATH: str = "./backend/app/ai/ml/models/sla_risk_model.joblib"
+    AI_TRAINING_DATA_PATH: str = "./backend/app/ai/ml/data/ticket_training_data.csv"
+    AI_LLM_ENABLED: bool = False  # Disabled by default for 4 GB RAM systems
+    AI_LLM_PROVIDER: str = "disabled"  # "disabled", "small_http", "gguf"
+    AI_LLM_BASE_URL: str = "http://localhost:11434"
+    AI_LLM_MODEL: str = "qwen2.5:0.5b"
+    AI_LLM_MAX_TOKENS: int = 256
+    AI_RAG_MAX_CHUNKS: int = 4
+    AI_RAG_MIN_SIMILARITY: float = 0.15
 
-    @field_validator("AI_FAISS_INDEX_DIR", "AI_CLASSIFICATION_MODEL_PATH", "AI_SLA_MODEL_PATH", mode="after")
+    @field_validator(
+        "AI_ML_MODEL_DIR",
+        "AI_CLASSIFIER_PATH",
+        "AI_SLA_MODEL_PATH",
+        "AI_TRAINING_DATA_PATH",
+        mode="after"
+    )
     @classmethod
     def resolve_ai_artifact_paths(cls, v: str) -> str:
         if v.startswith("./") or not Path(v).is_absolute():

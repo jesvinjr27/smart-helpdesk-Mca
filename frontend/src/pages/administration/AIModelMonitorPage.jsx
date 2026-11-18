@@ -47,12 +47,12 @@ export const AIModelMonitorPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Local AI & Machine Learning Subsystem"
-        subtitle="Evaluated performance metrics, FAISS vector index status, and local inference diagnostics."
+        title="Hybrid AI Architecture & Subsystem Diagnostics"
+        subtitle="Evaluated performance metrics, CPU-only ML models, and lightweight database RAG diagnostics."
         badge={
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40 shadow-subtle">
             <i className="bi bi-shield-check text-brand-primary"></i>
-            <span>100% On-Device Inference</span>
+            <span>4 GB RAM Optimized (CPU Only)</span>
           </span>
         }
       />
@@ -201,7 +201,7 @@ export const AIModelMonitorPage = () => {
           </div>
         </div>
 
-        {/* FAISS Dense Vector Store */}
+        {/* Database RAG Engine */}
         <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
           <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -209,7 +209,7 @@ export const AIModelMonitorPage = () => {
                 <i className="bi bi-database text-lg"></i>
               </div>
               <h2 className="text-base font-semibold text-brand-primary m-0">
-                FAISS Knowledge Vector Store
+                Database RAG Engine (SQL + TF-IDF)
               </h2>
             </div>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white">
@@ -219,36 +219,36 @@ export const AIModelMonitorPage = () => {
           <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
             <div>
               <div className="text-xs text-brand-secondary mb-3">
-                <span className="font-semibold text-brand-primary">Index Type:</span>{' '}
-                {ragModel?.metrics?.index_type || 'IndexFlatIP'} (Normalized Cosine Similarity)
+                <span className="font-semibold text-brand-primary">Engine:</span>{' '}
+                {ragModel?.metrics?.engine || 'Direct SQL + TF-IDF Cosine Ranking'}
               </div>
               <div className="p-4 rounded-xl border border-brand-primary/15 bg-brand-secondary/10 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-brand-primary">
-                    Total Indexed Knowledge Chunks:
+                    Indexed Knowledge Articles:
                   </span>
                   <span className="font-bold text-lg text-brand-primary">
-                    {ragModel?.metrics?.total_vectors ?? 0}
+                    {ragModel?.metrics?.total_articles_indexed ?? ragModel?.metrics?.total_vectors ?? 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-brand-primary/10 pt-2.5">
                   <span className="text-sm text-brand-primary">
-                    Embedding Vector Dimension:
+                    Multi-Tenant Isolation:
                   </span>
-                  <span className="font-semibold text-brand-primary">
-                    {ragModel?.metrics?.dimension ?? 384}
+                  <span className="font-semibold text-brand-primary text-xs">
+                    {ragModel?.metrics?.multi_tenant_isolation || 'ENFORCED (org_id)'}
                   </span>
                 </div>
               </div>
             </div>
             <p className="text-xs text-brand-secondary flex items-center gap-1.5 m-0 pt-2 border-t border-brand-primary/10">
-              <i className="bi bi-info-circle text-brand-primary"></i>
-              <span>Embeddings are isolated per organization and filtered by user role permissions before retrieval.</span>
+              <i className="bi bi-shield-check text-brand-primary"></i>
+              <span>Zero external vector DB required. Articles are securely isolated per organization and filtered by user role permissions before retrieval.</span>
             </p>
           </div>
         </div>
 
-        {/* Local Ollama LLM Service */}
+        {/* Small Local LLM Engine */}
         <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
           <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -256,7 +256,7 @@ export const AIModelMonitorPage = () => {
                 <i className="bi bi-cpu-fill text-lg"></i>
               </div>
               <h2 className="text-base font-semibold text-brand-primary m-0">
-                Local Ollama LLM Inference
+                Small Local LLM Engine
               </h2>
             </div>
             <span
@@ -265,37 +265,37 @@ export const AIModelMonitorPage = () => {
                 : 'bg-brand-secondary/20 text-brand-primary border border-brand-secondary/30'
                 }`}
             >
-              {llmModel?.status || 'STANDBY'}
+              {llmModel?.status || 'STANDBY / ZERO-RAM'}
             </span>
           </div>
           <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
             <div>
               <div className="text-xs text-brand-secondary mb-3">
-                <span className="font-semibold text-brand-primary">Configured Model:</span>{' '}
-                {llmModel?.model_name || 'qwen2.5:3b'}
+                <span className="font-semibold text-brand-primary">Active Provider:</span>{' '}
+                {llmModel?.metrics?.provider || 'disabled (Zero-Memory Fallback)'}
               </div>
               <div className="p-4 rounded-xl border border-brand-primary/15 bg-brand-secondary/10 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-brand-primary">
-                    Ollama Local Endpoint:
+                    Memory Budget:
                   </span>
                   <span className="font-mono text-xs text-brand-secondary">
-                    {llmModel?.metrics?.base_url || 'http://localhost:11434'}
+                    {llmModel?.metrics?.memory_budget || '< 500 MB RAM (CPU-only)'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-brand-primary/10 pt-2.5">
                   <span className="text-sm text-brand-primary">
-                    Inference Temperature:
+                    Concurrency Cap:
                   </span>
                   <span className="font-semibold text-brand-primary">
-                    {llmModel?.metrics?.temperature || 0.2}
+                    {llmModel?.metrics?.concurrency || '1 slot (queue-bounded)'}
                   </span>
                 </div>
               </div>
             </div>
             <p className="text-xs text-brand-secondary flex items-center gap-1.5 m-0 pt-2 border-t border-brand-primary/10">
               <i className="bi bi-check2-circle text-brand-primary"></i>
-              <span>When Ollama is offline or on standby, local RAG automatically provides verified grounded answers directly from the vector store without downtime.</span>
+              <span>When LLM is disabled or on standby, local RAG automatically provides verified grounded answers directly from the database and templates with zero latency and zero RAM footprint.</span>
             </p>
           </div>
         </div>
