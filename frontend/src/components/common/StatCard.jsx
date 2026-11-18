@@ -37,7 +37,7 @@ export const StatCard = ({
 
   return (
     <div
-      className={`relative overflow-hidden bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle hover:border-brand-primary/30 transition-all duration-200 hover:-translate-y-0.5 ${className}`}
+      className={`card-glow-interactive relative overflow-hidden p-5 ${className}`}
     >
       {/* Top Accent Color Bar */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${styles.bar}`} />
@@ -60,7 +60,7 @@ export const StatCard = ({
           </div>
         </div>
 
-        <div className={`w-11 h-11 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${styles.iconBg}`}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${styles.iconBg}`}>
           <i className={`bi ${icon}`} />
         </div>
       </div>

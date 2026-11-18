@@ -220,7 +220,7 @@ export const TicketDetailPage = () => {
       />
 
       {/* Top Header Card */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+      <div className="card-glow p-5 sm:p-6 rounded-2xl">
         <div className="flex flex-wrap justify-between items-start gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
@@ -335,7 +335,7 @@ export const TicketDetailPage = () => {
         {/* Main Conversation & Timeline Column */}
         <div className="lg:col-span-8 space-y-6">
           {/* Ticket Description Card */}
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+          <div className="card-glow p-5 sm:p-6 rounded-2xl">
             <div className="flex items-center gap-2 pb-3 mb-3 border-b border-brand-primary/15">
               <i className="bi bi-file-text text-brand-primary text-lg" />
               <h3 className="font-bold text-sm text-brand-primary">
@@ -348,7 +348,7 @@ export const TicketDetailPage = () => {
           </div>
 
           {/* Comment Stream */}
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+          <div className="card-glow p-5 sm:p-6 rounded-2xl">
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-brand-primary/15">
               <div className="flex items-center gap-2">
                 <i className="bi bi-chat-left-dots text-brand-primary text-lg" />
@@ -371,11 +371,10 @@ export const TicketDetailPage = () => {
                 {comments.map((c) => (
                   <div
                     key={c.id}
-                    className={`p-4 rounded-xl border transition-colors ${
-                      c.is_internal
-                        ? 'bg-brand-secondary/15 border-brand-secondary/40'
-                        : 'bg-app-background border-brand-primary/15'
-                    }`}
+                    className={`p-4 rounded-xl border transition-colors ${c.is_internal
+                      ? 'bg-brand-secondary/15 border-brand-secondary/40'
+                      : 'bg-app-background border-brand-primary/15'
+                      }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -479,7 +478,7 @@ export const TicketDetailPage = () => {
           </div>
 
           {/* Audit History Timeline */}
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+          <div className="card-glow p-5 sm:p-6 rounded-2xl">
             <div className="flex items-center gap-2 pb-3 mb-3 border-b border-brand-primary/15">
               <i className="bi bi-clock-history text-brand-primary text-lg" />
               <h3 className="font-bold text-sm text-brand-primary">
@@ -519,7 +518,7 @@ export const TicketDetailPage = () => {
         {/* Right Info Column (AI Predictions, SLA Risk, Assignment) */}
         <div className="lg:col-span-4 space-y-5">
           {/* SLA Tracking Info Card */}
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+          <div className="card-glow p-5 rounded-2xl space-y-3.5">
             <div className="flex items-center gap-2 pb-3 border-b border-brand-primary/15">
               <i className="bi bi-stopwatch text-brand-primary text-lg" />
               <h3 className="font-bold text-sm text-brand-primary">
@@ -564,7 +563,7 @@ export const TicketDetailPage = () => {
 
           {/* AI Predictions & Classification Panel */}
           {ticket.latest_ai_prediction && (
-            <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+            <div className="card-glow p-5 rounded-2xl space-y-3.5">
               <div className="flex items-center justify-between pb-3 border-b border-brand-primary/15">
                 <div className="flex items-center gap-2">
                   <i className="bi bi-cpu text-brand-primary text-lg" />
@@ -639,7 +638,7 @@ export const TicketDetailPage = () => {
 
           {/* Predictive SLA Risk Analysis */}
           {ticket.latest_sla_risk && (
-            <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle space-y-3.5">
+            <div className="card-glow p-5 rounded-2xl space-y-3.5">
               <div className="flex items-center gap-2 pb-3 border-b border-brand-primary/15">
                 <i className="bi bi-graph-up-arrow text-brand-primary text-lg" />
                 <h3 className="font-bold text-sm text-brand-primary">

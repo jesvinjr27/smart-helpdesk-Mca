@@ -123,14 +123,13 @@ export const AIAssistantPage = () => {
       </div>
 
       {/* Chat Conversation Card */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle flex flex-col min-h-[580px] overflow-hidden">
+      <div className="card-glow rounded-2xl flex flex-col min-h-[580px] overflow-hidden">
         <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-[620px] space-y-4">
           {messages.map((m, idx) => (
             <div
               key={idx}
-              className={`flex items-start gap-3 ${
-                m.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex items-start gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
             >
               {m.role === 'assistant' && (
                 <div className="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center text-brand-accent text-base shadow-subtle flex-shrink-0 mt-0.5">
@@ -139,11 +138,10 @@ export const AIAssistantPage = () => {
               )}
 
               <div
-                className={`p-4 rounded-2xl shadow-subtle text-sm leading-relaxed max-w-[85%] ${
-                  m.role === 'user'
-                    ? 'bg-brand-primary text-white rounded-tr-none'
-                    : 'bg-brand-secondary/10 border border-brand-secondary/30 text-brand-primary rounded-tl-none'
-                }`}
+                className={`p-4 rounded-2xl shadow-subtle text-sm leading-relaxed max-w-[85%] ${m.role === 'user'
+                  ? 'bg-brand-primary text-white rounded-tr-none'
+                  : 'bg-brand-secondary/10 border border-brand-secondary/30 text-brand-primary rounded-tl-none'
+                  }`}
               >
                 <div className="whitespace-pre-wrap">{m.text}</div>
 

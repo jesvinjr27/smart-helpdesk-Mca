@@ -125,33 +125,30 @@ export const TicketListPage = () => {
         <button
           type="button"
           onClick={() => handleTabChange('all')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-            activeTab === 'all'
-              ? 'bg-brand-primary text-white shadow-subtle'
-              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'all'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           All Tickets
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('open')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-            activeTab === 'open'
-              ? 'bg-brand-primary text-white shadow-subtle'
-              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'open'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           In Progress
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('critical')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap inline-flex items-center gap-1.5 ${
-            activeTab === 'critical'
-              ? 'bg-brand-primary text-white shadow-subtle'
-              : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/25'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap inline-flex items-center gap-1.5 ${activeTab === 'critical'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/25'
+            }`}
         >
           <i className="bi bi-exclamation-octagon-fill text-brand-accent" />
           <span>Critical Incidents</span>
@@ -159,11 +156,10 @@ export const TicketListPage = () => {
         <button
           type="button"
           onClick={() => handleTabChange('resolved')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-            activeTab === 'resolved'
-              ? 'bg-brand-primary text-white shadow-subtle'
-              : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'resolved'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           Resolved
         </button>
@@ -181,7 +177,7 @@ export const TicketListPage = () => {
       </div>
 
       {/* Filter and Search Bar Card */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-xl p-3.5 shadow-subtle">
+      <div className="card-glow p-3.5 sm:p-4 rounded-2xl">
         <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
           {/* Search Input */}
           <div className="lg:col-span-4">
@@ -280,7 +276,7 @@ export const TicketListPage = () => {
       </div>
 
       {/* Tickets Table Card */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle overflow-hidden flex flex-col">
+      <div className="card-glow overflow-hidden flex flex-col rounded-2xl">
         <div className="flex-1 overflow-x-auto">
           {loading ? (
             <TableSkeleton rows={7} cols={8} />

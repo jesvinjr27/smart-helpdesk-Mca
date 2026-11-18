@@ -66,7 +66,7 @@ export const DashboardPage = () => {
           <CardSkeleton />
           <CardSkeleton />
         </div>
-        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle">
+        <div className="card-glow p-5">
           <TableSkeleton rows={4} cols={5} />
         </div>
       </div>
@@ -106,7 +106,7 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* My Tickets */}
           <div className="lg:col-span-8">
-            <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle overflow-hidden h-full flex flex-col">
+            <div className="card-glow overflow-hidden h-full flex flex-col">
               <div className="px-5 py-4 border-b border-brand-primary/15 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <i className="bi bi-ticket-detailed text-brand-primary text-lg" />
@@ -173,7 +173,7 @@ export const DashboardPage = () => {
 
           {/* Popular Self-Service Guides */}
           <div className="lg:col-span-4">
-            <div className="bg-app-background border border-brand-primary/15 rounded-xl shadow-subtle p-5 h-full flex flex-col">
+            <div className="card-glow p-5 h-full flex flex-col">
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-brand-primary/15">
                 <div className="flex items-center gap-2">
                   <i className="bi bi-book text-brand-primary text-lg" />
@@ -297,9 +297,9 @@ export const DashboardPage = () => {
         label: { show: false },
         data: trends?.status_distribution
           ? Object.entries(trends.status_distribution).map(([k, v]) => ({
-              name: k.replace('_', ' '),
-              value: v,
-            }))
+            name: k.replace('_', ' '),
+            value: v,
+          }))
           : [],
       },
     ],
@@ -393,7 +393,7 @@ export const DashboardPage = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-8">
-          <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
+          <div className="card-glow p-5 h-full">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-bold text-sm text-brand-primary">
@@ -412,7 +412,7 @@ export const DashboardPage = () => {
         </div>
 
         <div className="lg:col-span-4">
-          <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
+          <div className="card-glow p-5 h-full">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-sm text-brand-primary">
                 Status Distribution
@@ -426,7 +426,7 @@ export const DashboardPage = () => {
 
       {/* Category Breakdown & Agent Queue Workload */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full">
+        <div className="card-glow p-5 h-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-sm text-brand-primary">
               Tickets by Category
@@ -436,7 +436,7 @@ export const DashboardPage = () => {
           <ReactECharts option={categoryChartOptions} style={{ height: '260px', width: '100%' }} />
         </div>
 
-        <div className="bg-app-background border border-brand-primary/15 rounded-xl p-5 shadow-subtle h-full flex flex-col">
+        <div className="card-glow p-5 h-full flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-bold text-sm text-brand-primary">

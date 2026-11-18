@@ -33,7 +33,7 @@ export const FormInput = ({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
-          className={`w-full pl-9 pr-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+          className={`w-full pl-9 pr-3.5 py-2 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
           {...props}
         />
       </div>
@@ -48,7 +48,7 @@ export const FormInput = ({
       placeholder={placeholder}
       disabled={disabled}
       required={required}
-      className={`w-full px-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`w-full px-3.5 py-2 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       {...props}
     />
   );
@@ -68,7 +68,7 @@ export const FormSelect = ({
     onChange={onChange}
     disabled={disabled}
     required={required}
-    className={`w-full px-3.5 py-2 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${className}`}
+    className={`w-full px-3.5 py-2 text-sm input-glow rounded-xl text-brand-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${className}`}
     {...props}
   >
     {children}
@@ -92,7 +92,7 @@ export const FormTextarea = ({
     placeholder={placeholder}
     disabled={disabled}
     required={required}
-    className={`w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed resize-y ${className}`}
+    className={`w-full px-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed resize-y ${className}`}
     {...props}
   />
 );

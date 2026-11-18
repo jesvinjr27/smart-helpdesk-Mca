@@ -295,14 +295,18 @@ export const AppLayout = () => {
 
       {/* Main Container */}
       <div
-        className={`flex flex-col min-h-screen min-h-[100dvh] transition-all duration-300 ease-in-out min-w-0 flex-1 overflow-x-hidden ${
+        className={`flex flex-col min-h-screen min-h-[100dvh] pt-16 transition-all duration-300 ease-in-out min-w-0 flex-1 ${
           collapsed
             ? 'lg:ml-[76px] lg:w-[calc(100%-76px)] lg:max-w-[calc(100%-76px)]'
             : 'lg:ml-[270px] lg:w-[calc(100%-270px)] lg:max-w-[calc(100%-270px)]'
         } w-full max-w-full ml-0 bg-app-background`}
       >
-        {/* Top Navbar */}
-        <header className="sticky top-0 z-30 h-16 w-full max-w-full bg-app-background/95 backdrop-blur-md border-b border-brand-primary/15 px-3 sm:px-6 flex items-center justify-between transition-colors">
+        {/* Fixed Top Navbar */}
+        <header
+          className={`fixed top-0 right-0 z-30 h-16 bg-app-background/95 backdrop-blur-md border-b border-brand-primary/15 px-3 sm:px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${
+            collapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[270px]'
+          }`}
+        >
           <div className="flex items-center gap-3 overflow-hidden min-w-0">
             {/* Mobile Hamburger */}
             <button
@@ -366,7 +370,7 @@ export const AppLayout = () => {
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 bg-app-background border border-brand-primary/20 rounded-2xl shadow-elevated py-1.5 z-50 animate-scaleUp overflow-hidden"
+                  className="absolute right-0 mt-2 w-56 card-glow py-1.5 z-50 animate-scaleUp overflow-hidden"
                   onMouseLeave={() => setUserDropdownOpen(false)}
                 >
                   <div className="px-4 py-2.5 border-b border-brand-primary/10">

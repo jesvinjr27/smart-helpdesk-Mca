@@ -239,7 +239,7 @@ export const KnowledgeBasePage = () => {
               searchResults.map((sr) => (
                 <div
                   key={sr.chunk_id}
-                  className="p-4 rounded-xl bg-app-background border border-brand-primary/15 shadow-subtle hover:border-brand-primary/30 transition-all space-y-2"
+                  className="p-4 rounded-2xl card-glow-interactive space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40 inline-flex items-center gap-1">
@@ -268,11 +268,10 @@ export const KnowledgeBasePage = () => {
         <button
           type="button"
           onClick={() => setSelectedCategory('')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-            selectedCategory === ''
-              ? 'bg-brand-primary text-white shadow-subtle'
-              : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${selectedCategory === ''
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
+            }`}
         >
           All Categories
         </button>
@@ -281,11 +280,10 @@ export const KnowledgeBasePage = () => {
             key={c.id}
             type="button"
             onClick={() => setSelectedCategory(c.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              selectedCategory === c.id
-                ? 'bg-brand-primary text-white shadow-subtle'
-                : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
-            }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${selectedCategory === c.id
+              ? 'bg-brand-primary text-white shadow-subtle'
+              : 'bg-app-background border border-brand-secondary/40 text-brand-primary hover:bg-brand-secondary/15'
+              }`}
           >
             {c.name}
           </button>
@@ -322,7 +320,7 @@ export const KnowledgeBasePage = () => {
             <div
               key={art.id}
               onClick={() => setActiveArticle(art)}
-              className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 shadow-subtle hover:border-brand-primary/30 transition-all cursor-pointer flex flex-col justify-between group"
+              className="card-glow-interactive p-5 rounded-2xl flex flex-col justify-between group"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2.5">

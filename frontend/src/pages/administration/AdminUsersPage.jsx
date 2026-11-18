@@ -83,7 +83,7 @@ export const AdminUsersPage = () => {
         }
       />
 
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle overflow-hidden">
+      <div className="card-glow rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
@@ -151,13 +151,12 @@ export const AdminUsersPage = () => {
                           {u.roles?.map((r, i) => (
                             <span
                               key={i}
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium tracking-wide ${
-                                r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
-                                  ? 'bg-brand-primary text-white border border-brand-primary'
-                                  : r === 'AGENT' || r === 'LEAD'
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium tracking-wide ${r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
+                                ? 'bg-brand-primary text-white border border-brand-primary'
+                                : r === 'AGENT' || r === 'LEAD'
                                   ? 'bg-brand-secondary/25 text-brand-primary border border-brand-secondary/40'
                                   : 'bg-brand-accent/25 text-brand-primary border border-brand-accent/40'
-                              }`}
+                                }`}
                             >
                               {r}
                             </span>

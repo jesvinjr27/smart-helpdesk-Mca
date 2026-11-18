@@ -36,7 +36,7 @@ export const AuditLogsPage = () => {
         }
       />
 
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle overflow-hidden">
+      <div className="card-glow rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">

@@ -111,7 +111,7 @@ export const LoginPage = () => {
 
       {/* Right Pane - Cream Background Auth Form */}
       <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 md:p-12 relative min-w-0 bg-app-background">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md card-glow p-6 sm:p-8 rounded-2xl">
           {/* Mobile Logo Branding */}
           <div className="lg:hidden text-center mb-6">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-primary text-white shadow-subtle mb-2">
@@ -154,7 +154,7 @@ export const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ export const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
                 />
                 <button
                   type="button"

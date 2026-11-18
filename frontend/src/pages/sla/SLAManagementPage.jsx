@@ -83,7 +83,7 @@ export const SLAManagementPage = () => {
       />
 
       {/* At-Risk Live Monitor Table */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle overflow-hidden flex flex-col">
+      <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
         <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
@@ -154,11 +154,10 @@ export const SLAManagementPage = () => {
                           </span>
                         ) : (
                           <span
-                            className={`font-bold text-xs sm:text-sm ${
-                              r.time_remaining_minutes < 60
-                                ? 'text-brand-primary'
-                                : 'text-brand-primary/80'
-                            }`}
+                            className={`font-bold text-xs sm:text-sm ${r.time_remaining_minutes < 60
+                              ? 'text-brand-primary'
+                              : 'text-brand-primary/80'
+                              }`}
                           >
                             {r.time_remaining_minutes >= 60
                               ? `${(r.time_remaining_minutes / 60).toFixed(1)} hrs`
@@ -171,13 +170,12 @@ export const SLAManagementPage = () => {
                     </td>
                     <td className="px-4 py-3.5">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          r.risk_level === 'CRITICAL'
-                            ? 'bg-brand-primary text-white'
-                            : r.risk_level === 'HIGH'
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${r.risk_level === 'CRITICAL'
+                          ? 'bg-brand-primary text-white'
+                          : r.risk_level === 'HIGH'
                             ? 'bg-brand-secondary/25 text-brand-primary border border-brand-secondary/40'
                             : 'bg-brand-accent/25 text-brand-primary border border-brand-accent/40'
-                        }`}
+                          }`}
                       >
                         {Math.round(r.risk_score * 100)}% ({r.risk_level})
                       </span>
@@ -197,7 +195,7 @@ export const SLAManagementPage = () => {
       </div>
 
       {/* SLA Policies Table */}
-      <div className="bg-app-background border border-brand-primary/15 rounded-2xl shadow-subtle overflow-hidden flex flex-col">
+      <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
         <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <i className="bi bi-sliders text-brand-primary text-lg" />

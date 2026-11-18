@@ -46,7 +46,7 @@ export const ModernModal = ({
       }}
     >
       <div
-        className={`w-full ${sizeClass} bg-app-background border border-brand-primary/20 rounded-2xl shadow-elevated overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh] animate-scaleUp`}
+        className={`w-full ${sizeClass} card-glow overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh] animate-scaleUp`}
         role="dialog"
         aria-modal="true"
       >
@@ -63,7 +63,7 @@ export const ModernModal = ({
           </div>
           <button
             type="button"
-            className="p-1 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-secondary/15 transition-colors flex-shrink-0"
+            className="p-1.5 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-secondary/15 transition-colors flex-shrink-0"
             onClick={onClose}
             aria-label="Close"
           >
@@ -76,7 +76,7 @@ export const ModernModal = ({
         </div>
 
         {footer && (
-          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background flex items-center justify-end gap-2.5">
+          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background/80 flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

@@ -124,7 +124,7 @@ export const TicketCreatePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Ticket Submission Form Column */}
         <div className="lg:col-span-7">
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-7 shadow-subtle">
+          <div className="card-glow p-5 sm:p-7 rounded-2xl">
             {errorMessage && (
               <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
                 <i className="bi bi-exclamation-octagon-fill text-brand-primary text-base flex-shrink-0" />
@@ -266,7 +266,7 @@ export const TicketCreatePage = () => {
           )}
 
           {/* AI Knowledge Suggestions Card */}
-          <div className="bg-app-background border border-brand-primary/15 rounded-2xl p-5 sm:p-6 shadow-subtle">
+          <div className="card-glow p-5 sm:p-6 rounded-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-brand-primary/15 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-brand-secondary/20 text-brand-primary flex items-center justify-center flex-shrink-0">
@@ -303,7 +303,7 @@ export const TicketCreatePage = () => {
                 {suggestedKb.map((kb) => (
                   <div
                     key={kb.chunk_id}
-                    className="p-3.5 rounded-xl border border-brand-primary/15 bg-app-background hover:bg-brand-accent/15 hover:border-brand-primary/30 transition-all hover:-translate-y-0.5 shadow-subtle"
+                    className="p-3.5 rounded-xl card-glow-interactive"
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
