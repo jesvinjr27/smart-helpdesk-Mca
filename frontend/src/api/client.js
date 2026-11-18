@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { loadingTracker } from './loadingTracker';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -9,19 +10,23 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor: attach bearer token
+// Request interceptor: increment global loading counter & attach bearer token
 apiClient.interceptors.request.use(
   (config) => {
+    loadingTracker.startRequest(config);
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    loadingTracker.endRequest(error?.config);
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor: handle 401 and refresh token
+// Response interceptor: decrement loading counter, handle 401 and refresh token
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -37,12 +42,20 @@ const processQueue = (error, token = null) => {
 };
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    loadingTracker.endRequest(response.config);
+    return response;
+  },
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error?.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/refresh')) {
+    // Check if error is a 401 eligible for refresh token retry
+    if (error.response?.status === 401 && !originalRequest?._retry) {
+      if (
+        originalRequest?.url?.includes('/auth/login') ||
+        originalRequest?.url?.includes('/auth/refresh')
+      ) {
+        loadingTracker.endRequest(originalRequest);
         return Promise.reject(error);
       }
 
@@ -51,10 +64,14 @@ apiClient.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
+            loadingTracker.endRequest(originalRequest);
             originalRequest.headers.Authorization = `Bearer ${token}`;
             return apiClient(originalRequest);
           })
-          .catch((err) => Promise.reject(err));
+          .catch((err) => {
+            loadingTracker.endRequest(originalRequest);
+            return Promise.reject(err);
+          });
       }
 
       originalRequest._retry = true;
@@ -62,6 +79,7 @@ apiClient.interceptors.response.use(
 
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) {
+        loadingTracker.endRequest(originalRequest);
         localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(error);
@@ -79,9 +97,11 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
 
         processQueue(null, access_token);
+        loadingTracker.endRequest(originalRequest);
         return apiClient(originalRequest);
       } catch (refreshErr) {
         processQueue(refreshErr, null);
+        loadingTracker.endRequest(originalRequest);
         localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(refreshErr);
@@ -90,8 +110,11 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Decrement request counter for all other errors (4xx, 5xx, network, timeouts)
+    loadingTracker.endRequest(originalRequest);
     return Promise.reject(error);
   }
 );
 
+export { loadingTracker };
 export default apiClient;

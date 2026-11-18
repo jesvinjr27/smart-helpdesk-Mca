@@ -21,7 +21,7 @@ from backend.app.models.all_models import (
     utc_now
 )
 from backend.app.schemas.all_schemas import TicketCreate, TicketUpdate, TicketAssignRequest, TicketTransitionRequest
-from backend.app.integrations.ai_service import ai_service
+from backend.app.ai.gateway import ai_gateway as ai_service
 
 ALLOWED_TRANSITIONS = {
     "NEW": ["ASSIGNED", "IN_PROGRESS", "CLOSED"],

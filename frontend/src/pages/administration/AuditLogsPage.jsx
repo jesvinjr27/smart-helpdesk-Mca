@@ -24,80 +24,98 @@ export const AuditLogsPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Security & System Audit Logs"
         subtitle="Immutable event log of security actions, tenant access, role changes, and administrative operations."
         badge={
-          <span className="badge bg-surface-subtle text-muted border border-default">
-            <i className="bi bi-shield-lock me-1"></i>Tamper-Evident
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40 shadow-subtle">
+            <i className="bi bi-shield-lock text-brand-primary"></i>
+            <span>Tamper-Evident</span>
           </span>
         }
       />
 
-      <div className="card shadow-sm border-default">
-        <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
-          <div className="d-flex align-items-center gap-2">
-            <i className="bi bi-journal-text text-primary fs-5"></i>
-            <h6 className="fw-bold mb-0 text-primary-emphasis">Audit Trail Events</h6>
+      <div className="card-glow rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+              <i className="bi bi-journal-text text-lg"></i>
+            </div>
+            <h2 className="text-base font-semibold text-brand-primary m-0">
+              Audit Trail Events
+            </h2>
           </div>
-          <span className="badge bg-surface-subtle text-muted border border-default">
+          <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
             {logs.length} Recorded Events
           </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="p-0">
           {loading ? (
-            <TableSkeleton rows={7} cols={5} />
+            <div className="p-4">
+              <TableSkeleton rows={7} cols={5} />
+            </div>
           ) : logs.length === 0 ? (
-            <EmptyState
-              icon="bi-shield-check"
-              title="No audit log entries recorded"
-              description="System security events and access modifications will be recorded here automatically."
-            />
+            <div className="py-12">
+              <EmptyState
+                icon="bi-shield-check"
+                title="No audit log entries recorded"
+                description="System security events and access modifications will be recorded here automatically."
+              />
+            </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-custom mb-0">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>Actor</th>
-                    <th>Action</th>
-                    <th>Entity Type</th>
-                    <th>Client IP</th>
+                  <tr className="border-b border-brand-primary/10 bg-brand-secondary/15">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Timestamp
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Actor
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Action
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Entity Type
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Client IP
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-brand-primary/10">
                   {logs.map((l) => (
-                    <tr key={l.id}>
-                      <td className="text-xs text-muted font-monospace">
+                    <tr
+                      key={l.id}
+                      className="hover:bg-brand-accent/15 transition-colors"
+                    >
+                      <td className="py-3.5 px-4 text-xs text-brand-secondary font-mono whitespace-nowrap">
                         {new Date(l.created_at).toLocaleString()}
                       </td>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <div
-                            className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold shadow-sm"
-                            style={{
-                              width: '26px',
-                              height: '26px',
-                              background: 'var(--primary-gradient)',
-                              fontSize: '0.65rem',
-                            }}
-                          >
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold bg-brand-primary shadow-subtle flex-shrink-0">
                             {l.actor_name ? l.actor_name[0].toUpperCase() : 'S'}
                           </div>
-                          <span className="fw-semibold text-primary-emphasis text-sm">
+                          <span className="font-medium text-brand-primary text-sm">
                             {l.actor_name || 'System Service'}
                           </span>
                         </div>
                       </td>
-                      <td>
-                        <span className="badge bg-surface-subtle text-primary-emphasis border border-default text-xs">
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                           {l.action}
                         </span>
                       </td>
-                      <td className="text-sm text-secondary font-monospace">{l.entity_type}</td>
-                      <td className="text-xs text-muted font-monospace">{l.ip_address || '127.0.0.1'}</td>
+                      <td className="py-3.5 px-4 text-sm text-brand-primary font-mono">
+                        {l.entity_type}
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-brand-secondary font-mono">
+                        {l.ip_address || '127.0.0.1'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

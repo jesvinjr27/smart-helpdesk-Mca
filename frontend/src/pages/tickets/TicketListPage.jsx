@@ -100,66 +100,66 @@ export const TicketListPage = () => {
     setPage(1);
   };
 
-  const isFiltered = Boolean(statusFilter || priorityFilter || categoryFilter || searchQuery);
+  const isFiltered = Boolean(
+    statusFilter || priorityFilter || categoryFilter || searchQuery || activeTab !== 'all'
+  );
 
   return (
-    <div>
+    <div className="space-y-5">
       <PageHeader
-        title="Incident & Request Queue"
-        subtitle="Track, assign, prioritize, and resolve enterprise helpdesk incidents with AI intelligence."
+        title="Incident & Support Tickets"
+        subtitle="Manage tickets, inspect SLA risks, and assign inquiries across department queues."
         actions={
           <button
             onClick={() => navigate('/tickets/new')}
-            className="btn btn-primary btn-sm rounded-3 px-3 shadow-sm"
+            className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
           >
-            <i className="bi bi-plus-lg me-1"></i>New Ticket
+            <i className="bi bi-plus-lg" />
+            <span>Create Ticket</span>
           </button>
         }
       />
 
       {/* Quick View Filter Tabs */}
-      <div className="d-flex align-items-center gap-2 mb-3 border-bottom border-subtle pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-brand-primary/15 pb-3 overflow-x-auto">
         <button
           type="button"
           onClick={() => handleTabChange('all')}
-          className={`btn btn-sm border-0 py-1.5 px-3 rounded-pill text-xs fw-semibold ${
-            activeTab === 'all'
-              ? 'btn-primary shadow-sm'
-              : 'text-secondary bg-surface-subtle'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'all'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           All Tickets
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('open')}
-          className={`btn btn-sm border-0 py-1.5 px-3 rounded-pill text-xs fw-semibold ${
-            activeTab === 'open'
-              ? 'btn-primary shadow-sm'
-              : 'text-secondary bg-surface-subtle'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'open'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           In Progress
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('critical')}
-          className={`btn btn-sm border-0 py-1.5 px-3 rounded-pill text-xs fw-semibold ${
-            activeTab === 'critical'
-              ? 'btn-danger shadow-sm'
-              : 'text-danger bg-danger-subtle'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap inline-flex items-center gap-1.5 ${activeTab === 'critical'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/25'
+            }`}
         >
-          <i className="bi bi-exclamation-octagon-fill me-1"></i>Critical Incidents
+          <i className="bi bi-exclamation-octagon-fill text-brand-accent" />
+          <span>Critical Incidents</span>
         </button>
         <button
           type="button"
           onClick={() => handleTabChange('resolved')}
-          className={`btn btn-sm border-0 py-1.5 px-3 rounded-pill text-xs fw-semibold ${
-            activeTab === 'resolved'
-              ? 'btn-success shadow-sm'
-              : 'text-secondary bg-surface-subtle'
-          }`}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${activeTab === 'resolved'
+            ? 'bg-brand-primary text-white shadow-subtle'
+            : 'bg-brand-secondary/15 text-brand-primary hover:bg-brand-secondary/25'
+            }`}
         >
           Resolved
         </button>
@@ -168,117 +168,116 @@ export const TicketListPage = () => {
           <button
             type="button"
             onClick={clearAllFilters}
-            className="btn btn-sm btn-link text-decoration-none text-muted text-xs ms-auto"
+            className="text-xs text-brand-secondary hover:text-brand-primary ml-auto whitespace-nowrap inline-flex items-center gap-1"
           >
-            <i className="bi bi-x-circle me-1"></i>Clear all filters
+            <i className="bi bi-x-circle" />
+            <span>Clear all filters</span>
           </button>
         )}
       </div>
 
       {/* Filter and Search Bar Card */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-body p-3">
-          <form onSubmit={handleSearchSubmit} className="row g-2.5 align-items-center">
-            {/* Search Input */}
-            <div className="col-md-4">
-              <div className="input-group">
-                <span className="input-group-text bg-surface-subtle border-default border-end-0 text-muted">
-                  <i className="bi bi-search"></i>
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-start-0"
-                  placeholder="Search subject, description, ticket #..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+      <div className="card-glow p-3.5 sm:p-4 rounded-2xl">
+        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+          {/* Search Input */}
+          <div className="lg:col-span-4">
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-brand-secondary text-sm pointer-events-none">
+                <i className="bi bi-search" />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search subject, description, ticket #..."
+                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+              />
             </div>
+          </div>
 
-            {/* Status Filter */}
-            <div className="col-sm-6 col-md-2">
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setActiveTab('custom');
-                  setPage(1);
-                }}
-              >
-                <option value="">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="ASSIGNED">Assigned</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="PENDING_CUSTOMER">Pending Customer</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="CLOSED">Closed</option>
-                <option value="REOPENED">Reopened</option>
-              </select>
-            </div>
+          {/* Status Filter */}
+          <div className="lg:col-span-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setActiveTab('custom');
+                setPage(1);
+              }}
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              <option value="NEW">New</option>
+              <option value="ASSIGNED">Assigned</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="PENDING_CUSTOMER">Pending Customer</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="REOPENED">Reopened</option>
+            </select>
+          </div>
 
-            {/* Priority Filter */}
-            <div className="col-sm-6 col-md-2">
-              <select
-                className="form-select"
-                value={priorityFilter}
-                onChange={(e) => {
-                  setPriorityFilter(e.target.value);
-                  setActiveTab('custom');
-                  setPage(1);
-                }}
-              >
-                <option value="">All Priorities</option>
-                <option value="CRITICAL">Critical</option>
-                <option value="HIGH">High</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="LOW">Low</option>
-              </select>
-            </div>
+          {/* Priority Filter */}
+          <div className="lg:col-span-2">
+            <select
+              value={priorityFilter}
+              onChange={(e) => {
+                setPriorityFilter(e.target.value);
+                setActiveTab('custom');
+                setPage(1);
+              }}
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+            >
+              <option value="">All Priorities</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+          </div>
 
-            {/* Category Filter */}
-            <div className="col-sm-6 col-md-2">
-              <select
-                className="form-select"
-                value={categoryFilter}
-                onChange={(e) => {
-                  setCategoryFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">All Categories</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Category Filter */}
+          <div className="lg:col-span-2">
+            <select
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* Sort Order */}
-            <div className="col-sm-6 col-md-2">
-              <select
-                className="form-select"
-                value={`${sortBy}:${sortOrder}`}
-                onChange={(e) => {
-                  const [col, ord] = e.target.value.split(':');
-                  setSortBy(col);
-                  setSortOrder(ord);
-                  setPage(1);
-                }}
-              >
-                <option value="created_at:desc">Newest First</option>
-                <option value="created_at:asc">Oldest First</option>
-                <option value="priority:asc">Priority High-Low</option>
-              </select>
-            </div>
-          </form>
-        </div>
+          {/* Sort Order */}
+          <div className="lg:col-span-2">
+            <select
+              value={`${sortBy}:${sortOrder}`}
+              onChange={(e) => {
+                const [col, ord] = e.target.value.split(':');
+                setSortBy(col);
+                setSortOrder(ord);
+                setPage(1);
+              }}
+              className="w-full px-3 py-2 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+            >
+              <option value="created_at:desc">Newest First</option>
+              <option value="created_at:asc">Oldest First</option>
+              <option value="priority:asc">Priority High-Low</option>
+            </select>
+          </div>
+        </form>
       </div>
 
       {/* Tickets Table Card */}
-      <div className="card shadow-sm">
-        <div className="card-body p-0">
+      <div className="card-glow overflow-hidden flex flex-col rounded-2xl">
+        <div className="flex-1 overflow-x-auto">
           {loading ? (
             <TableSkeleton rows={7} cols={8} />
           ) : tickets.length === 0 ? (
@@ -289,131 +288,125 @@ export const TicketListPage = () => {
               action={
                 <button
                   onClick={() => navigate('/tickets/new')}
-                  className="btn btn-primary btn-sm rounded-3 shadow-sm px-3"
+                  className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-medium text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
                 >
-                  <i className="bi bi-plus-lg me-1"></i>Create Ticket
+                  <i className="bi bi-plus-lg" />
+                  <span>Create Ticket</span>
                 </button>
               }
             />
           ) : (
-            <div className="table-responsive">
-              <table className="table table-custom mb-0">
-                <thead>
-                  <tr>
-                    <th>Ticket #</th>
-                    <th>Subject & Summary</th>
-                    <th>Category</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Requester</th>
-                    <th>Assignee</th>
-                    <th>SLA Deadlines</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tickets.map((t) => (
-                    <tr
-                      key={t.id}
-                      className="cursor-pointer"
-                      onClick={() => navigate(`/tickets/${t.id}`)}
-                    >
-                      <td>
-                        <span className="fw-bold text-primary font-monospace text-xs">
-                          {t.ticket_number}
-                        </span>
-                      </td>
-                      <td>
-                        <div
-                          className="fw-semibold text-primary-emphasis text-truncate"
-                          style={{ maxWidth: '300px' }}
-                        >
-                          {t.title}
-                        </div>
-                        <div className="text-xs text-muted">
-                          {new Date(t.created_at).toLocaleString()}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="badge bg-surface-subtle text-primary-emphasis border border-default text-xs">
-                          {t.category_name || 'General'}
-                        </span>
-                      </td>
-                      <td>
-                        <PriorityBadge priority={t.priority} />
-                      </td>
-                      <td>
-                        <StatusBadge status={t.status} />
-                      </td>
-                      <td>
-                        <span className="text-sm text-primary-emphasis">
-                          {t.requester_name || 'Requester'}
-                        </span>
-                      </td>
-                      <td>
-                        {t.assignee_name ? (
-                          <div className="d-flex align-items-center gap-1.5">
-                            <div
-                              className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold"
-                              style={{
-                                width: '22px',
-                                height: '22px',
-                                background: 'var(--primary-gradient)',
-                                fontSize: '0.65rem',
-                              }}
-                            >
-                              {t.assignee_name[0].toUpperCase()}
-                            </div>
-                            <span className="text-sm fw-medium text-primary-emphasis">
-                              {t.assignee_name}
-                            </span>
+            <table className="w-full text-left border-collapse min-w-[760px]">
+              <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
+                <tr>
+                  <th className="px-4 py-3.5">Ticket #</th>
+                  <th className="px-4 py-3.5">Subject & Summary</th>
+                  <th className="px-4 py-3.5">Category</th>
+                  <th className="px-4 py-3.5">Priority</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-4 py-3.5">Requester</th>
+                  <th className="px-4 py-3.5">Assignee</th>
+                  <th className="px-4 py-3.5">SLA Deadlines</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-primary/10 text-sm">
+                {tickets.map((t) => (
+                  <tr
+                    key={t.id}
+                    onClick={() => navigate(`/tickets/${t.id}`)}
+                    className="hover:bg-brand-accent/15 cursor-pointer transition-colors"
+                  >
+                    <td className="px-4 py-3.5">
+                      <span className="font-mono font-bold text-xs text-brand-primary">
+                        {t.ticket_number}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="font-semibold text-brand-primary max-w-[280px] truncate">
+                        {t.title}
+                      </div>
+                      <div className="text-xs text-brand-secondary mt-0.5">
+                        {new Date(t.created_at).toLocaleString()}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
+                        {t.category_name || 'General'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <PriorityBadge priority={t.priority} />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <StatusBadge status={t.status} />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="text-xs sm:text-sm text-brand-primary">
+                        {t.requester_name || 'Requester'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {t.assignee_name ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-6 h-6 rounded-lg bg-brand-primary flex items-center justify-center text-white text-[10px] font-bold shadow-xs flex-shrink-0">
+                            {t.assignee_name[0].toUpperCase()}
                           </div>
-                        ) : (
-                          <span className="badge bg-secondary-subtle text-muted text-xs">
-                            Unassigned
+                          <span className="text-xs sm:text-sm font-medium text-brand-primary truncate max-w-[120px]">
+                            {t.assignee_name}
                           </span>
-                        )}
-                      </td>
-                      <td>
-                        {t.is_sla_breached ? (
-                          <span className="badge bg-danger-subtle text-danger border border-danger-subtle d-inline-flex align-items-center gap-1.5">
-                            <span className="pulse-danger"></span>
-                            <span>Breached</span>
-                          </span>
-                        ) : (
-                          <span className="badge bg-success-subtle text-success border border-success-subtle">
-                            <i className="bi bi-check-circle me-1"></i>Within SLA
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-brand-secondary/15 text-brand-secondary">
+                          Unassigned
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {t.is_sla_breached ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white border border-brand-primary shadow-xs">
+                          <i className="bi bi-exclamation-triangle-fill text-brand-accent text-xs" />
+                          <span>Breached</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
+                          <i className="bi bi-check-circle text-xs" />
+                          <span>Within SLA</span>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
 
         {/* Modern Pagination Footer */}
         {totalPages > 1 && (
-          <div className="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
-            <span className="text-xs text-muted">
-              Showing page <b>{page}</b> of <b>{totalPages}</b>
+          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span className="text-brand-secondary">
+              Showing page <b className="text-brand-primary">{page}</b> of{' '}
+              <b className="text-brand-primary">{totalPages}</b>
             </span>
-            <div className="d-flex align-items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="btn btn-outline-secondary btn-sm rounded-2 py-1 px-2.5 text-xs"
+                className="px-3 py-1.5 rounded-lg border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
               >
-                <i className="bi bi-chevron-left me-1"></i>Previous
+                <i className="bi bi-chevron-left" />
+                <span>Previous</span>
               </button>
-              <span className="px-2 text-xs fw-semibold text-primary">{page}</span>
+              <span className="px-2 font-semibold text-brand-primary">{page}</span>
               <button
+                type="button"
                 disabled={page >= totalPages}
                 onClick={() => setPage(page + 1)}
-                className="btn btn-outline-secondary btn-sm rounded-2 py-1 px-2.5 text-xs"
+                className="px-3 py-1.5 rounded-lg border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
               >
-                Next<i className="bi bi-chevron-right ms-1"></i>
+                <span>Next</span>
+                <i className="bi bi-chevron-right" />
               </button>
             </div>
           </div>

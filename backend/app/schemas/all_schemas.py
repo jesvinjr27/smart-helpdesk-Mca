@@ -36,10 +36,40 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
     org_id: Optional[str] = None
+    remember_me: Optional[bool] = False
 
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=8)
+
+
+class MicrosoftConfigResponse(BaseModel):
+    enabled: bool
+    tenant_id: Optional[str] = None
+    client_id: Optional[str] = None
+    redirect_uri: Optional[str] = None
+
+
+class MicrosoftExchangeRequest(BaseModel):
+    code: Optional[str] = None
+    id_token: Optional[str] = None
+    access_token: Optional[str] = None
+
+
+class WorkspaceOption(BaseModel):
+    organization_id: str
+    organization_name: str
+    organization_code: str
+    role: str
 
 
 class TokenResponse(BaseModel):
@@ -47,6 +77,7 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     user: "UserMeResponse"
+    workspaces: Optional[List[WorkspaceOption]] = []
 
 
 # ==========================================
@@ -99,7 +130,12 @@ class UserResponse(UserBase):
 class UserMeResponse(UserResponse):
     org_name: Optional[str] = None
     department_name: Optional[str] = None
+    account_status: Optional[str] = "ACTIVE"
     teams: List[str] = []
+    workspaces: List[WorkspaceOption] = []
+
+
+TokenResponse.model_rebuild()
 
 
 # ==========================================
@@ -425,6 +461,36 @@ class AIAssistResponse(BaseModel):
     grounded: bool
     execution_time_ms: float
     note: Optional[str] = None
+
+
+class SimilarTicketItem(BaseModel):
+    id: str
+    ticket_number: str
+    title: str
+    status: str
+    priority: str
+    category_name: Optional[str] = None
+    similarity_score: float
+
+
+class SimilarTicketsResponse(BaseModel):
+    ticket_id: str
+    similar_tickets: List[SimilarTicketItem]
+    total_found: int
+    execution_time_ms: float
+
+
+class TicketSummaryRequest(BaseModel):
+    max_sentences: int = 3
+
+
+class TicketSummaryResponse(BaseModel):
+    ticket_id: str
+    summary: str
+    key_points: List[str]
+    sentence_count: int
+    compression_ratio: float
+    execution_time_ms: float
 
 
 class AIPredictionResponse(BaseModel):

@@ -5,6 +5,12 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [workspaces, setWorkspaces] = useState([]);
+  const [activeWorkspace, setActiveWorkspaceState] = useState(() => {
+    const savedId = localStorage.getItem('active_workspace_id');
+    const savedName = localStorage.getItem('active_workspace_name');
+    return savedId ? { organization_id: savedId, organization_name: savedName } : null;
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,11 +21,15 @@ export const AuthProvider = ({ children }) => {
         try {
           const resp = await getMeApi();
           setUser(resp.data);
+          if (resp.data?.workspaces) {
+            setWorkspaces(resp.data.workspaces);
+          }
         } catch (err) {
           console.error('Session expired or invalid:', err);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           setUser(null);
+          setWorkspaces([]);
         }
       }
       setLoading(false);
@@ -28,15 +38,30 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email, password, orgId = null) => {
+  const login = async (email, password, orgId = null, rememberMe = false) => {
     setError(null);
     try {
-      const resp = await loginApi({ email, password, org_id: orgId });
-      const { access_token, refresh_token, user: userData } = resp.data;
+      const resp = await loginApi({
+        email,
+        password,
+        org_id: orgId,
+        remember_me: rememberMe,
+      });
+      const { access_token, refresh_token, user: userData, workspaces: wsList } = resp.data;
+
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
+      if (rememberMe) {
+        localStorage.setItem('auth_remember_me', 'true');
+      } else {
+        localStorage.removeItem('auth_remember_me');
+      }
+
       setUser(userData);
-      return userData;
+      const availableWs = wsList || userData.workspaces || [];
+      setWorkspaces(availableWs);
+
+      return { user: userData, workspaces: availableWs };
     } catch (err) {
       let msg = 'Login failed. Please check credentials.';
       const detail = err.response?.data?.detail;
@@ -54,15 +79,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setActiveWorkspace = (workspace) => {
+    if (workspace) {
+      localStorage.setItem('active_workspace_id', workspace.organization_id);
+      localStorage.setItem('active_workspace_name', workspace.organization_name);
+      setActiveWorkspaceState(workspace);
+    } else {
+      localStorage.removeItem('active_workspace_id');
+      localStorage.removeItem('active_workspace_name');
+      setActiveWorkspaceState(null);
+    }
+  };
+
   const logout = async () => {
     try {
       await logoutApi();
     } catch (e) {
-      // Ignore
+      // Ignore network errors on logout
     } finally {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('active_workspace_id');
+      localStorage.removeItem('active_workspace_name');
       setUser(null);
+      setWorkspaces([]);
+      setActiveWorkspaceState(null);
       window.location.href = '/login';
     }
   };
@@ -77,6 +118,9 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        workspaces,
+        activeWorkspace,
+        setActiveWorkspace,
         loading,
         error,
         login,

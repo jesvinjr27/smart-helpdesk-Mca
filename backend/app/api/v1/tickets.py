@@ -28,7 +28,11 @@ from backend.app.schemas.all_schemas import (
     EventResponse,
     AIPredictionResponse,
     AIFeedbackCreate,
-    MessageResponse
+    MessageResponse,
+    SimilarTicketsResponse,
+    SimilarTicketItem,
+    TicketSummaryRequest,
+    TicketSummaryResponse
 )
 from backend.app.core.dependencies import (
     get_current_user,
@@ -37,7 +41,7 @@ from backend.app.core.dependencies import (
     enforce_organization_isolation
 )
 from backend.app.services.ticket_service import TicketService
-from backend.app.integrations.ai_service import ai_service
+from backend.app.ai.gateway import ai_gateway as ai_service
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
@@ -575,3 +579,88 @@ def submit_ai_feedback(
     db.commit()
 
     return MessageResponse(message="AI feedback recorded successfully to train future iterations")
+
+
+@router.get("/{ticket_id}/similar", response_model=SimilarTicketsResponse)
+def get_similar_tickets(
+    ticket_id: str,
+    top_k: int = Query(4, ge=1, le=10),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Find top similar historical tickets within the same organization using TF-IDF and Cosine Similarity.
+    Operates on CPU in < 5ms without requiring LLMs or heavy vector stores.
+    """
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+    enforce_organization_isolation(ticket.org_id, current_user, db)
+
+    # Fetch candidate tickets in the same organization (excluding current ticket)
+    candidates_db = (
+        db.query(Ticket)
+        .filter(Ticket.org_id == ticket.org_id, Ticket.id != ticket.id)
+        .order_by(desc(Ticket.created_at))
+        .limit(100)  # Paginate/bound candidates to conserve RAM
+        .all()
+    )
+
+    candidate_dicts = [
+        {
+            "id": c.id,
+            "ticket_number": c.ticket_number,
+            "title": c.title,
+            "description": c.description,
+            "status": c.status,
+            "priority": c.priority,
+            "category_name": c.category.name if c.category else "General"
+        }
+        for c in candidates_db
+    ]
+
+    query_text = f"{ticket.title} {ticket.description}"
+    result = ai_service.find_similar_tickets(query_text, candidate_dicts, top_k=top_k)
+
+    return SimilarTicketsResponse(
+        ticket_id=ticket.id,
+        similar_tickets=result["similar_tickets"],
+        total_found=result["total_found"],
+        execution_time_ms=result["execution_time_ms"]
+    )
+
+
+@router.post("/{ticket_id}/summarize", response_model=TicketSummaryResponse)
+def summarize_ticket(
+    ticket_id: str,
+    req: Optional[TicketSummaryRequest] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Extractive sentence-ranking summarizer.
+    Compresses long ticket descriptions and conversation threads on CPU in < 1ms.
+    """
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+    enforce_organization_isolation(ticket.org_id, current_user, db)
+
+    # Combine ticket description and comments
+    thread_parts = [f"Initial issue: {ticket.title}. {ticket.description}"]
+    for c in ticket.comments[:5]:  # limit to top 5 comments
+        thread_parts.append(f"Update: {c.content}")
+
+    full_thread = " ".join(thread_parts)
+    max_sentences = req.max_sentences if req and req.max_sentences else 3
+    res = ai_service.summarize_ticket(full_thread, max_sentences=max_sentences)
+
+    return TicketSummaryResponse(
+        ticket_id=ticket.id,
+        summary=res["summary"],
+        key_points=res["key_points"],
+        sentence_count=res["sentence_count"],
+        compression_ratio=res["compression_ratio"],
+        execution_time_ms=res["execution_time_ms"]
+    )
+

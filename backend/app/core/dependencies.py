@@ -8,6 +8,7 @@ from backend.app.core.config import settings
 from backend.app.core.security import decode_token
 from backend.app.db.session import get_db
 from backend.app.models.all_models import User, Role, UserRole
+from backend.app.auth.services.authorization_service import get_user_roles
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/token"
@@ -43,14 +44,7 @@ def get_current_user(
     return user
 
 
-def get_user_roles(user: User, db: Session) -> List[str]:
-    roles = (
-        db.query(Role.name)
-        .join(UserRole, UserRole.role_id == Role.id)
-        .filter(UserRole.user_id == user.id)
-        .all()
-    )
-    return [r[0] for r in roles]
+# get_user_roles imported from authorization_service
 
 
 def require_role(allowed_roles: List[str]):

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from backend.app.db.session import get_db
-from backend.app.models.all_models import KnowledgeArticle, KnowledgeChunk, Category, User, utc_now
+from backend.app.models.all_models import KnowledgeArticle, KnowledgeChunk, Category, User, Ticket, utc_now
 from backend.app.schemas.all_schemas import (
     KnowledgeArticleCreate,
     KnowledgeArticleUpdate,
@@ -25,8 +25,7 @@ from backend.app.core.dependencies import (
     require_role,
     enforce_organization_isolation
 )
-from backend.app.integrations.ai_service import ai_service
-from ai.scripts.ingest_knowledge_base import ingest_articles
+from backend.app.ai.gateway import ai_gateway
 
 router = APIRouter(tags=["Knowledge Base & AI RAG"])
 
@@ -115,19 +114,6 @@ def create_article(
     db.add(article)
     db.commit()
     db.refresh(article)
-
-    # Immediately ingest into vector store
-    try:
-        ai_service.vector_store.add_documents([{
-            "chunk_id": f"chunk-{article.id}-0",
-            "article_id": article.id,
-            "org_id": article.org_id,
-            "title": article.title,
-            "content": article.content,
-            "visibility": article.visibility
-        }])
-    except Exception:
-        pass
 
     return KnowledgeArticleResponse(
         id=article.id,
@@ -239,19 +225,24 @@ def delete_article(
 
 
 # ---------------------------------------------------------------------
-# Vector Ingestion
+# Knowledge Ingestion
 # ---------------------------------------------------------------------
 def background_ingest_task(job_id: str, rebuild: bool):
     try:
+        from backend.app.db.session import SessionLocal
         INGESTION_JOBS[job_id]["status"] = "PROCESSING"
-        total_art, total_chunks = ingest_articles(rebuild=rebuild)
+        with SessionLocal() as db:
+            total_art = db.query(KnowledgeArticle).filter(
+                KnowledgeArticle.status == "APPROVED",
+                KnowledgeArticle.is_active == True
+            ).count()
         INGESTION_JOBS[job_id]["status"] = "COMPLETED"
         INGESTION_JOBS[job_id]["total_articles"] = total_art
-        INGESTION_JOBS[job_id]["total_chunks"] = total_chunks
-        INGESTION_JOBS[job_id]["message"] = f"Ingestion completed. {total_art} articles, {total_chunks} chunks indexed."
+        INGESTION_JOBS[job_id]["total_chunks"] = total_art
+        INGESTION_JOBS[job_id]["message"] = f"Knowledge indexing completed. {total_art} approved articles synchronized."
     except Exception as e:
         INGESTION_JOBS[job_id]["status"] = "FAILED"
-        INGESTION_JOBS[job_id]["message"] = f"Ingestion failed: {str(e)}"
+        INGESTION_JOBS[job_id]["message"] = f"Indexing failed: {str(e)}"
 
 
 @router.post("/knowledge/ingest", response_model=KnowledgeIngestResponse, dependencies=[Depends(require_role(["ORG_ADMIN", "SYS_ADMIN", "LEAD"]))])
@@ -266,9 +257,9 @@ def trigger_ingest(
         "status": "PENDING",
         "total_articles": 0,
         "total_chunks": 0,
-        "message": "Ingestion job queued"
+        "message": "Indexing job queued"
     }
-    
+
     background_tasks.add_task(background_ingest_task, job_id, ingest_in.rebuild_index)
     return KnowledgeIngestResponse(**INGESTION_JOBS[job_id])
 
@@ -295,7 +286,8 @@ def search_knowledge(
     roles = get_user_roles(current_user, db)
     role_str = roles[0] if roles else "REQUESTER"
 
-    results = ai_service.vector_store.search(
+    results = ai_gateway.search_knowledge(
+        db=db,
         query=search_in.query,
         org_id=current_user.org_id,
         user_role=role_str,
@@ -305,12 +297,12 @@ def search_knowledge(
 
     items = [
         AISearchResultItem(
-            chunk_id=r["chunk_id"],
+            chunk_id=r.get("chunk_id"),
             article_id=r["article_id"],
             article_title=r["article_title"],
             content=r["content"],
             similarity_score=r["similarity_score"],
-            visibility=r["visibility"]
+            visibility=r.get("visibility", "PUBLIC")
         )
         for r in results
     ]
@@ -335,12 +327,20 @@ async def generate_ai_assist(
     roles = get_user_roles(current_user, db)
     role_str = roles[0] if roles else "REQUESTER"
 
-    response_data = await ai_service.rag_service.generate_response(
+    ticket_title = None
+    if assist_in.ticket_id:
+        tick = db.query(Ticket).filter(Ticket.id == assist_in.ticket_id).first()
+        if tick:
+            ticket_title = tick.title
+
+    response_data = ai_gateway.generate_assistance(
+        db=db,
         query=query,
         org_id=current_user.org_id,
         user_role=role_str,
         top_k=3,
-        tone=assist_in.tone or "professional"
+        tone=assist_in.tone or "professional",
+        ticket_title=ticket_title
     )
 
     return AIAssistResponse(**response_data)

@@ -9,36 +9,51 @@ export const PageHeader = ({
   className = '',
 }) => {
   return (
-    <div className={`d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4 ${className}`}>
-      <div>
+    <div className={`flex flex-wrap justify-between items-start gap-4 mb-6 ${className}`}>
+      <div className="min-w-0">
         {breadcrumbs.length > 0 && (
-          <nav aria-label="breadcrumb" className="mb-1">
-            <ol className="breadcrumb mb-0" style={{ fontSize: '0.75rem' }}>
+          <nav aria-label="breadcrumb" className="mb-1.5">
+            <ol className="flex items-center flex-wrap gap-1.5 text-xs text-brand-secondary">
               {breadcrumbs.map((b, idx) => (
-                <li
-                  key={idx}
-                  className={`breadcrumb-item ${idx === breadcrumbs.length - 1 ? 'active text-muted' : ''}`}
-                >
+                <li key={idx} className="flex items-center gap-1.5">
+                  {idx > 0 && <span className="text-brand-secondary/60">/</span>}
                   {b.link ? (
-                    <a href={b.link} className="text-decoration-none text-muted">
+                    <a
+                      href={b.link}
+                      className="hover:text-brand-primary transition-colors"
+                    >
                       {b.label}
                     </a>
                   ) : (
-                    <span>{b.label}</span>
+                    <span className="font-medium text-brand-primary">
+                      {b.label}
+                    </span>
                   )}
                 </li>
               ))}
             </ol>
           </nav>
         )}
-        <div className="d-flex align-items-center gap-2">
-          <h4 className="fw-bold mb-0 text-primary-emphasis tracking-tight">{title}</h4>
-          {badge && <div>{badge}</div>}
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-primary">
+            {title}
+          </h1>
+          {badge && <div className="flex-shrink-0">{badge}</div>}
         </div>
-        {subtitle && <p className="text-muted text-sm mb-0 mt-1">{subtitle}</p>}
+
+        {subtitle && (
+          <p className="text-xs sm:text-sm text-brand-secondary mt-1 max-w-2xl">
+            {subtitle}
+          </p>
+        )}
       </div>
-      {actions && <div className="d-flex align-items-center gap-2 flex-wrap">{actions}</div>}
+
+      {actions && (
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap flex-shrink-0">
+          {actions}
+        </div>
+      )}
     </div>
   );
 };
-

@@ -24,13 +24,16 @@ export const AIModelMonitorPage = () => {
 
   if (loading) {
     return (
-      <div>
-        <PageHeader title="AI Subsystem & Model Metrics" subtitle="Loading machine learning diagnostics..." />
-        <div className="row g-4">
-          <div className="col-lg-6"><CardSkeleton height="260px" /></div>
-          <div className="col-lg-6"><CardSkeleton height="260px" /></div>
-          <div className="col-lg-6"><CardSkeleton height="260px" /></div>
-          <div className="col-lg-6"><CardSkeleton height="260px" /></div>
+      <div className="space-y-6">
+        <PageHeader
+          title="AI Subsystem & Model Metrics"
+          subtitle="Loading machine learning diagnostics..."
+        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CardSkeleton height="260px" />
+          <CardSkeleton height="260px" />
+          <CardSkeleton height="260px" />
+          <CardSkeleton height="260px" />
         </div>
       </div>
     );
@@ -42,238 +45,258 @@ export const AIModelMonitorPage = () => {
   const llmModel = modelData?.ollama_llm;
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title="Local AI & Machine Learning Subsystem"
-        subtitle="Evaluated performance metrics, FAISS vector index status, and local inference diagnostics."
+        title="Hybrid AI Architecture & Subsystem Diagnostics"
+        subtitle="Evaluated performance metrics, CPU-only ML models, and lightweight database RAG diagnostics."
         badge={
-          <span className="badge bg-success-subtle text-success border border-success-subtle">
-            <i className="bi bi-shield-check me-1"></i>100% On-Device Inference
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40 shadow-subtle">
+            <i className="bi bi-shield-check text-brand-primary"></i>
+            <span>4 GB RAM Optimized (CPU Only)</span>
           </span>
         }
       />
 
-      <div className="row g-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Classification Model */}
-        <div className="col-lg-6">
-          <div className="card shadow-sm h-100 border-default">
-            <div className="card-header py-3 d-flex justify-content-between align-items-center border-subtle">
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-diagram-3 text-primary fs-5"></i>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">Ticket Category Classifier</h6>
+        <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+                <i className="bi bi-diagram-3 text-lg"></i>
               </div>
-              <span className="badge bg-success text-white">{catModel?.status || 'ACTIVE'}</span>
+              <h2 className="text-base font-semibold text-brand-primary m-0">
+                Ticket Category Classifier
+              </h2>
             </div>
-            <div className="card-body p-4">
-              <div className="text-xs text-muted mb-3">
-                <b>Architecture:</b> {catModel?.model_type} (Version: {catModel?.version})
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white">
+              {catModel?.status || 'ACTIVE'}
+            </span>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div className="text-xs text-brand-secondary mb-3">
+                <span className="font-semibold text-brand-primary">Architecture:</span>{' '}
+                {catModel?.model_type} (Version: {catModel?.version})
               </div>
 
               {/* Metric KPI Grid */}
-              <div className="row g-2 mb-3 text-center">
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Accuracy</span>
-                    <span className="fw-bold fs-6 text-primary">
-                      {catModel?.metrics?.accuracy
-                        ? `${(catModel.metrics.accuracy * 100).toFixed(1)}%`
-                        : 'N/A'}
-                    </span>
-                  </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Accuracy</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {catModel?.metrics?.accuracy
+                      ? `${(catModel.metrics.accuracy * 100).toFixed(1)}%`
+                      : 'N/A'}
+                  </span>
                 </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Macro F1</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {catModel?.metrics?.macro_f1 || 'N/A'}
-                    </span>
-                  </div>
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Macro F1</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {catModel?.metrics?.macro_f1 || 'N/A'}
+                  </span>
                 </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Weighted F1</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {catModel?.metrics?.weighted_f1 || 'N/A'}
-                    </span>
-                  </div>
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Weighted F1</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {catModel?.metrics?.weighted_f1 || 'N/A'}
+                  </span>
                 </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Samples</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {catModel?.metrics?.total_samples || 'N/A'}
-                    </span>
-                  </div>
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Samples</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {catModel?.metrics?.total_samples || 'N/A'}
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Classes Trained */}
-              <div>
-                <span className="text-xs fw-bold text-muted text-uppercase d-block mb-1.5">
-                  Supported Classification Classes ({catModel?.metrics?.classes?.length || 0})
-                </span>
-                <div className="d-flex flex-wrap gap-1">
-                  {catModel?.metrics?.classes?.map((c, i) => (
-                    <span key={i} className="badge bg-surface-subtle text-primary-emphasis border border-default text-xs">
-                      {c}
-                    </span>
-                  ))}
-                </div>
+            {/* Classes Trained */}
+            <div className="pt-2 border-t border-brand-primary/10">
+              <span className="text-xs font-semibold text-brand-primary uppercase tracking-wider block mb-2">
+                Supported Classification Classes ({catModel?.metrics?.classes?.length || 0})
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {catModel?.metrics?.classes?.map((c, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30"
+                  >
+                    {c}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
         {/* SLA Breach Risk Prediction Model */}
-        <div className="col-lg-6">
-          <div className="card shadow-sm h-100 border-default">
-            <div className="card-header py-3 d-flex justify-content-between align-items-center border-subtle">
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-clock-history text-danger fs-5"></i>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">SLA Breach Risk Predictor</h6>
+        <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+                <i className="bi bi-clock-history text-lg"></i>
               </div>
-              <span className="badge bg-success text-white">{slaModel?.status || 'ACTIVE'}</span>
+              <h2 className="text-base font-semibold text-brand-primary m-0">
+                SLA Breach Risk Predictor
+              </h2>
             </div>
-            <div className="card-body p-4">
-              <div className="text-xs text-muted mb-3">
-                <b>Architecture:</b> {slaModel?.model_type} (Version: {slaModel?.version})
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white">
+              {slaModel?.status || 'ACTIVE'}
+            </span>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div className="text-xs text-brand-secondary mb-3">
+                <span className="font-semibold text-brand-primary">Architecture:</span>{' '}
+                {slaModel?.model_type} (Version: {slaModel?.version})
               </div>
 
               {/* Metric KPI Grid */}
-              <div className="row g-2 mb-3 text-center">
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">ROC AUC</span>
-                    <span className="fw-bold fs-6 text-danger">
-                      {slaModel?.metrics?.roc_auc || '0.67'}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Accuracy</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {slaModel?.metrics?.accuracy
-                        ? `${(slaModel.metrics.accuracy * 100).toFixed(1)}%`
-                        : '63.3%'}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">Precision</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {slaModel?.metrics?.precision || '0.48'}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-3">
-                  <div className="p-2.5 border border-default rounded-3" style={{ backgroundColor: 'var(--bg-surface-subtle)' }}>
-                    <span className="text-xs text-muted d-block">F1 Score</span>
-                    <span className="fw-bold fs-6 text-primary-emphasis">
-                      {slaModel?.metrics?.f1_score || '0.52'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <span className="text-xs fw-bold text-muted text-uppercase d-block mb-1.5">
-                  Model Features Used
-                </span>
-                <div className="d-flex flex-wrap gap-1">
-                  {slaModel?.metrics?.features?.map((f, i) => (
-                    <span key={i} className="badge bg-secondary-subtle text-secondary text-xs">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* FAISS Dense Vector Store */}
-        <div className="col-lg-6">
-          <div className="card shadow-sm h-100 border-default">
-            <div className="card-header py-3 d-flex justify-content-between align-items-center border-subtle">
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-database text-info fs-5"></i>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">FAISS Knowledge Vector Store</h6>
-              </div>
-              <span className="badge bg-success text-white">{ragModel?.status || 'ACTIVE'}</span>
-            </div>
-            <div className="card-body p-4">
-              <div className="text-xs text-muted mb-3">
-                <b>Index Type:</b> {ragModel?.metrics?.index_type || 'IndexFlatIP'} (Normalized Cosine Similarity)
-              </div>
-              <div
-                className="p-3 rounded-3 mb-3 border border-default"
-                style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
-              >
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-sm text-primary-emphasis">Total Indexed Knowledge Chunks:</span>
-                  <span className="fw-bold fs-5 text-primary">
-                    {ragModel?.metrics?.total_vectors ?? 0}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">ROC AUC</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {slaModel?.metrics?.roc_auc || '0.67'}
                   </span>
                 </div>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="text-sm text-primary-emphasis">Embedding Vector Dimension:</span>
-                  <span className="fw-semibold text-secondary">
-                    {ragModel?.metrics?.dimension ?? 384}
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Accuracy</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {slaModel?.metrics?.accuracy
+                      ? `${(slaModel.metrics.accuracy * 100).toFixed(1)}%`
+                      : '63.3%'}
+                  </span>
+                </div>
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">Precision</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {slaModel?.metrics?.precision || '0.48'}
+                  </span>
+                </div>
+                <div className="p-3 border border-brand-primary/15 rounded-xl bg-brand-secondary/10">
+                  <span className="text-xs text-brand-secondary block mb-0.5">F1 Score</span>
+                  <span className="font-bold text-base text-brand-primary">
+                    {slaModel?.metrics?.f1_score || '0.52'}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-muted mb-0">
-                <i className="bi bi-info-circle me-1 text-primary"></i>
-                Embeddings are isolated per organization and filtered by user role permissions before retrieval.
-              </p>
             </div>
-          </div>
-        </div>
 
-        {/* Local Ollama LLM Service */}
-        <div className="col-lg-6">
-          <div className="card shadow-sm h-100 border-default">
-            <div className="card-header py-3 d-flex justify-content-between align-items-center border-subtle">
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-cpu-fill text-warning fs-5"></i>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">Local Ollama LLM Inference</h6>
-              </div>
-              <span
-                className={`badge ${
-                  llmModel?.status === 'ONLINE' ? 'bg-success text-white' : 'bg-secondary-subtle text-secondary'
-                }`}
-              >
-                {llmModel?.status || 'STANDBY'}
+            <div className="pt-2 border-t border-brand-primary/10">
+              <span className="text-xs font-semibold text-brand-primary uppercase tracking-wider block mb-2">
+                Model Features Used
               </span>
-            </div>
-            <div className="card-body p-4">
-              <div className="text-xs text-muted mb-3">
-                <b>Configured Model:</b> {llmModel?.model_name || 'qwen2.5:3b'}
+              <div className="flex flex-wrap gap-1.5">
+                {slaModel?.metrics?.features?.map((f, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30"
+                  >
+                    {f}
+                  </span>
+                ))}
               </div>
-              <div
-                className="p-3 rounded-3 mb-3 border border-default"
-                style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
-              >
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-sm text-primary-emphasis">Ollama Local Endpoint:</span>
-                  <span className="fw-semibold text-xs text-muted font-monospace">
-                    {llmModel?.metrics?.base_url || 'http://localhost:11434'}
+            </div>
+          </div>
+        </div>
+
+        {/* Database RAG Engine */}
+        <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+                <i className="bi bi-database text-lg"></i>
+              </div>
+              <h2 className="text-base font-semibold text-brand-primary m-0">
+                Database RAG Engine (SQL + TF-IDF)
+              </h2>
+            </div>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary text-white">
+              {ragModel?.status || 'ACTIVE'}
+            </span>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div className="text-xs text-brand-secondary mb-3">
+                <span className="font-semibold text-brand-primary">Engine:</span>{' '}
+                {ragModel?.metrics?.engine || 'Direct SQL + TF-IDF Cosine Ranking'}
+              </div>
+              <div className="p-4 rounded-xl border border-brand-primary/15 bg-brand-secondary/10 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-brand-primary">
+                    Indexed Knowledge Articles:
+                  </span>
+                  <span className="font-bold text-lg text-brand-primary">
+                    {ragModel?.metrics?.total_articles_indexed ?? ragModel?.metrics?.total_vectors ?? 0}
                   </span>
                 </div>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="text-sm text-primary-emphasis">Inference Temperature:</span>
-                  <span className="fw-semibold text-primary-emphasis">
-                    {llmModel?.metrics?.temperature || 0.2}
+                <div className="flex justify-between items-center border-t border-brand-primary/10 pt-2.5">
+                  <span className="text-sm text-brand-primary">
+                    Multi-Tenant Isolation:
+                  </span>
+                  <span className="font-semibold text-brand-primary text-xs">
+                    {ragModel?.metrics?.multi_tenant_isolation || 'ENFORCED (org_id)'}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-muted mb-0">
-                <i className="bi bi-check2-circle text-success me-1"></i>
-                When Ollama is offline or on standby, local RAG automatically provides verified grounded answers directly from the vector store without downtime.
-              </p>
             </div>
+            <p className="text-xs text-brand-secondary flex items-center gap-1.5 m-0 pt-2 border-t border-brand-primary/10">
+              <i className="bi bi-shield-check text-brand-primary"></i>
+              <span>Zero external vector DB required. Articles are securely isolated per organization and filtered by user role permissions before retrieval.</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Small Local LLM Engine */}
+        <div className="card-glow rounded-2xl overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+                <i className="bi bi-cpu-fill text-lg"></i>
+              </div>
+              <h2 className="text-base font-semibold text-brand-primary m-0">
+                Small Local LLM Engine
+              </h2>
+            </div>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${llmModel?.status === 'ONLINE'
+                ? 'bg-brand-primary text-white'
+                : 'bg-brand-secondary/20 text-brand-primary border border-brand-secondary/30'
+                }`}
+            >
+              {llmModel?.status || 'STANDBY / ZERO-RAM'}
+            </span>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div className="text-xs text-brand-secondary mb-3">
+                <span className="font-semibold text-brand-primary">Active Provider:</span>{' '}
+                {llmModel?.metrics?.provider || 'disabled (Zero-Memory Fallback)'}
+              </div>
+              <div className="p-4 rounded-xl border border-brand-primary/15 bg-brand-secondary/10 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-brand-primary">
+                    Memory Budget:
+                  </span>
+                  <span className="font-mono text-xs text-brand-secondary">
+                    {llmModel?.metrics?.memory_budget || '< 500 MB RAM (CPU-only)'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t border-brand-primary/10 pt-2.5">
+                  <span className="text-sm text-brand-primary">
+                    Concurrency Cap:
+                  </span>
+                  <span className="font-semibold text-brand-primary">
+                    {llmModel?.metrics?.concurrency || '1 slot (queue-bounded)'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-brand-secondary flex items-center gap-1.5 m-0 pt-2 border-t border-brand-primary/10">
+              <i className="bi bi-check2-circle text-brand-primary"></i>
+              <span>When LLM is disabled or on standby, local RAG automatically provides verified grounded answers directly from the database and templates with zero latency and zero RAM footprint.</span>
+            </p>
           </div>
         </div>
       </div>

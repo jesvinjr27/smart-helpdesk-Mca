@@ -100,7 +100,7 @@ export const TicketCreatePage = () => {
   };
 
   return (
-    <div className="container px-0" style={{ maxWidth: '1080px' }}>
+    <div className="w-full max-w-full min-w-0 space-y-6">
       <PageHeader
         title="Create New Support Ticket"
         subtitle="Submit an incident or service request. Our local AI classifies and routes your ticket with zero cloud leakage."
@@ -113,53 +113,54 @@ export const TicketCreatePage = () => {
           <button
             type="button"
             onClick={() => navigate('/tickets')}
-            className="btn btn-outline-secondary btn-sm rounded-3 px-3"
+            className="px-3.5 py-1.5 rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
           >
-            <i className="bi bi-x-lg me-1"></i>Cancel
+            <i className="bi bi-x-lg text-xs" />
+            <span>Cancel</span>
           </button>
         }
       />
 
-      <div className="row g-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Ticket Submission Form Column */}
-        <div className="col-lg-7">
-          <div className="card shadow-sm p-4">
+        <div className="lg:col-span-7">
+          <div className="card-glow p-5 sm:p-7 rounded-2xl">
             {errorMessage && (
-              <div className="alert alert-danger py-2.5 px-3 text-sm rounded-3 mb-4 d-flex align-items-center gap-2">
-                <i className="bi bi-exclamation-octagon-fill text-danger"></i>
-                <span>{errorMessage}</span>
+              <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
+                <i className="bi bi-exclamation-octagon-fill text-brand-primary text-base flex-shrink-0" />
+                <span className="leading-relaxed">{errorMessage}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3.5">
-                <label className="form-label">
-                  Ticket Subject / Title <span className="text-danger">*</span>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                  Ticket Subject / Title <span className="text-brand-primary font-bold">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   minLength={3}
-                  className="form-control"
-                  placeholder="e.g. Cannot connect to GlobalProtect VPN from home"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Cannot connect to GlobalProtect VPN from home"
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
                 />
-                <span className="text-muted text-xs mt-1 d-block">
+                <span className="text-brand-secondary text-xs mt-1 block">
                   Be descriptive so AI can search knowledge articles accurately.
                 </span>
               </div>
 
-              <div className="row g-3 mb-3.5">
-                <div className="col-sm-6">
-                  <label className="form-label">
-                    Category <span className="text-danger">*</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                    Category <span className="text-brand-primary font-bold">*</span>
                   </label>
                   <select
                     required
-                    className="form-select"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -169,12 +170,14 @@ export const TicketCreatePage = () => {
                   </select>
                 </div>
 
-                <div className="col-sm-6">
-                  <label className="form-label">Priority Level</label>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                    Priority Level
+                  </label>
                   <select
-                    className="form-select"
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
                   >
                     <option value="LOW">Low (Routine question)</option>
                     <option value="MEDIUM">Medium (Normal business task)</option>
@@ -184,53 +187,55 @@ export const TicketCreatePage = () => {
                 </div>
               </div>
 
-              <div className="mb-3.5">
-                <label className="form-label">
-                  Detailed Description <span className="text-danger">*</span>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                  Detailed Description <span className="text-brand-primary font-bold">*</span>
                 </label>
                 <textarea
                   required
                   minLength={5}
                   rows={6}
-                  className="form-control"
-                  placeholder="Provide steps to reproduce, device name, operating system, and specific error codes..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label">Tags (comma-separated)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="vpn, macos, wifi, authentication"
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="Provide steps to reproduce, device name, operating system, and specific error codes..."
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors resize-y"
                 />
               </div>
 
-              <div className="d-flex justify-content-end gap-2 pt-3 border-top border-subtle">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                  Tags (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="vpn, macos, wifi, authentication"
+                  className="w-full px-3.5 py-2.5 text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-brand-primary/10">
                 <button
                   type="button"
                   onClick={() => navigate('/tickets')}
-                  className="btn btn-outline-secondary px-3"
+                  className="px-4 py-2 text-sm font-medium rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 transition-colors"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn btn-primary px-4 fw-semibold shadow-sm d-flex align-items-center gap-2"
+                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white shadow-subtle transition-all inline-flex items-center gap-2 disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
-                      <span className="spinner-border spinner-border-sm" role="status"></span>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Submitting...</span>
                     </>
                   ) : (
                     <>
-                      <i className="bi bi-send-fill"></i>
+                      <i className="bi bi-send-fill" />
                       <span>Submit Ticket</span>
                     </>
                   )}
@@ -241,15 +246,17 @@ export const TicketCreatePage = () => {
         </div>
 
         {/* AI Copilot & Pre-Submission Assistance Column */}
-        <div className="col-lg-5">
+        <div className="lg:col-span-5 space-y-4">
           {/* Critical Emergency Alert */}
           {criticalNotice && (
-            <div className="alert alert-danger border-danger p-3 mb-3 rounded-4 shadow-sm">
-              <div className="d-flex gap-2.5">
-                <i className="bi bi-exclamation-octagon-fill fs-4 text-danger flex-shrink-0"></i>
+            <div className="p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/30 shadow-subtle animate-scaleUp">
+              <div className="flex items-start gap-3">
+                <i className="bi bi-exclamation-octagon-fill text-xl text-brand-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h6 className="fw-bold mb-1 text-danger">Critical Outage / Emergency Detected</h6>
-                  <p className="text-xs text-danger mb-0" style={{ lineHeight: 1.4 }}>
+                  <h4 className="font-bold text-sm text-brand-primary mb-1">
+                    Critical Outage / Emergency Detected
+                  </h4>
+                  <p className="text-xs text-brand-secondary leading-relaxed">
                     Your ticket contains emergency keywords matching system failure. The priority has been
                     elevated to <b>CRITICAL</b> with an accelerated 1-hour resolution target.
                   </p>
@@ -259,74 +266,64 @@ export const TicketCreatePage = () => {
           )}
 
           {/* AI Knowledge Suggestions Card */}
-          <div className="card shadow-sm border-default h-100">
-            <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
-              <div className="d-flex align-items-center gap-2">
-                <div
-                  className="rounded-circle d-flex align-items-center justify-content-center text-primary"
-                  style={{ width: '28px', height: '28px', background: 'var(--primary-subtle)' }}
-                >
-                  <i className="bi bi-stars"></i>
+          <div className="card-glow p-5 sm:p-6 rounded-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-brand-primary/15 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-brand-secondary/20 text-brand-primary flex items-center justify-center flex-shrink-0">
+                  <i className="bi bi-stars" />
                 </div>
                 <div>
-                  <h6 className="fw-bold mb-0 text-primary-emphasis text-sm">Instant AI Self-Service</h6>
-                  <span className="text-xs text-muted">Local FAISS Vector Engine</span>
+                  <h3 className="font-bold text-sm text-brand-primary">
+                    Instant AI Self-Service
+                  </h3>
+                  <span className="text-[11px] text-brand-secondary">Local FAISS Vector Engine</span>
                 </div>
               </div>
               {aiSearching && (
-                <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
+                <span className="w-4 h-4 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
               )}
             </div>
 
-            <div className="card-body p-3">
-              <p className="text-xs text-muted mb-3">
-                As you type, our zero-cloud-leakage semantic search looks for verified troubleshooting steps
-                to help resolve your issue immediately without waiting for support.
-              </p>
+            <p className="text-xs text-brand-secondary mb-4 leading-relaxed">
+              As you type, our zero-cloud-leakage semantic search looks for verified troubleshooting steps
+              to help resolve your issue immediately without waiting for support.
+            </p>
 
-              {suggestedKb.length === 0 ? (
-                <div className="text-center py-5 text-muted">
+            {suggestedKb.length === 0 ? (
+              <div className="text-center py-8 text-brand-secondary">
+                <div className="w-12 h-12 mx-auto rounded-full bg-brand-secondary/15 flex items-center justify-center mb-2 text-xl text-brand-primary">
+                  <i className="bi bi-lightbulb" />
+                </div>
+                <p className="text-xs max-w-xs mx-auto">
+                  Type a subject and description to view live verified solution guides.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {suggestedKb.map((kb) => (
                   <div
-                    className="rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
-                    style={{ width: '48px', height: '48px', background: 'var(--bg-surface-subtle)' }}
+                    key={kb.chunk_id}
+                    className="p-3.5 rounded-xl card-glow-interactive"
                   >
-                    <i className="bi bi-lightbulb fs-3 text-muted"></i>
-                  </div>
-                  <p className="text-xs text-muted mb-0">
-                    Type a subject and description to view live verified solution guides.
-                  </p>
-                </div>
-              ) : (
-                <div className="d-flex flex-column gap-2.5">
-                  {suggestedKb.map((kb) => (
-                    <div
-                      key={kb.chunk_id}
-                      className="p-3 rounded-3 border border-default card-hover-lift"
-                      style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
-                    >
-                      <div className="d-flex justify-content-between align-items-center mb-1.5">
-                        <span className="badge bg-primary-subtle text-primary text-xs">
-                          <i className="bi bi-check2-circle me-1"></i>
-                          Match: {Math.round(kb.similarity_score * 100)}%
-                        </span>
-                        <span className="text-xs text-muted font-monospace">
-                          #{kb.chunk_id.slice(0, 8)}
-                        </span>
-                      </div>
-                      <h6 className="fw-semibold text-sm text-primary-emphasis mb-1">
-                        {kb.article_title}
-                      </h6>
-                      <p
-                        className="text-xs text-secondary mb-0 line-clamp-3"
-                        style={{ maxHeight: '80px', overflow: 'hidden' }}
-                      >
-                        {kb.content}
-                      </p>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
+                        <i className="bi bi-check2-circle text-xs" />
+                        <span>Match: {Math.round(kb.similarity_score * 100)}%</span>
+                      </span>
+                      <span className="text-[10px] text-brand-secondary font-mono">
+                        #{kb.chunk_id.slice(0, 8)}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <h4 className="font-semibold text-xs text-brand-primary mb-1">
+                      {kb.article_title}
+                    </h4>
+                    <p className="text-xs text-brand-secondary line-clamp-3 leading-relaxed">
+                      {kb.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

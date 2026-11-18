@@ -61,85 +61,112 @@ export const NotificationDropdown = () => {
     if (n.link) navigate(n.link);
   };
 
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'danger':
+        return {
+          icon: 'bi-exclamation-octagon-fill',
+          bg: 'bg-brand-primary text-white',
+        };
+      case 'warning':
+        return {
+          icon: 'bi-clock-history',
+          bg: 'bg-brand-secondary/30 text-brand-primary',
+        };
+      case 'ai':
+        return {
+          icon: 'bi-stars',
+          bg: 'bg-brand-accent/35 text-brand-primary',
+        };
+      default:
+        return {
+          icon: 'bi-bell-fill',
+          bg: 'bg-brand-secondary/20 text-brand-primary',
+        };
+    }
+  };
+
   return (
-    <div className="position-relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="btn btn-sm btn-outline-secondary position-relative border-0 rounded-circle p-2 text-secondary"
-        style={{ width: '38px', height: '38px' }}
+        className="relative p-2 rounded-xl text-brand-primary hover:bg-brand-secondary/15 transition-colors"
         onClick={() => setOpen(!open)}
         title="Notifications"
       >
-        <i className="bi bi-bell fs-5"></i>
+        <i className="bi bi-bell text-lg" />
         {unreadCount > 0 && (
-          <span
-            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem' }}
-          >
+          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-brand-primary rounded-full border-2 border-app-background">
             {unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div
-          className="position-absolute end-0 mt-2 card shadow-lg border-default"
-          style={{ width: '340px', zIndex: 1060, animation: 'scaleUp 180ms ease' }}
-        >
-          <div className="card-header bg-transparent py-2.5 px-3 d-flex align-items-center justify-content-between">
-            <span className="fw-bold text-sm">Notifications</span>
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-24px)] card-glow z-50 overflow-hidden animate-scaleUp">
+          <div className="px-4 py-3 border-b border-brand-primary/15 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-brand-primary">
+                Notifications
+              </span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded-full">
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="btn btn-link btn-sm p-0 text-xs text-primary text-decoration-none"
+                className="text-xs text-brand-primary hover:underline font-semibold"
               >
                 Mark all read
               </button>
             )}
           </div>
-          <div className="list-group list-group-flush overflow-y-auto" style={{ maxHeight: '320px' }}>
+
+          <div className="max-h-80 overflow-y-auto divide-y divide-brand-primary/10">
             {notifications.length === 0 ? (
-              <div className="text-center py-4 text-muted text-xs">
-                No notifications right now.
+              <div className="py-8 text-center text-xs text-brand-secondary">
+                No notifications right now
               </div>
             ) : (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  onClick={() => handleNotificationClick(n)}
-                  className={`list-group-item list-group-item-action p-3 cursor-pointer border-bottom border-subtle ${
-                    !n.read ? 'bg-surface-subtle' : ''
-                  }`}
-                  style={{ backgroundColor: !n.read ? 'var(--bg-surface-subtle)' : 'var(--bg-surface)' }}
-                >
-                  <div className="d-flex align-items-start gap-2.5">
-                    <span
-                      className={`badge-dot mt-1.5 ${
-                        n.type === 'danger'
-                          ? 'bg-danger'
-                          : n.type === 'ai'
-                          ? 'bg-primary'
-                          : 'bg-warning'
-                      }`}
-                      style={{ width: '8px', height: '8px' }}
-                    ></span>
-                    <div className="flex-grow-1 overflow-hidden">
-                      <div className="d-flex justify-content-between align-items-center mb-0.5">
-                        <span className={`text-xs fw-semibold ${!n.read ? 'text-primary' : 'text-primary-emphasis'}`}>
+              notifications.map((n) => {
+                const iconMeta = getTypeIcon(n.type);
+                return (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => handleNotificationClick(n)}
+                    className={`w-full p-3.5 flex items-start gap-3 text-left transition-colors hover:bg-brand-secondary/15 ${
+                      !n.read ? 'bg-brand-secondary/10' : ''
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm ${iconMeta.bg}`}
+                    >
+                      <i className={`bi ${iconMeta.icon}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className="text-xs font-semibold text-brand-primary truncate">
                           {n.title}
                         </span>
-                        <span className="text-muted" style={{ fontSize: '0.7rem' }}>
+                        <span className="text-[10px] text-brand-secondary flex-shrink-0">
                           {n.time}
                         </span>
                       </div>
-                      <p className="text-muted text-xs mb-0 line-clamp-2" style={{ lineHeight: 1.35 }}>
+                      <p className="text-xs text-brand-secondary line-clamp-2 leading-relaxed">
                         {n.message}
                       </p>
                     </div>
-                  </div>
-                </div>
-              ))
+                    {!n.read && (
+                      <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 mt-1.5" />
+                    )}
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -147,4 +174,3 @@ export const NotificationDropdown = () => {
     </div>
   );
 };
-

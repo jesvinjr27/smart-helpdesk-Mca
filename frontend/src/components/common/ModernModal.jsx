@@ -1,5 +1,12 @@
 import React, { useEffect } from 'react';
 
+const SIZE_CLASSES = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+
 export const ModernModal = ({
   isOpen,
   onClose,
@@ -7,7 +14,7 @@ export const ModernModal = ({
   subtitle,
   children,
   footer,
-  size = 'md', // 'sm' | 'md' | 'lg' | 'xl'
+  size = 'md',
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -29,36 +36,51 @@ export const ModernModal = ({
 
   if (!isOpen) return null;
 
-  const sizeClass = size === 'lg' ? 'modal-lg' : size === 'xl' ? 'modal-xl' : '';
+  const sizeClass = SIZE_CLASSES[size] || SIZE_CLASSES.md;
 
   return (
     <div
-      className="modal-backdrop-custom"
+      className="fixed inset-0 bg-brand-primary/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className={`modal-content-custom ${sizeClass}`} role="dialog" aria-modal="true">
-        <div className="modal-header-custom">
-          <div>
-            <h5 className="fw-bold mb-0 text-primary-emphasis fs-6">{title}</h5>
-            {subtitle && <p className="text-xs text-muted mb-0 mt-0.5">{subtitle}</p>}
+      <div
+        className={`w-full ${sizeClass} card-glow overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh] animate-scaleUp`}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="px-5 py-4 border-b border-brand-primary/15 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold text-brand-primary truncate">
+              {title}
+            </h3>
+            {subtitle && (
+              <p className="text-xs text-brand-secondary mt-0.5 truncate">
+                {subtitle}
+              </p>
+            )}
           </div>
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary border-0 p-1 rounded-circle"
+            className="p-1.5 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-secondary/15 transition-colors flex-shrink-0"
             onClick={onClose}
             aria-label="Close"
           >
-            <i className="bi bi-x-lg fs-6"></i>
+            <i className="bi bi-x-lg text-sm" />
           </button>
         </div>
 
-        <div className="modal-body-custom">{children}</div>
+        <div className="p-5 overflow-y-auto max-h-[calc(85vh-130px)] text-sm text-brand-primary">
+          {children}
+        </div>
 
-        {footer && <div className="modal-footer-custom">{footer}</div>}
+        {footer && (
+          <div className="px-5 py-3.5 border-t border-brand-primary/15 bg-app-background/80 flex items-center justify-end gap-2.5">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
 };
-

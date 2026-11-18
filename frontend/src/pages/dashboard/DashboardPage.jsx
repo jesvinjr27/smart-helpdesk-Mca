@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactECharts from 'echarts-for-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../hooks/useTheme';
-import { getDashboardSummaryApi, getDashboardTrendsApi, getTicketsApi, getArticlesApi } from '../../api';
+import {
+  getDashboardSummaryApi,
+  getDashboardTrendsApi,
+  getTicketsApi,
+  getArticlesApi,
+} from '../../api';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { PriorityBadge } from '../../components/common/PriorityBadge';
@@ -12,7 +16,6 @@ import { CardSkeleton, TableSkeleton } from '../../components/common/LoadingSkel
 
 export const DashboardPage = () => {
   const { user, hasRole } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [summary, setSummary] = useState(null);
@@ -23,8 +26,6 @@ export const DashboardPage = () => {
 
   const isRequesterOnly =
     hasRole(['REQUESTER']) && !hasRole(['AGENT', 'LEAD', 'ORG_ADMIN', 'SYS_ADMIN']);
-
-  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -57,15 +58,15 @@ export const DashboardPage = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="space-y-6">
         <PageHeader title="Dashboard" subtitle="Loading operational telemetry..." />
-        <div className="row g-3 mb-4">
-          <div className="col-sm-6 col-xl-3"><CardSkeleton /></div>
-          <div className="col-sm-6 col-xl-3"><CardSkeleton /></div>
-          <div className="col-sm-6 col-xl-3"><CardSkeleton /></div>
-          <div className="col-sm-6 col-xl-3"><CardSkeleton /></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
-        <div className="card shadow-sm p-4">
+        <div className="card-glow p-5">
           <TableSkeleton rows={4} cols={5} />
         </div>
       </div>
@@ -75,142 +76,137 @@ export const DashboardPage = () => {
   // Requester (Student/Employee) View
   if (isRequesterOnly) {
     return (
-      <div>
+      <div className="space-y-6">
         {/* Welcome Banner */}
-        <div
-          className="card border-0 text-white p-4 p-md-5 mb-4 rounded-4 shadow-sm"
-          style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 60%, #6366f1 100%)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div className="row align-items-center position-relative" style={{ zIndex: 1 }}>
-            <div className="col-lg-8">
-              <span className="badge bg-white bg-opacity-20 text-white px-3 py-1 rounded-pill text-xs mb-2">
-                <i className="bi bi-stars me-1"></i>AI-Powered Help Desk
-              </span>
-              <h2 className="fw-bold mb-2">Welcome back, {user?.full_name}! 👋</h2>
-              <p className="mb-0 text-white-50 fs-6" style={{ maxWidth: '580px', lineHeight: 1.5 }}>
-                Have an IT issue, equipment problem, or software access question? Submit a ticket or
-                explore our local AI-indexed knowledge base for verified step-by-step solutions.
-              </p>
-            </div>
-            <div className="col-lg-4 text-lg-end mt-4 mt-lg-0">
-              <button
-                onClick={() => navigate('/tickets/new')}
-                className="btn btn-light text-primary fw-semibold px-4 py-2.5 rounded-pill shadow-sm"
-              >
-                <i className="bi bi-plus-circle me-2"></i>Create New Ticket
-              </button>
-            </div>
+        <div className="relative overflow-hidden bg-brand-primary rounded-2xl p-6 sm:p-8 text-white shadow-subtle border border-brand-primary/30 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="relative z-10 max-w-xl">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-accent border border-white/20 mb-3">
+              <i className="bi bi-stars" />
+              <span>AI-Powered Help Desk</span>
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2 text-white">
+              Welcome back, {user?.full_name}! 👋
+            </h2>
+            <p className="text-white/80 text-sm leading-relaxed">
+              Have an IT issue, equipment problem, or software access question? Submit a ticket or
+              explore our local AI-indexed knowledge base for verified step-by-step solutions.
+            </p>
+          </div>
+          <div className="relative z-10 flex-shrink-0">
+            <button
+              onClick={() => navigate('/tickets/new')}
+              className="px-5 py-2.5 bg-brand-accent text-brand-primary hover:bg-brand-accent/90 font-semibold text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-2"
+            >
+              <i className="bi bi-plus-circle text-base" />
+              <span>Create New Ticket</span>
+            </button>
           </div>
         </div>
 
-        <div className="row g-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* My Tickets */}
-          <div className="col-lg-8">
-            <div className="card shadow-sm h-100">
-              <div className="card-header d-flex align-items-center justify-content-between py-3">
-                <div className="d-flex align-items-center gap-2">
-                  <i className="bi bi-ticket-detailed text-primary fs-5"></i>
-                  <h6 className="fw-bold mb-0 text-primary-emphasis">My Recent Tickets</h6>
+          <div className="lg:col-span-8">
+            <div className="card-glow overflow-hidden h-full flex flex-col">
+              <div className="px-5 py-4 border-b border-brand-primary/15 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <i className="bi bi-ticket-detailed text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
+                    My Recent Tickets
+                  </h3>
                 </div>
                 <button
                   onClick={() => navigate('/tickets')}
-                  className="btn btn-sm btn-outline-secondary border-0 text-primary text-xs"
+                  className="text-xs font-medium text-brand-primary hover:underline inline-flex items-center gap-1"
                 >
-                  View All Tickets <i className="bi bi-arrow-right ms-1"></i>
+                  <span>View All Tickets</span>
+                  <i className="bi bi-arrow-right" />
                 </button>
               </div>
-              <div className="card-body p-0">
+
+              <div className="flex-1 overflow-x-auto">
                 {myTickets.length === 0 ? (
-                  <div className="text-center py-5 text-muted">
-                    <i className="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                    <p className="mb-0 text-sm">You have no active tickets right now.</p>
+                  <div className="text-center py-12 text-brand-secondary">
+                    <i className="bi bi-inbox text-3xl block mb-2" />
+                    <p className="text-sm">You have no active tickets right now.</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-custom mb-0">
-                      <thead>
-                        <tr>
-                          <th>Ticket #</th>
-                          <th>Subject</th>
-                          <th>Priority</th>
-                          <th>Status</th>
-                          <th>Created</th>
+                  <table className="w-full text-left border-collapse min-w-[500px]">
+                    <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
+                      <tr>
+                        <th className="px-4 py-3">Ticket #</th>
+                        <th className="px-4 py-3">Subject</th>
+                        <th className="px-4 py-3">Priority</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-brand-primary/10 text-sm">
+                      {myTickets.map((t) => (
+                        <tr
+                          key={t.id}
+                          onClick={() => navigate(`/tickets/${t.id}`)}
+                          className="hover:bg-brand-accent/15 cursor-pointer transition-colors"
+                        >
+                          <td className="px-4 py-3 font-semibold text-brand-primary font-mono text-xs">
+                            {t.ticket_number}
+                          </td>
+                          <td className="px-4 py-3 max-w-[240px] truncate font-medium text-brand-primary">
+                            {t.title}
+                          </td>
+                          <td className="px-4 py-3">
+                            <PriorityBadge priority={t.priority} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={t.status} />
+                          </td>
+                          <td className="px-4 py-3 text-xs text-brand-secondary">
+                            {new Date(t.created_at).toLocaleDateString()}
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {myTickets.map((t) => (
-                          <tr
-                            key={t.id}
-                            className="cursor-pointer"
-                            onClick={() => navigate(`/tickets/${t.id}`)}
-                          >
-                            <td className="fw-semibold text-primary">{t.ticket_number}</td>
-                            <td className="text-truncate" style={{ maxWidth: '260px' }}>
-                              <span className="fw-medium text-primary-emphasis">{t.title}</span>
-                            </td>
-                            <td>
-                              <PriorityBadge priority={t.priority} />
-                            </td>
-                            <td>
-                              <StatusBadge status={t.status} />
-                            </td>
-                            <td className="text-muted text-xs">
-                              {new Date(t.created_at).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Quick Knowledge Base Articles */}
-          <div className="col-lg-4">
-            <div className="card shadow-sm h-100">
-              <div className="card-header py-3 d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center gap-2">
-                  <i className="bi bi-book text-info fs-5"></i>
-                  <h6 className="fw-bold mb-0 text-primary-emphasis">Popular Self-Service Guides</h6>
+          {/* Popular Self-Service Guides */}
+          <div className="lg:col-span-4">
+            <div className="card-glow p-5 h-full flex flex-col">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-brand-primary/15">
+                <div className="flex items-center gap-2">
+                  <i className="bi bi-book text-brand-primary text-lg" />
+                  <h3 className="font-bold text-sm text-brand-primary">
+                    Self-Service Guides
+                  </h3>
                 </div>
                 <button
                   onClick={() => navigate('/knowledge-base')}
-                  className="btn btn-sm btn-outline-secondary border-0 text-primary text-xs"
+                  className="text-xs font-medium text-brand-primary hover:underline"
                 >
                   Browse KB
                 </button>
               </div>
-              <div className="card-body p-3">
-                <div className="d-flex flex-column gap-2.5">
-                  {articles.length === 0 ? (
-                    <div className="text-muted text-xs text-center py-4">No published articles yet.</div>
-                  ) : (
-                    articles.map((art) => (
-                      <div
-                        key={art.id}
-                        onClick={() => navigate('/knowledge-base')}
-                        className="p-3 border border-default rounded-3 cursor-pointer card-hover-lift"
-                        style={{ backgroundColor: 'var(--bg-surface-subtle)' }}
-                      >
-                        <div className="fw-semibold text-sm text-primary-emphasis mb-1">
-                          {art.title}
-                        </div>
-                        <div className="text-xs text-muted text-truncate mb-2">
-                          {art.summary || 'Click to view verified troubleshooting steps.'}
-                        </div>
-                        <span className="badge bg-secondary-subtle text-secondary text-xs">
-                          {art.category_name || 'General'}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
+
+              <div className="flex-1 space-y-2.5">
+                {articles.map((art) => (
+                  <div
+                    key={art.id}
+                    onClick={() => navigate('/knowledge-base')}
+                    className="p-3 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-semibold text-brand-primary truncate">
+                        {art.title}
+                      </span>
+                      <i className="bi bi-chevron-right text-xs text-brand-secondary flex-shrink-0" />
+                    </div>
+                    <p className="text-[11px] text-brand-secondary line-clamp-1">
+                      {art.summary || 'Click to view troubleshooting steps...'}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -219,21 +215,23 @@ export const DashboardPage = () => {
     );
   }
 
-  // Colors for ECharts
-  const axisLabelColor = isDark ? '#94a3b8' : '#64748b';
-  const splitLineColor = isDark ? '#1e293b' : '#f1f5f9';
+  // Admin / Agent / Team Lead View
+  const axisLabelColor = '#7aaace';
+  const splitLineColor = 'rgba(122, 170, 206, 0.2)';
 
-  // Ticket Volume Trend Chart
+  // Volume Trends Chart - Using Official Palette (#355872, #7aaace, #9cd5ff)
   const volumeChartOptions = {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: isDark ? '#1e293b' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
     xAxis: {
       type: 'category',
-      data: trends?.ticket_volume_by_day?.map((d) => d.date) || [],
+      boundaryGap: false,
+      data: trends?.daily_volume?.map((d) => d.date) || [],
       axisLabel: { color: axisLabelColor, fontSize: 11 },
       axisLine: { lineStyle: { color: splitLineColor } },
     },
@@ -243,15 +241,15 @@ export const DashboardPage = () => {
       axisLabel: { color: axisLabelColor, fontSize: 11 },
       splitLine: { lineStyle: { color: splitLineColor } },
     },
-    grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
     series: [
       {
-        data: trends?.ticket_volume_by_day?.map((d) => d.count) || [],
+        name: 'New Tickets',
+        data: trends?.daily_volume?.map((d) => d.count) || [],
         type: 'line',
         smooth: true,
         showSymbol: false,
-        itemStyle: { color: '#3b82f6' },
-        lineStyle: { width: 3 },
+        itemStyle: { color: '#355872' },
+        lineStyle: { width: 3, color: '#355872' },
         areaStyle: {
           color: {
             type: 'linear',
@@ -260,8 +258,8 @@ export const DashboardPage = () => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(59, 130, 246, 0.4)' },
-              { offset: 1, color: 'rgba(59, 130, 246, 0.0)' },
+              { offset: 0, color: 'rgba(53, 88, 114, 0.35)' },
+              { offset: 1, color: 'rgba(156, 213, 255, 0.05)' },
             ],
           },
         },
@@ -269,14 +267,15 @@ export const DashboardPage = () => {
     ],
   };
 
-  // Status Distribution Donut Chart
+  // Status Distribution Donut Chart - Using Official Palette
   const statusChartOptions = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: isDark ? '#1e293b' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
+    color: ['#355872', '#7aaace', '#9cd5ff', 'rgba(53, 88, 114, 0.5)'],
     legend: {
       bottom: '0%',
       left: 'center',
@@ -292,28 +291,28 @@ export const DashboardPage = () => {
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 6,
-          borderColor: isDark ? '#111827' : '#ffffff',
+          borderColor: '#f7f8f0',
           borderWidth: 2,
         },
         label: { show: false },
         data: trends?.status_distribution
           ? Object.entries(trends.status_distribution).map(([k, v]) => ({
-              name: k.replace('_', ' '),
-              value: v,
-            }))
+            name: k.replace('_', ' '),
+            value: v,
+          }))
           : [],
       },
     ],
   };
 
-  // Category Breakdown Bar Chart
+  // Category Breakdown Bar Chart - Using Official Palette
   const categoryChartOptions = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: isDark ? '#1e293b' : '#ffffff',
-      borderColor: isDark ? '#334155' : '#e2e8f0',
-      textStyle: { color: isDark ? '#f8fafc' : '#0f172a', fontSize: 12 },
+      backgroundColor: '#f7f8f0',
+      borderColor: '#7aaace',
+      textStyle: { color: '#355872', fontSize: 12 },
     },
     xAxis: {
       type: 'value',
@@ -333,185 +332,176 @@ export const DashboardPage = () => {
         name: 'Tickets',
         type: 'bar',
         data: trends?.category_breakdown?.map((c) => c.count) || [],
-        itemStyle: { color: '#6366f1', borderRadius: [0, 6, 6, 0] },
+        itemStyle: { color: '#7aaace', borderRadius: [0, 6, 6, 0] },
       },
     ],
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Operations Dashboard"
         subtitle="Real-time incident queue metrics, SLA compliance rates, and agent assignment distribution."
         actions={
           <button
             onClick={() => navigate('/tickets/new')}
-            className="btn btn-primary btn-sm rounded-3 shadow-sm px-3"
+            className="px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-subtle transition-all inline-flex items-center gap-1.5"
           >
-            <i className="bi bi-plus-lg me-1"></i>Create Ticket
+            <i className="bi bi-plus-lg" />
+            <span>Create Ticket</span>
           </button>
         }
       />
 
       {/* KPI Stat Cards Row */}
-      <div className="row g-3 mb-4">
-        <div className="col-sm-6 col-xl-3">
-          <StatCard
-            title="Total Tickets"
-            value={summary?.total_tickets ?? 0}
-            icon="bi-ticket-perforated"
-            variant="primary"
-            subtitle="Organization lifetime volume"
-            trend={{ text: 'Queue Active', isPositive: true }}
-          />
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Tickets"
+          value={summary?.total_tickets ?? 0}
+          icon="bi-ticket-perforated"
+          variant="primary"
+          subtitle="Organization lifetime volume"
+          trend={{ text: 'Queue Active', isPositive: true }}
+        />
 
-        <div className="col-sm-6 col-xl-3">
-          <StatCard
-            title="Open Incidents"
-            value={summary?.open_tickets ?? 0}
-            icon="bi-hourglass-split"
-            variant="warning"
-            subtitle="Active tickets pending resolution"
-          />
-        </div>
+        <StatCard
+          title="Open Incidents"
+          value={summary?.open_tickets ?? 0}
+          icon="bi-hourglass-split"
+          variant="warning"
+          subtitle="Active tickets pending resolution"
+        />
 
-        <div className="col-sm-6 col-xl-3">
-          <StatCard
-            title="SLA Compliance"
-            value={`${summary?.sla_compliance_rate ?? 100}%`}
-            icon="bi-patch-check"
-            variant="success"
-            subtitle={`Avg resolution: ${summary?.avg_resolution_hours ?? 0} hrs`}
-          />
-        </div>
+        <StatCard
+          title="SLA Compliance"
+          value={`${summary?.sla_compliance_rate ?? 100}%`}
+          icon="bi-patch-check"
+          variant="success"
+          subtitle={`Avg resolution: ${summary?.avg_resolution_hours ?? 0} hrs`}
+        />
 
-        <div className="col-sm-6 col-xl-3">
-          <StatCard
-            title="Critical Incidents"
-            value={summary?.critical_tickets ?? 0}
-            icon="bi-exclamation-octagon"
-            variant="danger"
-            pulse={summary?.critical_tickets > 0}
-            subtitle={summary?.critical_tickets > 0 ? 'Urgent attention required' : 'Zero active blockers'}
-          />
-        </div>
+        <StatCard
+          title="Critical Incidents"
+          value={summary?.critical_tickets ?? 0}
+          icon="bi-exclamation-octagon"
+          variant="danger"
+          pulse={summary?.critical_tickets > 0}
+          subtitle={summary?.critical_tickets > 0 ? 'Urgent attention required' : 'Zero active blockers'}
+        />
       </div>
 
       {/* Charts Row */}
-      <div className="row g-4 mb-4">
-        <div className="col-lg-8">
-          <div className="card shadow-sm p-3 h-100">
-            <div className="d-flex align-items-center justify-content-between mb-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-8">
+          <div className="card-glow p-5 h-full">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">Ticket Volume Ingestion (7 Days)</h6>
-                <span className="text-xs text-muted">Daily ticket arrival rates across all categories</span>
+                <h3 className="font-bold text-sm text-brand-primary">
+                  Ticket Volume Ingestion (7 Days)
+                </h3>
+                <span className="text-xs text-brand-secondary">
+                  Daily ticket arrival rates across all categories
+                </span>
               </div>
-              <span className="badge bg-surface-subtle text-muted border border-default">
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
                 Daily Intake
               </span>
             </div>
-            <ReactECharts option={volumeChartOptions} style={{ height: '290px' }} />
+            <ReactECharts option={volumeChartOptions} style={{ height: '290px', width: '100%' }} />
           </div>
         </div>
 
-        <div className="col-lg-4">
-          <div className="card shadow-sm p-3 h-100">
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <h6 className="fw-bold mb-0 text-primary-emphasis">Status Distribution</h6>
-              <i className="bi bi-pie-chart text-muted"></i>
+        <div className="lg:col-span-4">
+          <div className="card-glow p-5 h-full">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-sm text-brand-primary">
+                Status Distribution
+              </h3>
+              <i className="bi bi-pie-chart text-brand-secondary" />
             </div>
-            <ReactECharts option={statusChartOptions} style={{ height: '290px' }} />
+            <ReactECharts option={statusChartOptions} style={{ height: '290px', width: '100%' }} />
           </div>
         </div>
       </div>
 
       {/* Category Breakdown & Agent Queue Workload */}
-      <div className="row g-4">
-        <div className="col-lg-6">
-          <div className="card shadow-sm p-3 h-100">
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <h6 className="fw-bold mb-0 text-primary-emphasis">Tickets by Category</h6>
-              <span className="text-xs text-muted">Volume breakdown</span>
-            </div>
-            <ReactECharts option={categoryChartOptions} style={{ height: '260px' }} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="card-glow p-5 h-full">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-sm text-brand-primary">
+              Tickets by Category
+            </h3>
+            <span className="text-xs text-brand-secondary">Volume breakdown</span>
           </div>
+          <ReactECharts option={categoryChartOptions} style={{ height: '260px', width: '100%' }} />
         </div>
 
-        <div className="col-lg-6">
-          <div className="card shadow-sm p-3 h-100">
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <div>
-                <h6 className="fw-bold mb-0 text-primary-emphasis">Agent Queue Workload</h6>
-                <span className="text-xs text-muted">Live assignment capacity</span>
-              </div>
-              <span className="badge bg-primary-subtle text-primary border border-primary-border">
-                Active Queue
-              </span>
+        <div className="card-glow p-5 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-bold text-sm text-brand-primary">
+                Agent Queue Workload
+              </h3>
+              <span className="text-xs text-brand-secondary">Live assignment capacity</span>
             </div>
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
+              Active Queue
+            </span>
+          </div>
 
-            <div className="table-responsive">
-              <table className="table table-custom mb-0">
-                <thead>
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[360px]">
+              <thead className="bg-brand-secondary/15 border-b border-brand-primary/15 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
+                <tr>
+                  <th className="px-3.5 py-2.5">Support Agent</th>
+                  <th className="px-3.5 py-2.5">Load Distribution</th>
+                  <th className="px-3.5 py-2.5 text-right">Assigned</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-primary/10 text-sm">
+                {!trends?.agent_workload || trends.agent_workload.length === 0 ? (
                   <tr>
-                    <th>Support Agent</th>
-                    <th>Load Distribution</th>
-                    <th className="text-end">Assigned Tickets</th>
+                    <td colSpan="3" className="text-center text-brand-secondary py-6 text-xs">
+                      No assigned agents currently.
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {!trends?.agent_workload || trends.agent_workload.length === 0 ? (
-                    <tr>
-                      <td colSpan="3" className="text-center text-muted py-4 text-xs">
-                        No assigned agents currently.
-                      </td>
-                    </tr>
-                  ) : (
-                    trends.agent_workload.map((a, i) => {
-                      const count = a.active_tickets;
-                      const max = Math.max(...trends.agent_workload.map((x) => x.active_tickets), 1);
-                      const percent = Math.min(Math.round((count / max) * 100), 100);
+                ) : (
+                  trends.agent_workload.map((a, i) => {
+                    const count = a.active_tickets;
+                    const max = Math.max(...trends.agent_workload.map((x) => x.active_tickets), 1);
+                    const percent = Math.min(Math.round((count / max) * 100), 100);
 
-                      return (
-                        <tr key={i}>
-                          <td>
-                            <div className="d-flex align-items-center gap-2">
-                              <div
-                                className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold"
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: 'var(--primary-gradient)',
-                                }}
-                              >
-                                {a.agent_name?.[0]?.toUpperCase() || 'A'}
-                              </div>
-                              <span className="fw-medium text-primary-emphasis">{a.agent_name}</span>
+                    return (
+                      <tr key={i} className="hover:bg-brand-accent/15 transition-colors">
+                        <td className="px-3.5 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-brand-primary flex items-center justify-center text-white text-xs font-bold shadow-xs flex-shrink-0">
+                              {a.agent_name?.[0]?.toUpperCase() || 'A'}
                             </div>
-                          </td>
-                          <td style={{ width: '35%' }}>
-                            <div className="progress" style={{ height: '6px' }}>
-                              <div
-                                className={`progress-bar ${
-                                  count > 8 ? 'bg-danger' : count > 4 ? 'bg-warning' : 'bg-primary'
-                                }`}
-                                role="progressbar"
-                                style={{ width: `${percent}%` }}
-                              ></div>
-                            </div>
-                          </td>
-                          <td className="text-end">
-                            <span className="badge bg-surface-subtle text-primary-emphasis border border-default px-2.5 py-1">
-                              {count} active
+                            <span className="font-medium text-brand-primary text-xs truncate">
+                              {a.agent_name}
                             </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                        </td>
+                        <td className="px-3.5 py-3 w-[35%]">
+                          <div className="w-full bg-brand-secondary/20 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-300 bg-brand-primary"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </td>
+                        <td className="px-3.5 py-3 text-right">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
+                            {count} active
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

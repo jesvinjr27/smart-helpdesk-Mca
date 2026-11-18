@@ -68,14 +68,14 @@ export const AdminUsersPage = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="User & Role Administration"
         subtitle="Manage organization members, configure department memberships, and assign security roles."
         actions={
           <button
             onClick={() => setShowModal(true)}
-            className="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white shadow-subtle transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent/40 active:scale-[0.98]"
           >
             <i className="bi bi-person-plus-fill"></i>
             <span>Add Organization Member</span>
@@ -83,85 +83,99 @@ export const AdminUsersPage = () => {
         }
       />
 
-      <div className="card shadow-sm border-default">
-        <div className="card-header py-3 d-flex align-items-center justify-content-between border-subtle">
-          <div className="d-flex align-items-center gap-2">
-            <i className="bi bi-people text-primary fs-5"></i>
-            <h6 className="fw-bold mb-0 text-primary-emphasis">Registered Members</h6>
+      <div className="card-glow rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-brand-primary/10 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 text-brand-primary flex items-center justify-center">
+              <i className="bi bi-people text-lg"></i>
+            </div>
+            <h2 className="text-base font-semibold text-brand-primary m-0">
+              Registered Members
+            </h2>
           </div>
-          <span className="badge bg-surface-subtle text-muted border border-default">
+          <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-secondary/15 text-brand-primary border border-brand-secondary/30">
             {users.length} Total Users
           </span>
         </div>
 
-        <div className="card-body p-0">
+        <div className="p-0">
           {loading ? (
-            <TableSkeleton rows={5} cols={5} />
+            <div className="p-4">
+              <TableSkeleton rows={5} cols={5} />
+            </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-custom mb-0">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
-                  <tr>
-                    <th>Member</th>
-                    <th>Email Address</th>
-                    <th>Assigned Security Roles</th>
-                    <th>Account Status</th>
-                    <th>Joined Date</th>
+                  <tr className="border-b border-brand-primary/10 bg-brand-secondary/15">
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Member
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Email Address
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Assigned Security Roles
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Account Status
+                    </th>
+                    <th className="py-3 px-4 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                      Joined Date
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-brand-primary/10">
                   {users.map((u) => (
-                    <tr key={u.id}>
-                      <td>
-                        <div className="d-flex align-items-center gap-2.5">
-                          <div
-                            className="rounded-circle d-flex align-items-center justify-content-center text-white text-xs fw-bold shadow-sm"
-                            style={{
-                              width: '32px',
-                              height: '32px',
-                              background: 'var(--primary-gradient)',
-                            }}
-                          >
+                    <tr
+                      key={u.id}
+                      className="hover:bg-brand-accent/15 transition-colors"
+                    >
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-brand-primary shadow-subtle flex-shrink-0">
                             {u.full_name ? u.full_name[0].toUpperCase() : 'U'}
                           </div>
                           <div>
-                            <span className="fw-semibold text-primary-emphasis text-sm d-block">
+                            <span className="font-medium text-brand-primary text-sm block">
                               {u.full_name}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="text-secondary text-sm">{u.email}</td>
-                      <td>
-                        <div className="d-flex flex-wrap gap-1">
+                      <td className="py-3.5 px-4 text-brand-secondary text-sm">
+                        {u.email}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-wrap gap-1.5">
                           {u.roles?.map((r, i) => (
                             <span
                               key={i}
-                              className={`badge text-xs ${
-                                r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
-                                  ? 'bg-danger-subtle text-danger border border-danger-subtle'
-                                  : r === 'AGENT' || r === 'LEAD'
-                                  ? 'bg-primary-subtle text-primary border border-primary-border'
-                                  : 'bg-secondary-subtle text-secondary border border-default'
-                              }`}
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium tracking-wide ${r === 'ORG_ADMIN' || r === 'SYS_ADMIN'
+                                ? 'bg-brand-primary text-white border border-brand-primary'
+                                : r === 'AGENT' || r === 'LEAD'
+                                  ? 'bg-brand-secondary/25 text-brand-primary border border-brand-secondary/40'
+                                  : 'bg-brand-accent/25 text-brand-primary border border-brand-accent/40'
+                                }`}
                             >
                               {r}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td>
+                      <td className="py-3.5 px-4">
                         {u.is_active ? (
-                          <span className="badge bg-success-subtle text-success border border-success-subtle">
-                            <span className="badge-dot bg-success me-1"></span>Active
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-secondary/20 text-brand-primary border border-brand-secondary/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary"></span>
+                            Active
                           </span>
                         ) : (
-                          <span className="badge bg-secondary-subtle text-muted border border-default">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20">
                             Deactivated
                           </span>
                         )}
                       </td>
-                      <td className="text-xs text-muted">
+                      <td className="py-3.5 px-4 text-xs text-brand-secondary whitespace-nowrap">
                         {new Date(u.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -183,7 +197,7 @@ export const AdminUsersPage = () => {
           <>
             <button
               type="button"
-              className="btn btn-outline-secondary btn-sm"
+              className="px-4 py-2 text-sm font-medium rounded-xl border border-brand-secondary/40 text-brand-primary bg-app-background hover:bg-brand-secondary/15 transition-colors"
               onClick={() => setShowModal(false)}
             >
               Cancel
@@ -192,80 +206,92 @@ export const AdminUsersPage = () => {
               type="button"
               disabled={saving}
               onClick={handleCreateUser}
-              className="btn btn-primary btn-sm px-3"
+              className="px-4 py-2 text-sm font-semibold rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white transition-all shadow-subtle disabled:opacity-50"
             >
               {saving ? 'Creating Member...' : 'Create Member'}
             </button>
           </>
         }
       >
-        <div className="mb-3">
-          <label className="form-label">Full Name</label>
-          <input
-            type="text"
-            required
-            className="form-control"
-            placeholder="e.g. Jonathan Vance"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Email Address</label>
-          <input
-            type="email"
-            required
-            className="form-control"
-            placeholder="e.g. jvance@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Initial Password</label>
-          <input
-            type="text"
-            required
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span className="text-muted text-xs mt-1 d-block">
-            Member will use this initial password on first sign-in.
-          </span>
-        </div>
-
-        <div className="row g-3 mb-2">
-          <div className="col-sm-6">
-            <label className="form-label">System Role</label>
-            <select
-              className="form-select"
-              value={roleName}
-              onChange={(e) => setRoleName(e.target.value)}
-            >
-              <option value="REQUESTER">Requester (Employee / Student)</option>
-              <option value="AGENT">Support Agent</option>
-              <option value="LEAD">Department Manager / Team Lead</option>
-              <option value="ORG_ADMIN">Organization Admin</option>
-            </select>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              Full Name
+            </label>
+            <input
+              type="text"
+              required
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+              placeholder="e.g. Jonathan Vance"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+            />
           </div>
 
-          <div className="col-sm-6">
-            <label className="form-label">Department</label>
-            <select
-              className="form-select"
-              value={deptId}
-              onChange={(e) => setDeptId(e.target.value)}
-            >
-              <option value="">None / Unassigned</option>
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              Email Address
+            </label>
+            <input
+              type="email"
+              required
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+              placeholder="e.g. jvance@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              Initial Password
+            </label>
+            <input
+              type="text"
+              required
+              className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary placeholder-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <span className="text-brand-secondary text-xs mt-1 block">
+              Member will use this initial password on first sign-in.
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                System Role
+              </label>
+              <select
+                className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+                value={roleName}
+                onChange={(e) => setRoleName(e.target.value)}
+              >
+                <option value="REQUESTER">Requester (Employee / Student)</option>
+                <option value="AGENT">Support Agent</option>
+                <option value="LEAD">Department Manager / Team Lead</option>
+                <option value="ORG_ADMIN">Organization Admin</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                Department
+              </label>
+              <select
+                className="w-full px-3 py-2 text-sm rounded-xl border border-brand-secondary/40 bg-app-background text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-colors cursor-pointer"
+                value={deptId}
+                onChange={(e) => setDeptId(e.target.value)}
+              >
+                <option value="">None / Unassigned</option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </ModernModal>

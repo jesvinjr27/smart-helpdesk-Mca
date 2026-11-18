@@ -7,7 +7,7 @@ from backend.app.db.session import get_db
 from backend.app.models.all_models import AuditLog, User
 from backend.app.schemas.all_schemas import AIAdminModelsResponse, AuditLogResponse
 from backend.app.core.dependencies import get_current_user, require_role
-from backend.app.integrations.ai_service import ai_service
+from backend.app.ai.gateway import ai_gateway
 
 router = APIRouter(prefix="/admin", tags=["Administration & Monitoring"])
 
@@ -16,12 +16,7 @@ router = APIRouter(prefix="/admin", tags=["Administration & Monitoring"])
 async def get_ai_models_admin(
     current_user: User = Depends(get_current_user)
 ):
-    summary = ai_service.get_model_status_summary()
-    # Check live Ollama status
-    ollama_check = await ai_service.check_ollama_health()
-    summary["ollama_llm"]["status"] = ollama_check["status"]
-    summary["ollama_llm"]["metrics"]["ollama_service"] = ollama_check
-
+    summary = ai_gateway.get_diagnostics()
     return AIAdminModelsResponse(**summary)
 
 
