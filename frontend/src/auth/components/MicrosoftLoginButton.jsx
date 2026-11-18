@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getMicrosoftConfigApi } from '../../api';
+import { useToast } from '../../context/ToastContext';
 
 export const MicrosoftLoginButton = () => {
   const [ssoConfig, setSsoConfig] = useState({ enabled: false, loading: true });
-  const [showUnavailableNotice, setShowUnavailableNotice] = useState(false);
+  const { showError } = useToast();
 
   useEffect(() => {
     let mounted = true;
@@ -32,18 +33,22 @@ export const MicrosoftLoginButton = () => {
 
   const handleClick = () => {
     if (!ssoConfig.enabled) {
-      setShowUnavailableNotice(true);
+      showError('Microsoft Single Sign-On is currently unavailable. Please sign in with your email and password.');
       return;
     }
 
     // When Microsoft Entra ID is configured on the backend:
     // Initiates standard OAuth2 Authorization Code Flow with PKCE
-    const authority = `https://login.microsoftonline.com/${ssoConfig.tenant_id}`;
-    const redirectUri = encodeURIComponent(window.location.origin + '/auth/microsoft/callback');
-    const clientId = ssoConfig.client_id;
-    const scope = encodeURIComponent('openid profile email');
-    const authUrl = `${authority}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=${scope}&state=helpdesk_msal_state`;
-    window.location.href = authUrl;
+    try {
+      const authority = `https://login.microsoftonline.com/${ssoConfig.tenant_id}`;
+      const redirectUri = encodeURIComponent(window.location.origin + '/auth/microsoft/callback');
+      const clientId = ssoConfig.client_id;
+      const scope = encodeURIComponent('openid profile email');
+      const authUrl = `${authority}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=${scope}&state=helpdesk_msal_state`;
+      window.location.href = authUrl;
+    } catch (err) {
+      showError('Unable to initiate Microsoft authentication. Please try again.');
+    }
   };
 
   return (
@@ -71,26 +76,6 @@ export const MicrosoftLoginButton = () => {
           </span>
         )}
       </button>
-
-      {/* Explanatory Notice when SSO is disabled */}
-      {showUnavailableNotice && (
-        <div className="mt-2.5 p-3 rounded-xl bg-brand-accent/20 border border-brand-secondary/30 text-xs text-brand-primary animate-fadeIn flex items-start gap-2">
-          <i className="bi bi-info-circle-fill text-brand-primary text-sm flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <span className="font-semibold block">Microsoft Single Sign-On is currently unconfigured.</span>
-            <span className="text-brand-secondary text-[11px] block mt-0.5">
-              Please use email and password credentials to sign in. System administrators can configure Entra ID credentials in the server environment.
-            </span>
-            <button
-              type="button"
-              onClick={() => setShowUnavailableNotice(false)}
-              className="text-[11px] font-semibold text-brand-primary underline hover:text-brand-primary/70 mt-1 inline-block"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

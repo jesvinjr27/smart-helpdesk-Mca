@@ -110,6 +110,17 @@
     border-color: #355872;
     box-shadow: 0 0 10px -1px rgba(25, 67, 80, 0.12), 0 0 6px 0 rgba(156, 213, 255, 0.25);
   }
+
+  /* Form control invalid error state */
+  .input-error {
+    border-color: #dc2626 !important;
+    background-color: rgba(254, 242, 242, 0.35) !important;
+  }
+
+  .input-error:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18) !important;
+  }
 }
 
 /* Custom Scrollbars in Official Brand Blue Palette */

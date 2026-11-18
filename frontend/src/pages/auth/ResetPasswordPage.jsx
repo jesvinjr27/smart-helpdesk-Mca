@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { resetPasswordApi } from '../../api';
+import { useToast } from '../../context/ToastContext';
+import { validateNewPassword, validateConfirmPassword } from '../../auth/utils/validation';
 
 export const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -11,27 +13,73 @@ export const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const [errors, setErrors] = useState({ token: '', newPassword: '', confirmPassword: '' });
+  const [touched, setTouched] = useState({ token: false, newPassword: false, confirmPassword: false });
+
+  const { showError } = useToast();
   const navigate = useNavigate();
+
+  const handleNewPasswordChange = (e) => {
+    const val = e.target.value;
+    setNewPassword(val);
+    if (touched.newPassword || errors.newPassword) {
+      const res = validateNewPassword(val);
+      setErrors((prev) => ({ ...prev, newPassword: res.error }));
+    }
+    if (touched.confirmPassword && confirmPassword) {
+      const matchRes = validateConfirmPassword(val, confirmPassword);
+      setErrors((prev) => ({ ...prev, confirmPassword: matchRes.error }));
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const val = e.target.value;
+    setConfirmPassword(val);
+    if (touched.confirmPassword || errors.confirmPassword) {
+      const res = validateConfirmPassword(newPassword, val);
+      setErrors((prev) => ({ ...prev, confirmPassword: res.error }));
+    }
+  };
+
+  const handleNewPasswordBlur = () => {
+    setTouched((prev) => ({ ...prev, newPassword: true }));
+    const res = validateNewPassword(newPassword);
+    setErrors((prev) => ({ ...prev, newPassword: res.error }));
+  };
+
+  const handleConfirmPasswordBlur = () => {
+    setTouched((prev) => ({ ...prev, confirmPassword: true }));
+    const res = validateConfirmPassword(newPassword, confirmPassword);
+    setErrors((prev) => ({ ...prev, confirmPassword: res.error }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
 
+    if (loading) return; // Prevent duplicate requests
+
+    setTouched({ token: true, newPassword: true, confirmPassword: true });
+
+    let tokenError = null;
     if (!token.trim()) {
-      setErrorMessage('A valid password reset token is required.');
-      return;
+      tokenError = 'A valid password reset token is required.';
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('Password must be at least 8 characters in length.');
-      return;
-    }
+    const passRes = validateNewPassword(newPassword);
+    const confirmRes = validateConfirmPassword(newPassword, confirmPassword);
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('Passwords do not match. Please verify your entries.');
+    const newErrors = {
+      token: tokenError,
+      newPassword: passRes.error,
+      confirmPassword: confirmRes.error,
+    };
+    setErrors(newErrors);
+
+    if (tokenError || !passRes.isValid || !confirmRes.isValid) {
+      const firstError = tokenError || passRes.error || confirmRes.error;
+      showError(firstError);
       return;
     }
 
@@ -44,9 +92,9 @@ export const ResetPasswordPage = () => {
       });
       setIsSuccess(true);
     } catch (err) {
-      setErrorMessage(
-        err.response?.data?.detail || err.message || 'Password reset failed. The link may have expired.'
-      );
+      const msg =
+        err.response?.data?.detail || err.message || 'Password reset failed. The link may have expired.';
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -66,13 +114,6 @@ export const ResetPasswordPage = () => {
             Create a strong, unique password for your Smart Help Desk account.
           </p>
         </div>
-
-        {errorMessage && (
-          <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
-            <i className="bi bi-exclamation-triangle-fill text-brand-primary text-base flex-shrink-0 mt-0.5" />
-            <div className="flex-1 leading-relaxed">{errorMessage}</div>
-          </div>
-        )}
 
         {isSuccess ? (
           <div className="space-y-4 text-center">
@@ -96,25 +137,54 @@ export const ResetPasswordPage = () => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {!tokenFromUrl && (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+                <label
+                  htmlFor="reset-token"
+                  className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5"
+                >
                   Reset Token
                 </label>
                 <input
+                  id="reset-token"
                   type="text"
-                  required
                   value={token}
-                  onChange={(e) => setToken(e.target.value)}
+                  onChange={(e) => {
+                    setToken(e.target.value);
+                    if (errors.token) setErrors((prev) => ({ ...prev, token: '' }));
+                  }}
+                  onBlur={() => {
+                    setTouched((prev) => ({ ...prev, token: true }));
+                    if (!token.trim()) {
+                      setErrors((prev) => ({ ...prev, token: 'Reset token is required.' }));
+                    }
+                  }}
                   placeholder="Paste reset token here"
-                  className="w-full px-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none font-mono text-xs"
+                  aria-invalid={errors.token && touched.token ? 'true' : 'false'}
+                  aria-describedby={errors.token && touched.token ? 'token-error' : undefined}
+                  className={`w-full px-3.5 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none font-mono text-xs transition-all ${
+                    errors.token && touched.token ? 'input-error' : 'input-glow'
+                  }`}
                 />
+                {errors.token && touched.token && (
+                  <p
+                    id="token-error"
+                    role="alert"
+                    className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                  >
+                    <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                    <span>{errors.token}</span>
+                  </p>
+                )}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              <label
+                htmlFor="new-password"
+                className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5"
+              >
                 New Password
               </label>
               <div className="relative flex items-center">
@@ -122,12 +192,17 @@ export const ResetPasswordPage = () => {
                   <i className="bi bi-lock" />
                 </span>
                 <input
+                  id="new-password"
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={handleNewPasswordChange}
+                  onBlur={handleNewPasswordBlur}
                   placeholder="Minimum 8 characters"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
+                  aria-invalid={errors.newPassword && touched.newPassword ? 'true' : 'false'}
+                  aria-describedby={errors.newPassword && touched.newPassword ? 'new-password-error' : undefined}
+                  className={`w-full pl-10 pr-10 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.newPassword && touched.newPassword ? 'input-error' : 'input-glow'
+                  }`}
                 />
                 <button
                   type="button"
@@ -138,10 +213,23 @@ export const ResetPasswordPage = () => {
                   <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
                 </button>
               </div>
+              {errors.newPassword && touched.newPassword && (
+                <p
+                  id="new-password-error"
+                  role="alert"
+                  className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                >
+                  <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                  <span>{errors.newPassword}</span>
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              <label
+                htmlFor="confirm-password"
+                className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5"
+              >
                 Confirm New Password
               </label>
               <div className="relative flex items-center">
@@ -149,14 +237,29 @@ export const ResetPasswordPage = () => {
                   <i className="bi bi-lock-fill" />
                 </span>
                 <input
+                  id="confirm-password"
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={handleConfirmPasswordChange}
+                  onBlur={handleConfirmPasswordBlur}
                   placeholder="Re-type password"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
+                  aria-invalid={errors.confirmPassword && touched.confirmPassword ? 'true' : 'false'}
+                  aria-describedby={errors.confirmPassword && touched.confirmPassword ? 'confirm-password-error' : undefined}
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.confirmPassword && touched.confirmPassword ? 'input-error' : 'input-glow'
+                  }`}
                 />
               </div>
+              {errors.confirmPassword && touched.confirmPassword && (
+                <p
+                  id="confirm-password-error"
+                  role="alert"
+                  className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                >
+                  <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                  <span>{errors.confirmPassword}</span>
+                </p>
+              )}
             </div>
 
             <button

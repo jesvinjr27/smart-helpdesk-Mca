@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../context/ToastContext';
 import { MicrosoftLoginButton } from '../../auth/components/MicrosoftLoginButton';
 import { getRoleRedirectPath } from '../../auth/utils/roleRedirect';
+import { validateEmail, validatePassword } from '../../auth/utils/validation';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -10,30 +12,93 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+
+  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
 
   const { login } = useAuth();
+  const { showError } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setLoading(true);
-
-    try {
-      const { user: userData, workspaces } = await login(email, password, null, rememberMe);
-      const targetPath = getRoleRedirectPath(userData, workspaces);
-      navigate(targetPath, { replace: true });
-    } catch (err) {
-      setErrorMessage(err.message || 'Invalid email or password.');
-    } finally {
-      setLoading(false);
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (touched.email || errors.email) {
+      const res = validateEmail(val);
+      setErrors((prev) => ({ ...prev, email: res.error }));
     }
   };
 
-  const handleDemoSelect = (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword('Password123!');
+  const handlePasswordChange = (e) => {
+    const val = e.target.value;
+    setPassword(val);
+    if (touched.password || errors.password) {
+      const res = validatePassword(val);
+      setErrors((prev) => ({ ...prev, password: res.error }));
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setTouched((prev) => ({ ...prev, email: true }));
+    const res = validateEmail(email);
+    setErrors((prev) => ({ ...prev, email: res.error }));
+  };
+
+  const handlePasswordBlur = () => {
+    setTouched((prev) => ({ ...prev, password: true }));
+    const res = validatePassword(password);
+    setErrors((prev) => ({ ...prev, password: res.error }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Prevent duplicate API calls while request is actively in-flight
+    if (loading) return;
+
+    // Validate all fields
+    setTouched({ email: true, password: true });
+    const emailRes = validateEmail(email);
+    const passRes = validatePassword(password);
+
+    const newErrors = {
+      email: emailRes.error,
+      password: passRes.error,
+    };
+    setErrors(newErrors);
+
+    if (!emailRes.isValid || !passRes.isValid) {
+      // Trigger ONE meaningful notification for the failed submission
+      const firstError = emailRes.error || passRes.error;
+      showError(firstError);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { user: userData, workspaces } = await login(
+        emailRes.value,
+        password,
+        null,
+        rememberMe
+      );
+      const targetPath = getRoleRedirectPath(userData, workspaces);
+      navigate(targetPath, { replace: true });
+    } catch (err) {
+      let msg = err.message || 'Invalid email or password.';
+      if (
+        msg.toLowerCase().includes('credentials') ||
+        msg.toLowerCase().includes('incorrect') ||
+        msg.toLowerCase().includes('invalid email')
+      ) {
+        msg = 'Invalid email or password.';
+        setErrors({ email: 'Invalid email or password', password: 'Invalid email or password' });
+      }
+      showError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -132,20 +197,17 @@ export const LoginPage = () => {
               Sign in to your account
             </h1>
             <p className="text-sm text-brand-secondary mt-1">
-              Enter your credentials or choose a quick demo account below.
+              Enter your email and password to access your help desk workspace.
             </p>
           </div>
 
-          {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
-              <i className="bi bi-exclamation-triangle-fill text-brand-primary text-base flex-shrink-0 mt-0.5" />
-              <div className="flex-1 leading-relaxed">{errorMessage}</div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            {/* Email Field */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              <label
+                htmlFor="email-input"
+                className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5"
+              >
                 Email Address
               </label>
               <div className="relative flex items-center">
@@ -153,19 +215,38 @@ export const LoginPage = () => {
                   <i className="bi bi-envelope" />
                 </span>
                 <input
+                  id="email-input"
                   type="email"
-                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
                   placeholder="name@organization.com"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
+                  aria-invalid={errors.email && touched.email ? 'true' : 'false'}
+                  aria-describedby={errors.email && touched.email ? 'email-error' : undefined}
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.email && touched.email ? 'input-error' : 'input-glow'
+                  }`}
                 />
               </div>
+              {errors.email && touched.email && (
+                <p
+                  id="email-error"
+                  role="alert"
+                  className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                >
+                  <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                  <span>{errors.email}</span>
+                </p>
+              )}
             </div>
 
+            {/* Password Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                <label
+                  htmlFor="password-input"
+                  className="text-xs font-semibold uppercase tracking-wider text-brand-primary"
+                >
                   Password
                 </label>
                 <Link
@@ -180,12 +261,17 @@ export const LoginPage = () => {
                   <i className="bi bi-lock" />
                 </span>
                 <input
+                  id="password-input"
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
+                  onBlur={handlePasswordBlur}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
+                  aria-invalid={errors.password && touched.password ? 'true' : 'false'}
+                  aria-describedby={errors.password && touched.password ? 'password-error' : undefined}
+                  className={`w-full pl-10 pr-10 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.password && touched.password ? 'input-error' : 'input-glow'
+                  }`}
                 />
                 <button
                   type="button"
@@ -196,6 +282,16 @@ export const LoginPage = () => {
                   <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
                 </button>
               </div>
+              {errors.password && touched.password && (
+                <p
+                  id="password-error"
+                  role="alert"
+                  className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                >
+                  <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                  <span>{errors.password}</span>
+                </p>
+              )}
             </div>
 
             {/* Remember Me Option */}
@@ -212,6 +308,7 @@ export const LoginPage = () => {
               <span className="text-[11px] text-brand-secondary">Secure 30-day session</span>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -244,122 +341,12 @@ export const LoginPage = () => {
           </div>
 
           {/* Microsoft SSO Button */}
-          <div className="mb-6">
+          <div className="mb-2">
             <MicrosoftLoginButton />
           </div>
 
-          {/* Quick Demo Credentials Showcase */}
-          <div className="pt-4 border-t border-brand-primary/15">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">
-                Quick Demo Accounts (Password: Password123!)
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-brand-secondary/15 text-brand-primary">
-                Click to Auto-fill
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('admin@apex.com')}
-                className="p-2 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-secondary/15 text-brand-primary flex items-center justify-center text-xs flex-shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                  <i className="bi bi-shield-lock" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Org Admin
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">admin@apex.com</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('agent.john@apex.com')}
-                className="p-2 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-secondary/15 text-brand-primary flex items-center justify-center text-xs flex-shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                  <i className="bi bi-headset" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Support Agent
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">agent.john@apex.com</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('lead.it@apex.com')}
-                className="p-2 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-secondary/15 text-brand-primary flex items-center justify-center text-xs flex-shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                  <i className="bi bi-diagram-3" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Team Lead
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">lead.it@apex.com</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('user.alice@apex.com')}
-                className="p-2 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-secondary/15 text-brand-primary flex items-center justify-center text-xs flex-shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                  <i className="bi bi-person" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Employee
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">user.alice@apex.com</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('student.emma@greenwood.edu')}
-                className="p-2 rounded-xl border border-brand-primary/15 hover:border-brand-primary/40 bg-app-background hover:bg-brand-accent/15 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-secondary/15 text-brand-primary flex items-center justify-center text-xs flex-shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                  <i className="bi bi-mortarboard" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Student
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">student.emma</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('sysadmin@smarthelpdesk.local')}
-                className="p-2 rounded-xl border border-brand-primary/25 hover:border-brand-primary/50 bg-brand-secondary/10 hover:bg-brand-accent/20 transition-all flex items-center gap-2.5 text-left group"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center text-xs flex-shrink-0">
-                  <i className="bi bi-gear-wide-connected" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-brand-primary truncate">
-                    Global SysAdmin
-                  </div>
-                  <div className="text-[10px] text-brand-secondary truncate">sysadmin@local</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Footer Copyright */}
-          <div className="mt-5 pt-4 border-t border-brand-primary/10 text-center text-[11px] text-brand-secondary">
+          <div className="mt-8 pt-4 border-t border-brand-primary/10 text-center text-[11px] text-brand-secondary">
             © 2026 Smart Help Desk System. All rights reserved.
           </div>
         </div>

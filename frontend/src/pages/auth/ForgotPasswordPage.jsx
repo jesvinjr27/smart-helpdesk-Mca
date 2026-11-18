@@ -1,30 +1,63 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { forgotPasswordApi } from '../../api';
+import { useToast } from '../../context/ToastContext';
+import { validateEmail } from '../../auth/utils/validation';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [devToken, setDevToken] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const { showError } = useToast();
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (touched || error) {
+      const res = validateEmail(val);
+      setError(res.error);
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setTouched(true);
+    const res = validateEmail(email);
+    setError(res.error);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
+
+    if (loading) return; // Prevent duplicate concurrent submissions
+
+    setTouched(true);
+    const res = validateEmail(email);
+    setError(res.error);
+
+    if (!res.isValid) {
+      showError(res.error);
+      return;
+    }
+
     setSuccessMessage('');
     setDevToken('');
     setLoading(true);
 
     try {
-      const resp = await forgotPasswordApi({ email });
+      const resp = await forgotPasswordApi({ email: res.value });
       setSuccessMessage(resp.data?.message || 'If an account exists with this email, instructions have been sent.');
       if (resp.data?.detail && resp.data.detail.includes('token: ')) {
         const token = resp.data.detail.split('token: ')[1];
         setDevToken(token);
       }
     } catch (err) {
-      setErrorMessage(err.response?.data?.detail || err.message || 'An error occurred. Please try again.');
+      const msg = err.response?.data?.detail || err.message || 'Unable to connect to the server. Please try again.';
+      showError(msg);
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -44,13 +77,6 @@ export const ForgotPasswordPage = () => {
             Enter your registered email address to receive password recovery instructions.
           </p>
         </div>
-
-        {errorMessage && (
-          <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary mb-5">
-            <i className="bi bi-exclamation-triangle-fill text-brand-primary text-base flex-shrink-0 mt-0.5" />
-            <div className="flex-1 leading-relaxed">{errorMessage}</div>
-          </div>
-        )}
 
         {successMessage ? (
           <div className="space-y-4">
@@ -95,9 +121,12 @@ export const ForgotPasswordPage = () => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5">
+              <label
+                htmlFor="forgot-email"
+                className="block text-xs font-semibold uppercase tracking-wider text-brand-primary mb-1.5"
+              >
                 Email Address
               </label>
               <div className="relative flex items-center">
@@ -105,14 +134,29 @@ export const ForgotPasswordPage = () => {
                   <i className="bi bi-envelope" />
                 </span>
                 <input
+                  id="forgot-email"
                   type="email"
-                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
                   placeholder="name@company.com"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm input-glow rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none"
+                  aria-invalid={error && touched ? 'true' : 'false'}
+                  aria-describedby={error && touched ? 'forgot-email-error' : undefined}
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    error && touched ? 'input-error' : 'input-glow'
+                  }`}
                 />
               </div>
+              {error && touched && (
+                <p
+                  id="forgot-email-error"
+                  role="alert"
+                  className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5 font-medium animate-fadeIn"
+                >
+                  <i className="bi bi-exclamation-circle-fill text-xs flex-shrink-0" />
+                  <span>{error}</span>
+                </p>
+              )}
             </div>
 
             <button
