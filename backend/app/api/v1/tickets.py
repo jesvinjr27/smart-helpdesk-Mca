@@ -1,5 +1,8 @@
+import os
+import uuid
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc
 
@@ -7,6 +10,7 @@ from backend.app.db.session import get_db
 from backend.app.models.all_models import (
     Ticket,
     TicketComment,
+    TicketAttachment,
     TicketEvent,
     AIPrediction,
     SLARiskPrediction,
@@ -32,7 +36,11 @@ from backend.app.schemas.all_schemas import (
     SimilarTicketsResponse,
     SimilarTicketItem,
     TicketSummaryRequest,
-    TicketSummaryResponse
+    TicketSummaryResponse,
+    TicketAttachmentResponse,
+    DuplicateCheckRequest,
+    DuplicateCheckResponse,
+    DuplicateTicketCandidate
 )
 from backend.app.core.dependencies import (
     get_current_user,
@@ -144,6 +152,67 @@ def list_tickets(
     }
 
 
+@router.post("/check-duplicate", response_model=DuplicateCheckResponse)
+def check_duplicate_tickets(
+    req: DuplicateCheckRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Fast pre-submission duplicate check using TF-IDF similarity over open tickets in the same tenant.
+    """
+    query_text = f"{req.title} {req.description}".strip()
+    candidates_query = (
+        db.query(Ticket)
+        .filter(
+            Ticket.org_id == current_user.org_id,
+            Ticket.status.in_(["NEW", "ASSIGNED", "IN_PROGRESS", "PENDING_CUSTOMER"])
+        )
+        .order_by(desc(Ticket.created_at))
+        .limit(50)
+        .all()
+    )
+
+    if not candidates_query:
+        return DuplicateCheckResponse(has_duplicates=False, duplicates=[])
+
+    candidates = [
+        {
+            "ticket_id": t.id,
+            "ticket_number": t.ticket_number,
+            "title": t.title,
+            "description": t.description,
+            "status": t.status,
+            "priority": t.priority,
+            "category_name": t.category.name if t.category else "General",
+            "created_at": t.created_at
+        }
+        for t in candidates_query
+    ]
+
+    sim_res = ai_service.find_similar_tickets(query_text, candidates, top_k=3)
+    matching_items = []
+    for item in sim_res.get("similar_tickets", []):
+        if item.get("similarity_score", 0) >= 0.35:
+            matching_items.append(
+                DuplicateTicketCandidate(
+                    ticket_id=item["ticket_id"],
+                    ticket_number=item["ticket_number"],
+                    title=item["title"],
+                    status=item["status"],
+                    priority=item["priority"],
+                    category_name=item.get("category"),
+                    similarity_score=item["similarity_score"],
+                    created_at=item.get("created_at") or utc_now()
+                )
+            )
+
+    return DuplicateCheckResponse(
+        has_duplicates=len(matching_items) > 0,
+        duplicates=matching_items
+    )
+
+
 @router.post("", response_model=TicketDetailResponse)
 def create_ticket(
     ticket_in: TicketCreate,
@@ -240,6 +309,126 @@ def get_ticket(
         latest_ai_prediction=latest_pred,
         latest_sla_risk=latest_sla_risk
     )
+
+
+UPLOAD_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "uploads", "tickets"))
+
+
+@router.post("/{ticket_id}/attachments", response_model=List[TicketAttachmentResponse])
+async def upload_ticket_attachments(
+    ticket_id: str,
+    files: List[UploadFile] = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    enforce_organization_isolation(ticket.org_id, current_user, db)
+
+    ticket_dir = os.path.join(UPLOAD_BASE_DIR, ticket.id)
+    os.makedirs(ticket_dir, exist_ok=True)
+
+    attachments_out = []
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB per file limit
+
+    for f in files:
+        content = await f.read()
+        file_size = len(content)
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File '{f.filename}' exceeds maximum allowed size of 10 MB."
+            )
+
+        safe_filename = f"{uuid.uuid4().hex[:8]}_{f.filename}"
+        dest_path = os.path.join(ticket_dir, safe_filename)
+
+        with open(dest_path, "wb") as buffer:
+            buffer.write(content)
+
+        project_root = os.path.abspath(os.path.join(UPLOAD_BASE_DIR, "..", ".."))
+        rel_path = os.path.relpath(dest_path, project_root)
+        attachment = TicketAttachment(
+            ticket_id=ticket.id,
+            file_name=f.filename,
+            file_path=rel_path.replace("\\", "/"),
+            file_size=file_size,
+            content_type=f.content_type or "application/octet-stream",
+            uploaded_by_id=current_user.id,
+            created_at=utc_now()
+        )
+        db.add(attachment)
+        db.commit()
+        db.refresh(attachment)
+
+        attachments_out.append(
+            TicketAttachmentResponse(
+                id=attachment.id,
+                ticket_id=attachment.ticket_id,
+                comment_id=attachment.comment_id,
+                file_name=attachment.file_name,
+                file_size=attachment.file_size,
+                content_type=attachment.content_type,
+                file_url=f"/api/v1/tickets/attachments/{attachment.id}/download",
+                uploaded_by_id=attachment.uploaded_by_id,
+                created_at=attachment.created_at
+            )
+        )
+
+    return attachments_out
+
+
+@router.get("/{ticket_id}/attachments", response_model=List[TicketAttachmentResponse])
+def get_ticket_attachments(
+    ticket_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    enforce_organization_isolation(ticket.org_id, current_user, db)
+
+    attachments = db.query(TicketAttachment).filter(TicketAttachment.ticket_id == ticket_id).order_by(desc(TicketAttachment.created_at)).all()
+    return [
+        TicketAttachmentResponse(
+            id=a.id,
+            ticket_id=a.ticket_id,
+            comment_id=a.comment_id,
+            file_name=a.file_name,
+            file_size=a.file_size,
+            content_type=a.content_type,
+            file_url=f"/api/v1/tickets/attachments/{a.id}/download",
+            uploaded_by_id=a.uploaded_by_id,
+            created_at=a.created_at
+        )
+        for a in attachments
+    ]
+
+
+@router.get("/attachments/{attachment_id}/download")
+def download_ticket_attachment(
+    attachment_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    attachment = db.query(TicketAttachment).filter(TicketAttachment.id == attachment_id).first()
+    if not attachment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attachment not found")
+
+    ticket = db.query(Ticket).filter(Ticket.id == attachment.ticket_id).first()
+    if ticket:
+        enforce_organization_isolation(ticket.org_id, current_user, db)
+
+    project_root = os.path.abspath(os.path.join(UPLOAD_BASE_DIR, "..", ".."))
+    abs_path = os.path.join(project_root, attachment.file_path.replace("/", os.sep))
+    if not os.path.exists(abs_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attachment file not found on disk")
+
+    return FileResponse(path=abs_path, filename=attachment.file_name, media_type=attachment.content_type)
 
 
 @router.patch("/{ticket_id}", response_model=TicketDetailResponse)

@@ -291,6 +291,42 @@ class TicketDetailResponse(TicketBriefResponse):
     latest_sla_risk: Optional[Dict[str, Any]] = None
 
 
+class TicketAttachmentResponse(BaseModel):
+    id: str
+    ticket_id: str
+    comment_id: Optional[str] = None
+    file_name: str
+    file_size: int
+    content_type: Optional[str] = None
+    file_url: Optional[str] = None
+    uploaded_by_id: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DuplicateCheckRequest(BaseModel):
+    title: str = Field(..., min_length=3)
+    description: str = Field(..., min_length=5)
+    category_id: Optional[str] = None
+
+
+class DuplicateTicketCandidate(BaseModel):
+    ticket_id: str
+    ticket_number: str
+    title: str
+    status: str
+    priority: str
+    category_name: Optional[str] = None
+    similarity_score: float
+    created_at: datetime
+
+
+class DuplicateCheckResponse(BaseModel):
+    has_duplicates: bool
+    duplicates: List[DuplicateTicketCandidate] = []
+
+
 # ==========================================
 # Comment & Event Schemas
 # ==========================================

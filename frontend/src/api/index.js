@@ -32,6 +32,12 @@ export const createTicketApi = (data) => apiClient.post('/tickets', data);
 export const updateTicketApi = (id, data) => apiClient.patch(`/tickets/${id}`, data);
 export const assignTicketApi = (id, data) => apiClient.post(`/tickets/${id}/assign`, data);
 export const transitionTicketApi = (id, data) => apiClient.post(`/tickets/${id}/transition`, data);
+export const checkDuplicateTicketApi = (data) => apiClient.post('/tickets/check-duplicate', data);
+export const uploadTicketAttachmentsApi = (id, formData) =>
+  apiClient.post(`/tickets/${id}/attachments`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+export const getTicketAttachmentsApi = (id) => apiClient.get(`/tickets/${id}/attachments`);
 
 // Comments & Events
 export const getTicketCommentsApi = (id) => apiClient.get(`/tickets/${id}/comments`);
