@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -9,92 +9,141 @@ import {
   searchKnowledgeApi,
 } from '../../api';
 import { PageHeader } from '../../components/common/PageHeader';
-import { CreateTicketProgressStepper } from './components/CreateTicketProgressStepper';
-import { Step1DescribeIssue } from './components/Step1DescribeIssue';
-import { Step2ClassifyRequest } from './components/Step2ClassifyRequest';
-import { Step3ReviewSubmit } from './components/Step3ReviewSubmit';
+import { RequestTypeSelector } from './components/RequestTypeSelector';
+import { CategoryCard } from './components/CategoryCard';
+import { DynamicCategoryFields } from './components/DynamicCategoryFields';
+import {
+  ImpactUrgencyMatrix,
+  calculatePriority,
+  EMERGENCY_REGEX,
+} from './components/ImpactUrgencyMatrix';
+import { LocationAndContactFields, CAMPUS_BUILDINGS } from './components/LocationAndContactFields';
+import { FileDropzone } from './components/FileDropzone';
+import { LiveTicketSummaryPanel } from './components/LiveTicketSummaryPanel';
+import { TicketSubmissionConfirmation } from './components/TicketSubmissionConfirmation';
 
-const DRAFT_STORAGE_PREFIX = 'smart_helpdesk_ticket_draft_';
+const DRAFT_STORAGE_PREFIX = 'smart_helpdesk_ticket_workspace_draft_';
 
 export const TicketCreatePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const draftKey = `${DRAFT_STORAGE_PREFIX}${user?.id || 'guest'}`;
 
-  // Step Management
-  const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState([]);
-
-  // Form Fields
-  const [issueType, setIssueType] = useState('INCIDENT');
+  // Form States
+  const [requestType, setRequestType] = useState('INCIDENT');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [files, setFiles] = useState([]);
-  const [fileError, setFileError] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
 
+  // Categories & Subcategory Dynamic Data
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [dynamicData, setDynamicData] = useState({});
-  const [priority, setPriority] = useState('MEDIUM');
-  const [tagsInput, setTagsInput] = useState('');
 
-  // Status & Errors
+  // Impact & Urgency Matrix
+  const [impact, setImpact] = useState('ONLY_ME');
+  const [urgency, setUrgency] = useState('NORMAL');
+  const [isOverride, setIsOverride] = useState(false);
+  const [overridePriority, setOverridePriority] = useState('HIGH');
+  const [overrideReason, setOverrideReason] = useState('');
+
+  // Location & Contact Context
+  const [locationData, setLocationData] = useState({
+    building: CAMPUS_BUILDINGS[0],
+    roomNumber: '',
+    contactMethod: 'EMAIL',
+    contactDetail: user?.email || '',
+    affectedService: '',
+  });
+
+  // Attachments
+  const [files, setFiles] = useState([]);
+  const [fileError, setFileError] = useState('');
+
+  // Status & Draft Management
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [draftBannerDismissed, setDraftBannerDismissed] = useState(false);
   const [hasExistingDraft, setHasExistingDraft] = useState(false);
+  const [draftBannerDismissed, setDraftBannerDismissed] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(null);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
-  // AI Live Copilot & Duplicate Detection
+  // Intelligent Suggestions & Duplicate Prevention
   const [suggestedKb, setSuggestedKb] = useState([]);
-  const [aiSearching, setAiSearching] = useState(false);
-  const [criticalNotice, setCriticalNotice] = useState(false);
-  const [duplicateCheckLoading, setDuplicateCheckLoading] = useState(false);
+  const [kbLoading, setKbLoading] = useState(false);
   const [duplicateResults, setDuplicateResults] = useState(null);
+  const [duplicateLoading, setDuplicateLoading] = useState(false);
 
-  // 1. Load Categories
+  // Submission Result
+  const [submittedTicket, setSubmittedTicket] = useState(null);
+
+  // 1. Fetch Categories
   useEffect(() => {
-    const fetchCats = async () => {
+    let isMounted = true;
+    const fetchCategories = async () => {
       try {
         const resp = await getCategoriesApi();
-        setCategories(resp.data || []);
-        if (resp.data?.length > 0 && !selectedCategoryId) {
-          setSelectedCategoryId(resp.data[0].id);
+        if (isMounted) {
+          const list = resp.data || [];
+          setCategories(list);
+          if (list.length > 0 && !selectedCategoryId) {
+            setSelectedCategoryId(list[0].id);
+          }
         }
       } catch (err) {
         console.error('Failed to load categories:', err);
       }
     };
-    fetchCats();
+    fetchCategories();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // 2. Check for Saved Local Draft on Mount
+  // 2. Check for Saved Local Draft on Mount & When Auth Loads
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(draftKey);
+      let saved = localStorage.getItem(draftKey);
+      if (!saved && user?.id) {
+        // Check if draft was started before auth loaded
+        saved = localStorage.getItem(`${DRAFT_STORAGE_PREFIX}guest`);
+      }
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.title || parsed.description) {
           setHasExistingDraft(true);
+          if (parsed.savedAt) {
+            setLastSavedAt(new Date(parsed.savedAt));
+          }
         }
       }
     } catch (e) {
       // Ignore JSON parse errors
     }
-  }, [draftKey]);
+  }, [draftKey, user?.id]);
 
-  // Restore Draft Handler
+  // Restore Draft Action
   const handleRestoreDraft = () => {
     try {
-      const saved = localStorage.getItem(draftKey);
+      let saved = localStorage.getItem(draftKey);
+      if (!saved && user?.id) {
+        saved = localStorage.getItem(`${DRAFT_STORAGE_PREFIX}guest`);
+      }
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.issueType) setIssueType(parsed.issueType);
+        if (parsed.requestType) setRequestType(parsed.requestType);
         if (parsed.title) setTitle(parsed.title);
         if (parsed.description) setDescription(parsed.description);
         if (parsed.selectedCategoryId) setSelectedCategoryId(parsed.selectedCategoryId);
-        if (parsed.priority) setPriority(parsed.priority);
-        if (parsed.tagsInput) setTagsInput(parsed.tagsInput);
         if (parsed.dynamicData) setDynamicData(parsed.dynamicData);
+        if (parsed.impact) setImpact(parsed.impact);
+        if (parsed.urgency) setUrgency(parsed.urgency);
+        if (parsed.isOverride !== undefined) setIsOverride(parsed.isOverride);
+        if (parsed.overridePriority) setOverridePriority(parsed.overridePriority);
+        if (parsed.overrideReason) setOverrideReason(parsed.overrideReason);
+        if (parsed.locationData) setLocationData(parsed.locationData);
+        if (parsed.tagsInput) setTagsInput(parsed.tagsInput);
+        if (parsed.savedAt) setLastSavedAt(new Date(parsed.savedAt));
       }
     } catch (e) {
       console.error('Failed to restore draft:', e);
@@ -105,164 +154,249 @@ export const TicketCreatePage = () => {
 
   const handleDiscardSavedDraft = () => {
     localStorage.removeItem(draftKey);
+    if (user?.id) localStorage.removeItem(`${DRAFT_STORAGE_PREFIX}guest`);
     setHasExistingDraft(false);
     setDraftBannerDismissed(true);
+    setLastSavedAt(null);
   };
 
-  // 3. Debounced Auto-Save Draft
-  useEffect(() => {
+  // 3. Debounced Auto-Save Draft to LocalStorage
+  const saveDraftToStorage = useCallback(() => {
     if (!title && !description) return;
-    const timer = setTimeout(() => {
-      const draftObj = {
-        issueType,
-        title,
-        description,
-        selectedCategoryId,
-        priority,
-        tagsInput,
-        dynamicData,
-        savedAt: new Date().toISOString(),
-      };
+    setIsSavingDraft(true);
+    const draftObj = {
+      requestType,
+      title,
+      description,
+      selectedCategoryId,
+      dynamicData,
+      impact,
+      urgency,
+      isOverride,
+      overridePriority,
+      overrideReason,
+      locationData,
+      tagsInput,
+      savedAt: new Date().toISOString(),
+    };
+    try {
       localStorage.setItem(draftKey, JSON.stringify(draftObj));
-    }, 800);
+      setLastSavedAt(new Date());
+    } catch (e) {
+      console.warn('Failed to save draft to localStorage:', e);
+    } finally {
+      setTimeout(() => setIsSavingDraft(false), 300);
+    }
+  }, [
+    requestType,
+    title,
+    description,
+    selectedCategoryId,
+    dynamicData,
+    impact,
+    urgency,
+    isOverride,
+    overridePriority,
+    overrideReason,
+    locationData,
+    tagsInput,
+    draftKey,
+  ]);
 
-    return () => clearTimeout(timer);
-  }, [issueType, title, description, selectedCategoryId, priority, tagsInput, dynamicData, draftKey]);
-
-  // 4. Emergency Detection & Live Semantic Knowledge Suggestions
   useEffect(() => {
-    if (!title && !description) {
+    // Only auto-save if user entered content and we are not blocking on un-restored draft
+    if ((!title && !description) || (hasExistingDraft && !draftBannerDismissed)) return;
+    const timer = setTimeout(() => {
+      saveDraftToStorage();
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [saveDraftToStorage, title, description, hasExistingDraft, draftBannerDismissed]);
+
+  // Clear / Discard Draft
+  const handleClearDraft = () => {
+    if (window.confirm('Are you sure you want to discard your changes and start a fresh ticket?')) {
+      localStorage.removeItem(draftKey);
+      if (user?.id) localStorage.removeItem(`${DRAFT_STORAGE_PREFIX}guest`);
+      setTitle('');
+      setDescription('');
+      setFiles([]);
+      setFileError('');
+      setDynamicData({});
+      setImpact('ONLY_ME');
+      setUrgency('NORMAL');
+      setIsOverride(false);
+      setOverridePriority('HIGH');
+      setOverrideReason('');
+      setTagsInput('');
       setSuggestedKb([]);
-      setCriticalNotice(false);
+      setDuplicateResults(null);
+      setLastSavedAt(null);
+      setErrorMessage('');
+      setHasExistingDraft(false);
+      setDraftBannerDismissed(true);
+    }
+  };
+
+  // 4. Calculate Priority & Active Priority
+  const hasEmergency = useMemo(() => {
+    return EMERGENCY_REGEX.test(title) || EMERGENCY_REGEX.test(description);
+  }, [title, description]);
+
+  const computedPriorityObj = useMemo(() => {
+    return calculatePriority(impact, urgency, hasEmergency);
+  }, [impact, urgency, hasEmergency]);
+
+  const activePriority = isOverride && !hasEmergency ? overridePriority : computedPriorityObj.priority;
+
+  // 5. Intelligent Debounced Search for Knowledge Base & Duplicate Tickets
+  useEffect(() => {
+    const trimmedTitle = title.trim();
+    const trimmedDesc = description.trim();
+
+    // Reset results if both are too short
+    if (trimmedTitle.length < 3 && trimmedDesc.length < 5) {
+      setSuggestedKb([]);
+      setDuplicateResults(null);
       return;
     }
 
-    const lower = `${title} ${description}`.toLowerCase();
-    const isEmergency = ['server down', 'outage', 'data loss', 'security breach', 'fire', 'leakage', 'work stoppage'].some(
-      (kw) => lower.includes(kw)
-    );
-    if (isEmergency) {
-      setCriticalNotice(true);
-      setPriority('CRITICAL');
-    } else {
-      setCriticalNotice(false);
-    }
-
     const timer = setTimeout(async () => {
-      if (title.length > 5 || description.length > 10) {
-        setAiSearching(true);
+      const queryText = `${trimmedTitle} ${trimmedDesc}`.trim();
+
+      // 1. Search Knowledge Base (triggers once query has at least 3 chars)
+      if (queryText.length >= 3) {
+        setKbLoading(true);
         try {
-          const resp = await searchKnowledgeApi({
-            query: `${title} ${description}`,
-            top_k: 2,
+          const kbResp = await searchKnowledgeApi({
+            query: queryText,
+            top_k: 3,
           });
-          setSuggestedKb(resp.data?.results || []);
+          setSuggestedKb(kbResp.data?.results || []);
         } catch (e) {
-          // Ignore
+          // Non-blocking
         } finally {
-          setAiSearching(false);
+          setKbLoading(false);
+        }
+      }
+
+      // 2. Check Duplicates (triggers as soon as title has at least 3 chars)
+      if (trimmedTitle.length >= 3) {
+        setDuplicateLoading(true);
+        try {
+          const dupResp = await checkDuplicateTicketApi({
+            title: trimmedTitle,
+            description: trimmedDesc || trimmedTitle,
+            category_id: selectedCategoryId || undefined,
+          });
+          setDuplicateResults(dupResp.data);
+        } catch (e) {
+          // Non-blocking
+        } finally {
+          setDuplicateLoading(false);
         }
       }
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [title, description]);
+  }, [title, description, selectedCategoryId]);
 
-  // Step 1 -> Step 2
-  const handleNextFromStep1 = () => {
-    if (title.trim().length >= 3 && description.trim().length >= 5) {
-      setCompletedSteps((prev) => Array.from(new Set([...prev, 1])));
-      setCurrentStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  // 6. Formatting Snippet Helper Injection
+  const handleInsertSnippet = (snippet) => {
+    setDescription((prev) => {
+      const separator = prev.trim() ? '\n\n' : '';
+      return `${prev.trim()}${separator}${snippet}\n`;
+    });
   };
 
-  // Step 2 -> Step 3 (Runs Duplicate Detection)
-  const handleNextFromStep2 = async () => {
-    if (selectedCategoryId) {
-      setCompletedSteps((prev) => Array.from(new Set([...prev, 1, 2])));
-      setCurrentStep(3);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Run duplicate check in the background
-      setDuplicateCheckLoading(true);
-      try {
-        const dupResp = await checkDuplicateTicketApi({
-          title: title.trim(),
-          description: description.trim(),
-          category_id: selectedCategoryId,
-        });
-        setDuplicateResults(dupResp.data);
-      } catch (err) {
-        console.error('Duplicate check skipped:', err);
-      } finally {
-        setDuplicateCheckLoading(false);
-      }
+  // 7. Validation
+  const validationErrors = useMemo(() => {
+    const errors = [];
+    if (!title.trim() || title.trim().length < 3) {
+      errors.push('Subject must be at least 3 characters long.');
     }
-  };
-
-  // Clear Entire Draft
-  const handleClearDraft = () => {
-    if (window.confirm('Are you sure you want to discard your progress and clear this draft?')) {
-      localStorage.removeItem(draftKey);
-      setTitle('');
-      setDescription('');
-      setFiles([]);
-      setDynamicData({});
-      setPriority('MEDIUM');
-      setTagsInput('');
-      setCurrentStep(1);
-      setCompletedSteps([]);
-      setSuggestedKb([]);
-      setDuplicateResults(null);
+    if (title.length > 255) {
+      errors.push('Subject must not exceed 255 characters.');
     }
-  };
+    if (!description.trim() || description.trim().length < 5) {
+      errors.push('Detailed description must be at least 5 characters long.');
+    }
+    if (!selectedCategoryId) {
+      errors.push('Please select a category for this request.');
+    }
+    if (isOverride && !hasEmergency && !overrideReason.trim()) {
+      errors.push('Please enter a justification for your priority override.');
+    }
+    return errors;
+  }, [title, description, selectedCategoryId, isOverride, hasEmergency, overrideReason]);
 
-  // Final Submission
+  // 8. Submit Ticket
   const handleSubmitTicket = async () => {
+    if (validationErrors.length > 0) {
+      setErrorMessage(validationErrors[0]);
+      return;
+    }
+
     setErrorMessage('');
     setSubmitting(true);
 
-    // Build synthesized description with contextual dynamic fields
-    let finalDescription = description.trim();
-    const dynamicEntries = Object.entries(dynamicData).filter(([k, v]) => Boolean(v) && k !== 'subcategory');
-
-    if (dynamicData.subcategory || dynamicEntries.length > 0) {
-      finalDescription += '\n\n---\n**Structured Ticket Specifications:**';
-      if (dynamicData.subcategory) {
-        finalDescription += `\n• Area / Subcategory: ${dynamicData.subcategory}`;
-      }
-      dynamicEntries.forEach(([k, v]) => {
-        const formattedKey = k.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        finalDescription += `\n• ${formattedKey}: ${v}`;
-      });
-    }
-
-    // Build tags
-    const userTags = tagsInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
-
-    const consolidatedTags = Array.from(
-      new Set([
-        issueType.toLowerCase(),
-        ...(dynamicData.subcategory ? [dynamicData.subcategory.toLowerCase()] : []),
-        ...userTags,
-      ])
-    );
-
     try {
-      // 1. Create Ticket
+      // Build Synthesized Structured Description
+      let finalDescription = description.trim();
+
+      // Append Structured Specifications
+      const dynamicEntries = Object.entries(dynamicData).filter(
+        ([k, v]) => Boolean(v) && k !== 'subcategory'
+      );
+      if (dynamicData.subcategory || dynamicEntries.length > 0) {
+        finalDescription += '\n\n---\n**Structured Ticket Specifications:**';
+        if (dynamicData.subcategory) {
+          finalDescription += `\n• Area / Subcategory: ${dynamicData.subcategory}`;
+        }
+        dynamicEntries.forEach(([k, v]) => {
+          const formattedKey = k.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+          finalDescription += `\n• ${formattedKey}: ${v}`;
+        });
+      }
+
+      // Append Location & Contact Context if entered
+      if (locationData.building || locationData.roomNumber || locationData.contactDetail || locationData.affectedService) {
+        finalDescription += '\n\n---\n**Location, Contact & System Context:**';
+        if (locationData.building) finalDescription += `\n• Facility: ${locationData.building}`;
+        if (locationData.roomNumber) finalDescription += `\n• Room / Desk: ${locationData.roomNumber}`;
+        if (locationData.contactMethod) finalDescription += `\n• Preferred Channel: ${locationData.contactMethod}`;
+        if (locationData.contactDetail) finalDescription += `\n• Contact Identifier: ${locationData.contactDetail}`;
+        if (locationData.affectedService) finalDescription += `\n• Affected System: ${locationData.affectedService}`;
+      }
+
+      // Append Override Justification if provided
+      if (isOverride && overrideReason) {
+        finalDescription += `\n\n---\n**Priority Override Request:**\n• Justification: ${overrideReason}`;
+      }
+
+      // Consolidate Tags
+      const customTags = tagsInput
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
+      const consolidatedTags = Array.from(
+        new Set([
+          requestType.toLowerCase(),
+          ...(dynamicData.subcategory ? [dynamicData.subcategory.toLowerCase()] : []),
+          ...customTags,
+        ])
+      );
+
+      // 1. Create Ticket via API
       const ticketResp = await createTicketApi({
         title: title.trim(),
         description: finalDescription,
         category_id: selectedCategoryId,
-        priority,
+        priority: activePriority,
         tags: consolidatedTags,
       });
 
-      const newTicketId = ticketResp.data.id;
+      const newTicket = ticketResp.data;
 
       // 2. Upload Attachments if any
       if (files.length > 0) {
@@ -271,30 +405,65 @@ export const TicketCreatePage = () => {
           files.forEach((file) => {
             formData.append('files', file);
           });
-          await uploadTicketAttachmentsApi(newTicketId, formData);
+          await uploadTicketAttachmentsApi(newTicket.id, formData);
         } catch (uploadErr) {
-          console.error('Attachments upload failed, ticket created:', uploadErr);
+          console.error('Attachments upload failed, ticket was created:', uploadErr);
         }
       }
 
-      // 3. Clear Local Draft
+      // 3. Clear LocalStorage Draft
       localStorage.removeItem(draftKey);
 
-      // 4. Navigate to new ticket detail page
-      navigate(`/tickets/${newTicketId}`);
+      // 4. Set Confirmation View
+      setSubmittedTicket(newTicket);
     } catch (err) {
-      setErrorMessage(err.response?.data?.detail || 'Failed to submit ticket incident. Please check fields.');
+      console.error('Submission failed:', err);
+      setErrorMessage(err.response?.data?.detail || 'Failed to submit support ticket. Please verify inputs.');
+    } finally {
       setSubmitting(false);
     }
   };
 
-  const selectedCategory = categories.find((c) => c.id === selectedCategoryId) || categories[0];
+  const selectedCategoryObj = categories.find((c) => c.id === selectedCategoryId) || categories[0];
+
+  // If Ticket Submitted Successfully, Show Confirmation Screen
+  if (submittedTicket) {
+    return (
+      <TicketSubmissionConfirmation
+        ticket={submittedTicket}
+        requestType={requestType}
+        categoryName={selectedCategoryObj?.name || 'General'}
+        subcategory={dynamicData?.subcategory || 'General'}
+        priority={activePriority}
+        slaTarget={computedPriorityObj.sla}
+        locationData={locationData}
+        onViewTicket={() => navigate(`/tickets/${submittedTicket.id}`)}
+        onBackToDashboard={() => navigate('/dashboard')}
+        onCreateAnother={() => {
+          setSubmittedTicket(null);
+          setTitle('');
+          setDescription('');
+          setFiles([]);
+          setDynamicData({});
+          setImpact('ONLY_ME');
+          setUrgency('NORMAL');
+          setIsOverride(false);
+          setOverrideReason('');
+          setTagsInput('');
+          setSuggestedKb([]);
+          setDuplicateResults(null);
+          setLastSavedAt(null);
+        }}
+      />
+    );
+  }
 
   return (
-    <div className="w-full max-w-full min-w-0 space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Header */}
       <PageHeader
-        title="Create Support Ticket"
-        subtitle="Report an incident or service request. Our local intelligence engine classifies, prioritizes, and routes your ticket with zero cloud leakage."
+        title="Smart Ticket Creation Workspace"
+        subtitle="Enterprise ITSM incident logging and service requests with real-time ITIL priority calculation and zero cloud data leakage."
         breadcrumbs={[
           { label: 'Dashboard', link: '/dashboard' },
           { label: 'Tickets', link: '/tickets' },
@@ -304,7 +473,7 @@ export const TicketCreatePage = () => {
           <button
             type="button"
             onClick={() => navigate('/tickets')}
-            className="px-3.5 py-1.5 rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl border border-brand-primary/20 bg-app-background text-brand-primary hover:bg-brand-secondary/15 text-xs sm:text-sm font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer"
           >
             <i className="bi bi-x-lg text-xs" />
             <span>Cancel</span>
@@ -312,11 +481,11 @@ export const TicketCreatePage = () => {
         }
       />
 
-      {/* Draft Resume Banner */}
+      {/* Unsaved Draft Banner */}
       {hasExistingDraft && !draftBannerDismissed && (
         <div className="p-4 rounded-2xl bg-brand-secondary/20 border border-brand-secondary/40 flex flex-wrap items-center justify-between gap-3 shadow-subtle animate-scaleUp">
-          <div className="flex items-center gap-2.5">
-            <i className="bi bi-clock-history text-lg text-brand-primary flex-shrink-0" />
+          <div className="flex items-center gap-3">
+            <i className="bi bi-clock-history text-xl text-brand-primary flex-shrink-0" />
             <div>
               <h4 className="font-bold text-xs sm:text-sm text-brand-primary m-0">
                 You have an unsaved ticket draft
@@ -330,14 +499,14 @@ export const TicketCreatePage = () => {
             <button
               type="button"
               onClick={handleRestoreDraft}
-              className="px-3 py-1.5 rounded-xl bg-brand-primary text-white text-xs font-semibold hover:bg-brand-primary/90 transition-colors shadow-sm"
+              className="px-3.5 py-1.5 rounded-xl bg-brand-primary text-white text-xs font-semibold hover:bg-brand-primary/90 transition-colors shadow-sm cursor-pointer"
             >
-              Resume Draft
+              Restore Draft
             </button>
             <button
               type="button"
               onClick={handleDiscardSavedDraft}
-              className="px-3 py-1.5 rounded-xl border border-brand-primary/30 text-brand-primary text-xs font-medium hover:bg-brand-secondary/15 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-app-background border border-brand-primary/20 text-brand-primary text-xs font-semibold hover:bg-red-500/10 hover:text-red-600 transition-colors cursor-pointer"
             >
               Discard
             </button>
@@ -345,182 +514,220 @@ export const TicketCreatePage = () => {
         </div>
       )}
 
-      {/* Global Error Banner */}
-      {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-start gap-2.5 text-xs text-brand-primary">
-          <i className="bi bi-exclamation-octagon-fill text-brand-primary text-base flex-shrink-0 mt-0.5" />
-          <span className="leading-relaxed">{errorMessage}</span>
-        </div>
-      )}
-
-      {/* 3-Step Progress Stepper */}
-      <CreateTicketProgressStepper
-        currentStep={currentStep}
-        setStep={setCurrentStep}
-        completedSteps={completedSteps}
-      />
-
-      {/* Main Form Workspace Layout */}
+      {/* Main Single-Page Workspace Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Interactive Step Workspace (68% width) */}
-        <div className="lg:col-span-8">
-          {currentStep === 1 && (
-            <Step1DescribeIssue
-              issueType={issueType}
-              setIssueType={setIssueType}
-              title={title}
-              setTitle={setTitle}
-              description={description}
-              setDescription={setDescription}
-              files={files}
-              setFiles={setFiles}
-              fileError={fileError}
-              setFileError={setFileError}
-              onNext={handleNextFromStep1}
+        {/* Left: Interactive Form Canvas */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Section 1: Request Type Selection */}
+          <div className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle space-y-4">
+            <RequestTypeSelector
+              selectedType={requestType}
+              onSelect={(type) => setRequestType(type)}
             />
-          )}
+          </div>
 
-          {currentStep === 2 && (
-            <Step2ClassifyRequest
-              categories={categories}
-              selectedCategoryId={selectedCategoryId}
-              setSelectedCategoryId={setSelectedCategoryId}
-              dynamicData={dynamicData}
-              setDynamicData={setDynamicData}
-              priority={priority}
-              setPriority={setPriority}
-              criticalNotice={criticalNotice}
-              tagsInput={tagsInput}
-              setTagsInput={setTagsInput}
-              onBack={() => setCurrentStep(1)}
-              onNext={handleNextFromStep2}
-            />
-          )}
-
-          {currentStep === 3 && (
-            <Step3ReviewSubmit
-              issueType={issueType}
-              title={title}
-              description={description}
-              files={files}
-              selectedCategory={selectedCategory}
-              dynamicData={dynamicData}
-              priority={priority}
-              tags={tagsInput.split(',').map((t) => t.trim()).filter(Boolean)}
-              duplicateCheckLoading={duplicateCheckLoading}
-              duplicateResults={duplicateResults}
-              submitting={submitting}
-              onBack={() => setCurrentStep(2)}
-              onGoToStep={(s) => setCurrentStep(s)}
-              onClearDraft={handleClearDraft}
-              onSubmit={handleSubmitTicket}
-            />
-          )}
-        </div>
-
-        {/* Right Column: AI Live Copilot & Contextual Sidebar (32% width) */}
-        <div className="lg:col-span-4 space-y-5">
-          {/* Emergency Alert Card */}
-          {criticalNotice && (
-            <div className="p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/30 shadow-subtle animate-scaleUp">
-              <div className="flex items-start gap-3">
-                <i className="bi bi-exclamation-octagon-fill text-xl text-brand-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-sm text-brand-primary mb-1">
-                    Critical Emergency Detected
-                  </h4>
-                  <p className="text-xs text-brand-secondary leading-relaxed m-0">
-                    Your description matches critical system failure keywords. Ticket priority has been elevated to <b>CRITICAL</b> with an expedited 1-hour resolution commitment.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* AI Knowledge Base Live Solution Card */}
-          <div className="card-glow p-5 sm:p-6 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-brand-primary/15">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-brand-secondary/20 text-brand-primary flex items-center justify-center flex-shrink-0">
-                  <i className="bi bi-stars" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-brand-primary m-0">
-                    Instant AI Self-Service
-                  </h3>
-                  <span className="text-[10px] text-brand-secondary">Semantic RAG Engine</span>
-                </div>
-              </div>
-              {aiSearching && (
-                <span className="w-4 h-4 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
-              )}
-            </div>
-
-            <p className="text-xs text-brand-secondary leading-relaxed m-0">
-              As you describe your issue, our local AI searches verified troubleshooting articles to resolve your problem immediately without waiting in queue.
-            </p>
-
-            {suggestedKb.length === 0 ? (
-              <div className="text-center py-6 text-brand-secondary">
-                <div className="w-10 h-10 mx-auto rounded-full bg-brand-secondary/15 flex items-center justify-center mb-2 text-lg text-brand-primary">
-                  <i className="bi bi-lightbulb" />
-                </div>
-                <p className="text-xs max-w-xs mx-auto m-0">
-                  Type a descriptive subject to see verified solutions and self-service guides.
+          {/* Section 2: Request Information (Subject, Description, Snippets) */}
+          <div id="request-info" className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                  Step 2: Describe Your Request or Incident <span className="text-brand-primary font-bold">*</span>
+                </label>
+                <p className="text-[11px] text-brand-secondary m-0 mt-0.5">
+                  Provide a concise summary and detailed context
                 </p>
               </div>
-            ) : (
-              <div className="space-y-2.5">
-                {suggestedKb.map((kb) => (
-                  <div
-                    key={kb.chunk_id}
-                    className="p-3.5 rounded-xl card-glow-interactive space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between gap-1.5">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary border border-brand-secondary/35">
-                        <i className="bi bi-check2-circle text-xs" />
-                        <span>Match: {Math.round(kb.similarity_score * 100)}%</span>
-                      </span>
-                      <span className="text-[10px] text-brand-secondary font-mono">
-                        #{kb.chunk_id.slice(0, 8)}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-xs text-brand-primary m-0">
-                      {kb.article_title}
-                    </h4>
-                    <p className="text-xs text-brand-secondary line-clamp-2 leading-relaxed m-0">
-                      {kb.content}
-                    </p>
-                  </div>
-                ))}
+            </div>
+
+            {/* Subject Field */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-brand-primary">
+                  Ticket Subject / Title <span className="text-brand-primary font-bold">*</span>
+                </label>
+                <span className={`text-[11px] ${title.length > 255 ? 'text-red-500 font-bold' : 'text-brand-secondary'}`}>
+                  {title.length}/255
+                </span>
               </div>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={255}
+                placeholder="e.g. Wi-Fi disconnection in Library 3rd Floor, or Unable to install MATLAB"
+                className="w-full px-4 py-3 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-2xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-all font-medium"
+              />
+            </div>
+
+            {/* Description Field */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-brand-primary">
+                  Detailed Description <span className="text-brand-primary font-bold">*</span>
+                </label>
+                <span className="text-[11px] text-brand-secondary">
+                  {description.trim().length} chars {description.trim().length < 5 && '(min 5)'}
+                </span>
+              </div>
+
+              {/* Formatting Helper Snippets */}
+              <div className="flex flex-wrap items-center gap-1.5 pb-1">
+                <span className="text-[10px] text-brand-secondary font-semibold uppercase tracking-wider mr-1">
+                  Insert Template:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleInsertSnippet('**Steps to Reproduce:**\n1. \n2. \n3. ')}
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg bg-brand-secondary/15 hover:bg-brand-secondary/30 text-brand-primary transition-colors cursor-pointer"
+                >
+                  + Steps to Reproduce
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleInsertSnippet('**Expected Behavior:** \n**Actual Behavior:** ')}
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg bg-brand-secondary/15 hover:bg-brand-secondary/30 text-brand-primary transition-colors cursor-pointer"
+                >
+                  + Expected vs Actual
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleInsertSnippet('**Error Message / Code:** \n```\n\n```')}
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg bg-brand-secondary/15 hover:bg-brand-secondary/30 text-brand-primary transition-colors cursor-pointer"
+                >
+                  + Error Snippet
+                </button>
+              </div>
+
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={5}
+                placeholder="Please describe what occurred, when it started, error codes shown, and any troubleshooting steps already attempted..."
+                className="w-full px-4 py-3 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-2xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-all resize-y leading-relaxed"
+              />
+            </div>
+
+            {/* Custom Tags */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-brand-primary">
+                Search Tags (Optional, comma-separated)
+              </label>
+              <input
+                type="text"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="e.g. wifi, eduroam, laptop, student-portal"
+                className="w-full px-4 py-2.5 text-xs sm:text-sm bg-app-background border border-brand-secondary/40 rounded-xl text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-primary transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Section 3: Classification & Category */}
+          <div id="classification" className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary">
+                  Step 3: Classify Your Request <span className="text-brand-primary font-bold">*</span>
+                </label>
+                <p className="text-[11px] text-brand-secondary m-0 mt-0.5">
+                  Directs the ticket to the specialized engineering queue
+                </p>
+              </div>
+            </div>
+
+            {/* Category Cards Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {categories.map((cat) => (
+                <CategoryCard
+                  key={cat.id}
+                  category={cat}
+                  isSelected={selectedCategoryId === cat.id}
+                  onSelect={(id) => setSelectedCategoryId(id)}
+                />
+              ))}
+            </div>
+
+            {/* Dynamic Contextual Category Fields */}
+            {selectedCategoryObj && (
+              <DynamicCategoryFields
+                categoryName={selectedCategoryObj.name}
+                dynamicData={dynamicData}
+                setDynamicData={setDynamicData}
+              />
             )}
           </div>
 
-          {/* SLA Policies & Helpful Guidelines Card */}
-          <div className="card-glow p-5 sm:p-6 rounded-2xl space-y-3">
-            <div className="flex items-center gap-2 pb-2.5 border-b border-brand-primary/15">
-              <i className="bi bi-info-circle text-brand-primary text-base" />
-              <h4 className="font-bold text-xs sm:text-sm text-brand-primary uppercase tracking-wider m-0">
-                Help Desk Guidelines
-              </h4>
-            </div>
-
-            <ul className="text-xs text-brand-secondary space-y-2 leading-relaxed list-none p-0 m-0">
-              <li className="flex items-start gap-2">
-                <i className="bi bi-check2 text-brand-primary text-sm flex-shrink-0 mt-0.5" />
-                <span><b>Be specific:</b> Include device names, room numbers, or exact error messages.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <i className="bi bi-check2 text-brand-primary text-sm flex-shrink-0 mt-0.5" />
-                <span><b>Screenshots:</b> Visual error captures help technicians resolve issues 40% faster.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <i className="bi bi-check2 text-brand-primary text-sm flex-shrink-0 mt-0.5" />
-                <span><b>SLA Commitments:</b> Critical outages are dispatched within 1 hour; standard requests within 24 hours.</span>
-              </li>
-            </ul>
+          {/* Section 4: Impact & Urgency Matrix (ITIL Priority) */}
+          <div className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle">
+            <ImpactUrgencyMatrix
+              impact={impact}
+              setImpact={setImpact}
+              urgency={urgency}
+              setUrgency={setUrgency}
+              isOverride={isOverride}
+              setIsOverride={setIsOverride}
+              overridePriority={overridePriority}
+              setOverridePriority={setOverridePriority}
+              overrideReason={overrideReason}
+              setOverrideReason={setOverrideReason}
+              subjectText={title}
+              descText={description}
+            />
           </div>
+
+          {/* Section 5: Location, Contact & System Context (Optional) */}
+          <div className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle">
+            <LocationAndContactFields
+              locationData={locationData}
+              setLocationData={setLocationData}
+              currentUserEmail={user?.email}
+            />
+          </div>
+
+          {/* Section 6: Attachments & Diagnostics */}
+          <div id="attachments" className="bg-app-background border border-brand-primary/15 rounded-3xl p-5 sm:p-6 shadow-subtle">
+            <FileDropzone
+              files={files}
+              setFiles={setFiles}
+              error={fileError}
+              setError={setFileError}
+            />
+          </div>
+
+          {/* Global Error Notice if Submission Failed */}
+          {errorMessage && (
+            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-xs sm:text-sm text-red-700 flex items-start gap-2.5 shadow-sm">
+              <i className="bi bi-exclamation-triangle-fill text-red-600 text-base flex-shrink-0 mt-0.5" />
+              <div className="leading-relaxed font-medium">
+                {errorMessage}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right: Sticky Live Summary & Real-Time Copilot Panel */}
+        <div className="lg:col-span-4">
+          <LiveTicketSummaryPanel
+            requestType={requestType}
+            title={title}
+            description={description}
+            selectedCategory={selectedCategoryObj}
+            dynamicData={dynamicData}
+            priority={activePriority}
+            locationData={locationData}
+            files={files}
+            duplicateResults={duplicateResults}
+            duplicateLoading={duplicateLoading}
+            suggestedKb={suggestedKb}
+            kbLoading={kbLoading}
+            lastSavedAt={lastSavedAt}
+            isSavingDraft={isSavingDraft}
+            onSaveDraftManual={saveDraftToStorage}
+            onDiscardDraft={handleClearDraft}
+            onSubmitTicket={handleSubmitTicket}
+            submitting={submitting}
+            validationErrors={validationErrors}
+          />
         </div>
       </div>
     </div>

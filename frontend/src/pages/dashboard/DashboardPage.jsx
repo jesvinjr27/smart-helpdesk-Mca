@@ -220,6 +220,18 @@ export const DashboardPage = () => {
   const splitLineColor = 'rgba(122, 170, 206, 0.2)';
 
   // Volume Trends Chart - Using Official Palette (#355872, #7aaace, #9cd5ff)
+  const volumeData = trends?.ticket_volume_by_day || trends?.daily_volume || [];
+  const volumeDates = volumeData.map((d) => {
+    if (!d.date) return '';
+    const parts = d.date.split('-');
+    if (parts.length === 3) {
+      const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+    return d.date;
+  });
+  const volumeCounts = volumeData.map((d) => d.count ?? 0);
+
   const volumeChartOptions = {
     tooltip: {
       trigger: 'axis',
@@ -231,7 +243,7 @@ export const DashboardPage = () => {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: trends?.daily_volume?.map((d) => d.date) || [],
+      data: volumeDates,
       axisLabel: { color: axisLabelColor, fontSize: 11 },
       axisLine: { lineStyle: { color: splitLineColor } },
     },
@@ -244,10 +256,11 @@ export const DashboardPage = () => {
     series: [
       {
         name: 'New Tickets',
-        data: trends?.daily_volume?.map((d) => d.count) || [],
+        data: volumeCounts,
         type: 'line',
         smooth: true,
-        showSymbol: false,
+        showSymbol: true,
+        symbolSize: 6,
         itemStyle: { color: '#355872' },
         lineStyle: { width: 3, color: '#355872' },
         areaStyle: {

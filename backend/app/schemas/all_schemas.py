@@ -307,24 +307,27 @@ class TicketAttachmentResponse(BaseModel):
 
 class DuplicateCheckRequest(BaseModel):
     title: str = Field(..., min_length=3)
-    description: str = Field(..., min_length=5)
+    description: Optional[str] = Field(default="", min_length=0)
     category_id: Optional[str] = None
 
 
 class DuplicateTicketCandidate(BaseModel):
     ticket_id: str
+    id: Optional[str] = None
     ticket_number: str
     title: str
     status: str
-    priority: str
+    priority: Optional[str] = "MEDIUM"
     category_name: Optional[str] = None
     similarity_score: float
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
 
 class DuplicateCheckResponse(BaseModel):
     has_duplicates: bool
     duplicates: List[DuplicateTicketCandidate] = []
+    candidates: Optional[List[DuplicateTicketCandidate]] = None
 
 
 # ==========================================
@@ -588,6 +591,7 @@ class DashboardSummary(BaseModel):
 
 class DashboardTrends(BaseModel):
     ticket_volume_by_day: List[Dict[str, Any]]  # [{"date": "2026-10-15", "count": 12}, ...]
+    daily_volume: Optional[List[Dict[str, Any]]] = None
     status_distribution: Dict[str, int]
     priority_distribution: Dict[str, int]
     category_breakdown: List[Dict[str, Any]]

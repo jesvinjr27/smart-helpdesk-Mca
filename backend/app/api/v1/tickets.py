@@ -161,7 +161,7 @@ def check_duplicate_tickets(
     """
     Fast pre-submission duplicate check using TF-IDF similarity over open tickets in the same tenant.
     """
-    query_text = f"{req.title} {req.description}".strip()
+    query_text = f"{req.title} {req.description or ''}".strip()
     candidates_query = (
         db.query(Ticket)
         .filter(
@@ -174,10 +174,11 @@ def check_duplicate_tickets(
     )
 
     if not candidates_query:
-        return DuplicateCheckResponse(has_duplicates=False, duplicates=[])
+        return DuplicateCheckResponse(has_duplicates=False, duplicates=[], candidates=[])
 
     candidates = [
         {
+            "id": t.id,
             "ticket_id": t.id,
             "ticket_number": t.ticket_number,
             "title": t.title,
@@ -185,7 +186,8 @@ def check_duplicate_tickets(
             "status": t.status,
             "priority": t.priority,
             "category_name": t.category.name if t.category else "General",
-            "created_at": t.created_at
+            "created_at": t.created_at,
+            "updated_at": t.updated_at
         }
         for t in candidates_query
     ]
@@ -193,23 +195,27 @@ def check_duplicate_tickets(
     sim_res = ai_service.find_similar_tickets(query_text, candidates, top_k=3)
     matching_items = []
     for item in sim_res.get("similar_tickets", []):
-        if item.get("similarity_score", 0) >= 0.35:
+        if item.get("similarity_score", 0) >= 0.20:
+            cand_id = item.get("ticket_id") or item.get("id") or ""
             matching_items.append(
                 DuplicateTicketCandidate(
-                    ticket_id=item["ticket_id"],
-                    ticket_number=item["ticket_number"],
-                    title=item["title"],
-                    status=item["status"],
-                    priority=item["priority"],
-                    category_name=item.get("category"),
-                    similarity_score=item["similarity_score"],
-                    created_at=item.get("created_at") or utc_now()
+                    ticket_id=cand_id,
+                    id=cand_id,
+                    ticket_number=item.get("ticket_number") or "",
+                    title=item.get("title") or "",
+                    status=item.get("status") or "NEW",
+                    priority=item.get("priority") or "MEDIUM",
+                    category_name=item.get("category_name"),
+                    similarity_score=item.get("similarity_score", 0.0),
+                    created_at=item.get("created_at") or utc_now(),
+                    updated_at=item.get("updated_at")
                 )
             )
 
     return DuplicateCheckResponse(
         has_duplicates=len(matching_items) > 0,
-        duplicates=matching_items
+        duplicates=matching_items,
+        candidates=matching_items
     )
 
 

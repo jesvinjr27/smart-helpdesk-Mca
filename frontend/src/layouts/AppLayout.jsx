@@ -60,12 +60,23 @@ export const AppLayout = () => {
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 px-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
-          <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
-            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-brand-primary font-bold shadow-sm flex-shrink-0">
-              <i className="bi bi-shield-check text-lg text-white" />
-            </div>
-            {!collapsed && (
+        {collapsed ? (
+          <div className="h-16 w-full flex items-center justify-center border-b border-white/10 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleToggleCollapse}
+              className="w-10 h-10 rounded-xl bg-brand-secondary flex items-center justify-center text-white shadow-sm hover:scale-105 hover:bg-brand-secondary/90 transition-all cursor-pointer focus:outline-none"
+              title="Expand sidebar"
+            >
+              <i className="bi bi-shield-check text-xl text-white" />
+            </button>
+          </div>
+        ) : (
+          <div className="h-16 px-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+            <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
+              <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-brand-primary font-bold shadow-sm flex-shrink-0">
+                <i className="bi bi-shield-check text-lg text-white" />
+              </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="font-bold text-sm tracking-tight text-white truncate">
                   SmartHelpdesk
@@ -74,18 +85,18 @@ export const AppLayout = () => {
                   AI-Powered Hub
                 </span>
               </div>
-            )}
-          </NavLink>
+            </NavLink>
 
-          <button
-            type="button"
-            className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center"
-            onClick={handleToggleCollapse}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <i className={`bi ${collapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'} text-sm`} />
-          </button>
-        </div>
+            <button
+              type="button"
+              className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
+              onClick={handleToggleCollapse}
+              title="Collapse sidebar"
+            >
+              <i className="bi bi-chevron-double-left text-sm" />
+            </button>
+          </div>
+        )}
 
         {/* Sidebar Nav Items */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
@@ -261,6 +272,21 @@ export const AppLayout = () => {
               )}
             </>
           )}
+
+          {/* Collapse / Expand Toggle Item for Desktop */}
+          <div className="pt-2 hidden lg:block border-t border-white/10 mt-2">
+            <button
+              type="button"
+              onClick={handleToggleCollapse}
+              className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer ${
+                collapsed ? 'justify-center' : ''
+              }`}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              <i className={`bi ${collapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'} text-sm flex-shrink-0`} />
+              {!collapsed && <span className="truncate">Collapse Sidebar</span>}
+            </button>
+          </div>
         </div>
 
         {/* Sidebar Footer User Info */}
@@ -307,7 +333,18 @@ export const AppLayout = () => {
             collapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[270px]'
           }`}
         >
-          <div className="flex items-center gap-3 overflow-hidden min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden min-w-0">
+            {/* Desktop Sidebar Toggle */}
+            <button
+              type="button"
+              className="p-1.5 rounded-lg text-brand-primary hover:bg-brand-secondary/20 hidden lg:flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
+              onClick={handleToggleCollapse}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label="Toggle navigation sidebar"
+            >
+              <i className={`bi ${collapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'} text-lg`} />
+            </button>
+
             {/* Mobile Hamburger */}
             <button
               type="button"
