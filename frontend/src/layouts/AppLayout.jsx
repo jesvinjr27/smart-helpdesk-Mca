@@ -65,17 +65,17 @@ export const AppLayout = () => {
             <button
               type="button"
               onClick={handleToggleCollapse}
-              className="w-10 h-10 rounded-xl bg-brand-secondary flex items-center justify-center text-white shadow-sm hover:scale-105 hover:bg-brand-secondary/90 transition-all cursor-pointer focus:outline-none"
+              className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm hover:scale-105 transition-all cursor-pointer focus:outline-none"
               title="Expand sidebar"
             >
-              <i className="bi bi-shield-check text-xl text-white" />
+              <img src="/logo.png" alt="SmartHelpdesk" className="w-8 h-8 object-contain" />
             </button>
           </div>
         ) : (
           <div className="h-16 px-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
             <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
-              <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-brand-primary font-bold shadow-sm flex-shrink-0">
-                <i className="bi bi-shield-check text-lg text-white" />
+              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                <img src="/logo.png" alt="SmartHelpdesk" className="w-8 h-8 object-contain" />
               </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="font-bold text-sm tracking-tight text-white truncate">

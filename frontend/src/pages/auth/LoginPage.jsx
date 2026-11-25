@@ -111,8 +111,8 @@ export const LoginPage = () => {
         {/* Top Header */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-brand-secondary flex items-center justify-center text-white shadow-subtle flex-shrink-0">
-              <i className="bi bi-shield-check text-2xl" />
+            <div className="w-11 h-11 rounded-xl bg-white p-1 flex items-center justify-center shadow-subtle flex-shrink-0">
+              <img src="/logo.png" alt="SmartHelpdesk Logo" className="w-9 h-9 object-contain" />
             </div>
             <div>
               <div className="font-bold text-lg text-white tracking-tight">SmartHelpdesk</div>
@@ -183,8 +183,8 @@ export const LoginPage = () => {
         <div className="w-full max-w-md card-glow p-6 sm:p-8 rounded-2xl">
           {/* Mobile Logo Branding */}
           <div className="lg:hidden text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-primary text-white shadow-subtle mb-2">
-              <i className="bi bi-shield-check text-2xl" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white p-1.5 shadow-subtle mb-2">
+              <img src="/logo.png" alt="SmartHelpdesk Logo" className="w-11 h-11 object-contain" />
             </div>
             <h2 className="text-xl font-bold tracking-tight text-brand-primary">
               SmartHelpdesk

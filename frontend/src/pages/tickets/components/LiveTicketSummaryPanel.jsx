@@ -31,6 +31,8 @@ export const LiveTicketSummaryPanel = ({
   // Knowledge Base Suggestions
   suggestedKb,
   kbLoading,
+  onCheckDuplicates,
+  hasScannedDuplicates,
   // Draft Management
   lastSavedAt,
   isSavingDraft,
@@ -212,6 +214,37 @@ export const LiveTicketSummaryPanel = ({
             </span>
           </div>
         </div>
+
+        {/* On-Demand Check for Duplicates & Knowledge Guides */}
+        <div className="pt-0.5">
+          <button
+            type="button"
+            onClick={onCheckDuplicates}
+            disabled={duplicateLoading || kbLoading || title.trim().length < 3}
+            className="w-full py-2.5 px-3 rounded-xl border border-brand-primary/20 bg-brand-secondary/15 hover:bg-brand-secondary/30 text-brand-primary text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
+            title={title.trim().length < 3 ? 'Enter a ticket subject first' : 'Scan for existing tickets or solutions'}
+          >
+            {duplicateLoading || kbLoading ? (
+              <>
+                <i className="bi bi-arrow-repeat animate-spin text-sm" />
+                <span>Checking similar tickets & guides...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-search text-xs" />
+                <span>Check for Similar Tickets & Guides</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Reassuring note if scanned and 0 duplicates */}
+        {hasScannedDuplicates && !duplicateLoading && (!duplicateResults?.duplicates?.length && !duplicateResults?.candidates?.length) && (
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-800 flex items-center gap-2">
+            <i className="bi bi-check-circle-fill text-emerald-600 flex-shrink-0" />
+            <span>No duplicate tickets found. Your issue appears to be unique!</span>
+          </div>
+        )}
 
         {/* Similar Ticket Warning (Duplicate Candidate) */}
         {duplicateLoading && (

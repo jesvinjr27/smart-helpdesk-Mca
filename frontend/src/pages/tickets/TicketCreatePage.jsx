@@ -248,57 +248,48 @@ export const TicketCreatePage = () => {
 
   const activePriority = isOverride && !hasEmergency ? overridePriority : computedPriorityObj.priority;
 
-  // 5. Intelligent Debounced Search for Knowledge Base & Duplicate Tickets
-  useEffect(() => {
+  // 5. On-Demand Check for Duplicates & Knowledge Base (Zero automatic API calls on typing)
+  const [hasScannedDuplicates, setHasScannedDuplicates] = useState(false);
+
+  const handleCheckDuplicatesAndKb = async () => {
     const trimmedTitle = title.trim();
     const trimmedDesc = description.trim();
 
-    // Reset results if both are too short
-    if (trimmedTitle.length < 3 && trimmedDesc.length < 5) {
-      setSuggestedKb([]);
-      setDuplicateResults(null);
+    if (trimmedTitle.length < 3) {
+      alert('Please enter a ticket subject (at least 3 characters) first.');
       return;
     }
 
-    const timer = setTimeout(async () => {
-      const queryText = `${trimmedTitle} ${trimmedDesc}`.trim();
+    setDuplicateLoading(true);
+    setKbLoading(true);
+    setHasScannedDuplicates(true);
 
-      // 1. Search Knowledge Base (triggers once query has at least 3 chars)
-      if (queryText.length >= 3) {
-        setKbLoading(true);
-        try {
-          const kbResp = await searchKnowledgeApi({
-            query: queryText,
-            top_k: 3,
-          });
-          setSuggestedKb(kbResp.data?.results || []);
-        } catch (e) {
-          // Non-blocking
-        } finally {
-          setKbLoading(false);
-        }
+    try {
+      const [dupResp, kbResp] = await Promise.allSettled([
+        checkDuplicateTicketApi({
+          title: trimmedTitle,
+          description: trimmedDesc || trimmedTitle,
+          category_id: selectedCategoryId || undefined,
+        }),
+        searchKnowledgeApi({
+          query: `${trimmedTitle} ${trimmedDesc}`.trim(),
+          top_k: 3,
+        }),
+      ]);
+
+      if (dupResp.status === 'fulfilled') {
+        setDuplicateResults(dupResp.value.data);
       }
-
-      // 2. Check Duplicates (triggers as soon as title has at least 3 chars)
-      if (trimmedTitle.length >= 3) {
-        setDuplicateLoading(true);
-        try {
-          const dupResp = await checkDuplicateTicketApi({
-            title: trimmedTitle,
-            description: trimmedDesc || trimmedTitle,
-            category_id: selectedCategoryId || undefined,
-          });
-          setDuplicateResults(dupResp.data);
-        } catch (e) {
-          // Non-blocking
-        } finally {
-          setDuplicateLoading(false);
-        }
+      if (kbResp.status === 'fulfilled') {
+        setSuggestedKb(kbResp.value.data?.results || []);
       }
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [title, description, selectedCategoryId]);
+    } catch (err) {
+      console.warn('Check failed:', err);
+    } finally {
+      setDuplicateLoading(false);
+      setKbLoading(false);
+    }
+  };
 
   // 6. Formatting Snippet Helper Injection
   const handleInsertSnippet = (snippet) => {
@@ -720,6 +711,8 @@ export const TicketCreatePage = () => {
             duplicateLoading={duplicateLoading}
             suggestedKb={suggestedKb}
             kbLoading={kbLoading}
+            onCheckDuplicates={handleCheckDuplicatesAndKb}
+            hasScannedDuplicates={hasScannedDuplicates}
             lastSavedAt={lastSavedAt}
             isSavingDraft={isSavingDraft}
             onSaveDraftManual={saveDraftToStorage}
