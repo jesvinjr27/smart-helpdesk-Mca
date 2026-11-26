@@ -291,13 +291,21 @@ export const AppLayout = () => {
 
         {/* Sidebar Footer User Info */}
         <div className="p-3.5 border-t border-white/10 flex items-center justify-between flex-shrink-0 bg-brand-primary">
-          <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
-              {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
+          <NavLink
+            to="/profile"
+            className="flex items-center gap-2.5 overflow-hidden min-w-0 group hover:opacity-90 transition-opacity"
+            title="View Profile & Settings"
+          >
+            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 overflow-hidden border border-white/20">
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+              ) : (
+                user?.full_name ? user.full_name[0].toUpperCase() : 'U'
+              )}
             </div>
             {!collapsed && (
               <div className="overflow-hidden min-w-0">
-                <div className="text-white text-xs font-semibold truncate">
+                <div className="text-white text-xs font-semibold truncate group-hover:underline">
                   {user?.full_name || 'User'}
                 </div>
                 <div className="text-[10px] text-brand-accent truncate">
@@ -305,13 +313,13 @@ export const AppLayout = () => {
                 </div>
               </div>
             )}
-          </div>
+          </NavLink>
 
           {!collapsed && (
             <button
               onClick={logout}
               title="Sign Out"
-              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
             >
               <i className="bi bi-box-arrow-right text-lg" />
             </button>
@@ -389,10 +397,15 @@ export const AppLayout = () => {
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="p-1 rounded-xl flex items-center gap-2 hover:bg-brand-secondary/15 transition-colors"
+                className="p-1 rounded-xl flex items-center gap-2 hover:bg-brand-secondary/15 transition-colors cursor-pointer"
+                title="Account menu"
               >
-                <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-white font-bold text-xs shadow-xs flex-shrink-0">
-                  {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
+                <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-white font-bold text-xs shadow-xs flex-shrink-0 overflow-hidden border border-brand-primary/20">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.full_name ? user.full_name[0].toUpperCase() : 'U'
+                  )}
                 </div>
                 <div className="text-left hidden xl:block">
                   <div className="font-semibold text-xs text-brand-primary truncate max-w-[120px]">
@@ -407,37 +420,95 @@ export const AppLayout = () => {
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 card-glow py-1.5 z-50 animate-scaleUp overflow-hidden"
+                  className="absolute right-0 mt-2 w-60 card-glow py-1.5 z-50 animate-scaleUp overflow-hidden bg-white/95 backdrop-blur-md rounded-2xl border border-brand-primary/20 shadow-xl"
                   onMouseLeave={() => setUserDropdownOpen(false)}
                 >
-                  <div className="px-4 py-2.5 border-b border-brand-primary/10">
+                  <div className="px-4 py-2.5 border-b border-brand-primary/10 bg-brand-secondary/5">
                     <div className="font-bold text-xs text-brand-primary truncate">
                       {user?.full_name}
                     </div>
                     <div className="text-[11px] text-brand-secondary truncate">{user?.email}</div>
-                    <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary rounded-full border border-brand-secondary/40">
+                    <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary rounded-full border border-brand-secondary/40">
                       {user?.roles?.[0] || 'REQUESTER'}
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      navigate('/tickets');
-                    }}
-                    className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors"
-                  >
-                    <i className="bi bi-ticket-perforated text-brand-secondary" />
-                    <span>My Support Queue</span>
-                  </button>
+                  <div className="py-1">
+                    {/* 1. My Profile */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/personal-information');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-person-circle text-brand-secondary text-sm" />
+                      <span>My Profile</span>
+                    </button>
+
+                    {/* 2. Account Settings */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/account');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-gear-wide-connected text-brand-secondary text-sm" />
+                      <span>Account Settings</span>
+                    </button>
+
+                    {/* 3. Security */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/security');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-shield-check text-brand-secondary text-sm" />
+                      <span>Security</span>
+                    </button>
+
+                    {/* 4. Notifications */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/notifications');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-bell text-brand-secondary text-sm" />
+                      <span>Notifications</span>
+                    </button>
+
+                    {/* 5. My Activity */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/activity');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-clock-history text-brand-secondary text-sm" />
+                      <span>My Activity</span>
+                    </button>
+                  </div>
 
                   <div className="border-t border-brand-primary/10 my-1" />
 
+                  {/* 6. Sign Out */}
                   <button
+                    type="button"
                     onClick={logout}
-                    className="w-full px-4 py-2 text-xs text-brand-primary font-medium hover:bg-brand-primary hover:text-white flex items-center gap-2.5 text-left transition-colors"
+                    className="w-full px-4 py-2 text-xs text-rose-700 hover:bg-rose-50 font-medium flex items-center gap-2.5 text-left transition-colors cursor-pointer"
                   >
-                    <i className="bi bi-box-arrow-right" />
+                    <i className="bi bi-box-arrow-right text-sm" />
                     <span>Sign Out</span>
                   </button>
                 </div>

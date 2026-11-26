@@ -10,11 +10,28 @@ export const resetPasswordApi = (data) => apiClient.post('/auth/reset-password',
 export const getMicrosoftConfigApi = () => apiClient.get('/auth/microsoft/config');
 export const exchangeMicrosoftTokenApi = (data) => apiClient.post('/auth/microsoft/exchange', data);
 
-// Users
+// Users & Current Profile
 export const getUsersApi = (params) => apiClient.get('/users', { params });
 export const createUserApi = (data) => apiClient.post('/users', data);
 export const updateUserApi = (id, data) => apiClient.patch(`/users/${id}`, data);
 export const deleteUserApi = (id) => apiClient.delete(`/users/${id}`);
+
+// Profile & Self-Service Settings
+export const getMyProfileApi = () => apiClient.get('/users/me');
+export const updateMyProfileApi = (data) => apiClient.patch('/users/me', data);
+export const uploadMyAvatarApi = (formData) =>
+  apiClient.post('/users/me/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+export const removeMyAvatarApi = () => apiClient.delete('/users/me/avatar');
+export const getMyPreferencesApi = () => apiClient.get('/users/me/preferences');
+export const updateMyPreferencesApi = (data) => apiClient.patch('/users/me/preferences', data);
+export const changePasswordApi = (data) => apiClient.patch('/users/me/password', data);
+export const getMyNotificationsApi = () => apiClient.get('/users/me/notifications');
+export const updateMyNotificationsApi = (data) => apiClient.patch('/users/me/notifications', data);
+export const getMyActivityApi = (params) => apiClient.get('/users/me/activity', { params });
+export const getMySessionsApi = () => apiClient.get('/users/me/sessions');
+export const revokeOtherSessionsApi = () => apiClient.post('/users/me/sessions/revoke-others');
 
 // Structure
 export const getOrganizationsApi = () => apiClient.get('/organizations');

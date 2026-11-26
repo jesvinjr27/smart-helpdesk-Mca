@@ -133,6 +133,32 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     account_status = Column(String(50), default="ACTIVE", nullable=False)
     is_verified = Column(Boolean, default=True, nullable=False)
+    
+    # Extended Profile & Contact Information
+    alt_phone = Column(String(50), nullable=True)
+    job_title = Column(String(100), nullable=True)
+    location = Column(String(150), nullable=True)
+    timezone = Column(String(50), default="UTC", nullable=True)
+    preferred_language = Column(String(20), default="en", nullable=True)
+    bio = Column(Text, nullable=True)
+    skills = Column(JSON, default=list, nullable=True)
+
+    # Role-Specific Identity & Academic / Employee Fields
+    external_id = Column(String(50), nullable=True)  # Student ID (e.g. STU-2024-0891) or Employee ID (e.g. EMP-4021)
+    user_type = Column(String(50), default="EMPLOYEE", nullable=True)  # STUDENT, EMPLOYEE, STAFF, ADMIN
+    course = Column(String(100), nullable=True)  # Academic Course for Students
+    academic_year = Column(String(50), nullable=True)  # Academic Year for Students
+    reporting_manager = Column(String(150), nullable=True)  # Manager for Employees
+    communication_preference = Column(String(50), default="email", nullable=True)
+
+    # Application & Notification Preferences
+    theme = Column(String(20), default="light", nullable=True)
+    date_format = Column(String(20), default="YYYY-MM-DD", nullable=True)
+    time_format = Column(String(10), default="12h", nullable=True)
+    table_page_size = Column(Integer, default=10, nullable=True)
+    accessibility_preferences = Column(JSON, default=dict, nullable=True)
+    notification_preferences = Column(JSON, default=dict, nullable=True)
+
     created_at = Column(DateTime, default=utc_now, nullable=False)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
@@ -219,6 +245,8 @@ class RefreshToken(Base):
     expires_at = Column(DateTime, nullable=False)
     revoked = Column(Boolean, default=False, nullable=False)
     revoked_at = Column(DateTime, nullable=True)
+    user_agent = Column(String(255), nullable=True)
+    ip_address = Column(String(45), nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 
     user = relationship("User", back_populates="refresh_tokens")

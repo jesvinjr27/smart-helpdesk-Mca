@@ -133,6 +133,84 @@ class UserMeResponse(UserResponse):
     account_status: Optional[str] = "ACTIVE"
     teams: List[str] = []
     workspaces: List[WorkspaceOption] = []
+    
+    # Extended Profile Information
+    alt_phone: Optional[str] = None
+    job_title: Optional[str] = None
+    location: Optional[str] = None
+    timezone: Optional[str] = "UTC"
+    preferred_language: Optional[str] = "en"
+    bio: Optional[str] = None
+    skills: Optional[List[str]] = []
+    
+    # Role-Specific Identity Information
+    external_id: Optional[str] = None
+    user_type: Optional[str] = "EMPLOYEE"
+    course: Optional[str] = None
+    academic_year: Optional[str] = None
+    reporting_manager: Optional[str] = None
+    communication_preference: Optional[str] = "email"
+
+    # Application & Notification Preferences
+    theme: Optional[str] = "light"
+    date_format: Optional[str] = "YYYY-MM-DD"
+    time_format: Optional[str] = "12h"
+    table_page_size: Optional[int] = 10
+    accessibility_preferences: Optional[Dict[str, Any]] = None
+    notification_preferences: Optional[Dict[str, Any]] = None
+    profile_completion_percentage: Optional[int] = 0
+
+
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    alt_phone: Optional[str] = None
+    job_title: Optional[str] = None
+    location: Optional[str] = None
+    timezone: Optional[str] = None
+    preferred_language: Optional[str] = None
+    bio: Optional[str] = None
+    skills: Optional[List[str]] = None
+    communication_preference: Optional[str] = None
+
+
+class UserPreferencesUpdate(BaseModel):
+    theme: Optional[str] = None
+    date_format: Optional[str] = None
+    time_format: Optional[str] = None
+    table_page_size: Optional[int] = None
+    accessibility_preferences: Optional[Dict[str, Any]] = None
+    timezone: Optional[str] = None
+    preferred_language: Optional[str] = None
+
+
+class NotificationPreferencesUpdate(BaseModel):
+    preferences: Dict[str, Any]
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+    confirm_password: str
+
+
+class UserSessionResponse(BaseModel):
+    id: str
+    created_at: datetime
+    expires_at: datetime
+    user_agent: Optional[str] = None
+    ip_address: Optional[str] = None
+    is_current: bool = False
+
+
+class UserActivityResponse(BaseModel):
+    id: str
+    action: str
+    entity_type: str
+    entity_id: Optional[str] = None
+    created_at: datetime
+    details: Optional[Dict[str, Any]] = None
+    ip_address: Optional[str] = None
 
 
 TokenResponse.model_rebuild()
