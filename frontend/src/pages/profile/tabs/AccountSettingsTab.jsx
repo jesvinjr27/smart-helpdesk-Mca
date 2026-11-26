@@ -18,6 +18,8 @@ export const AccountSettingsTab = ({ profile, onProfileUpdated }) => {
   const [loading, setLoading] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailTouched, setEmailTouched] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -72,15 +74,46 @@ export const AccountSettingsTab = ({ profile, onProfileUpdated }) => {
     }
   };
 
+  const validateNewEmail = (val) => {
+    const trimmed = (val || '').trim();
+    if (!trimmed) return 'Email address is required.';
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(trimmed)) {
+      return 'Please enter a valid email address (e.g. name@organization.com).';
+    }
+    if (trimmed.toLowerCase() === (settings.email || '').toLowerCase()) {
+      return 'New email cannot be identical to your current registered email.';
+    }
+    return null;
+  };
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setNewEmail(val);
+    if (emailTouched) {
+      setEmailError(validateNewEmail(val));
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    setEmailError(validateNewEmail(newEmail));
+  };
+
   const handleEmailRequest = (e) => {
     e.preventDefault();
-    if (!newEmail || !newEmail.includes('@')) {
-      showError('Please enter a valid work or university email address.');
+    setEmailTouched(true);
+    const err = validateNewEmail(newEmail);
+    if (err) {
+      setEmailError(err);
+      showError(err);
       return;
     }
-    showSuccess(`Verification code dispatched to ${newEmail}. Please confirm the OTP link.`);
+    showSuccess(`Verification code dispatched to ${newEmail.trim()}. Please confirm the OTP link.`);
     setEmailModalOpen(false);
     setNewEmail('');
+    setEmailError('');
+    setEmailTouched(false);
   };
 
   return (
@@ -268,15 +301,28 @@ export const AccountSettingsTab = ({ profile, onProfileUpdated }) => {
 
             <div>
               <label className="block text-xs font-semibold text-brand-primary mb-1">
-                New Email Address
+                New Email Address <span className="text-rose-500">*</span>
               </label>
               <input
                 type="email"
                 value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
                 placeholder="name@organization.com"
-                className="w-full px-3.5 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className={`w-full px-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary focus:outline-none transition-all ${
+                  emailError && emailTouched
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : !emailError && emailTouched && newEmail
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
+              {emailError && emailTouched && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{emailError}</span>
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-brand-primary/10">

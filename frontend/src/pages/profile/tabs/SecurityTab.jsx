@@ -11,10 +11,30 @@ export const SecurityTab = () => {
     newPassword: '',
     confirmPassword: '',
   });
+  const [touched, setTouched] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  // Password Policy Rules
+  const criteria = {
+    minLength: passwordForm.newPassword.length >= 8,
+    hasUpper: /[A-Z]/.test(passwordForm.newPassword),
+    hasLower: /[a-z]/.test(passwordForm.newPassword),
+    hasNumber: /[0-9]/.test(passwordForm.newPassword),
+    hasSpecial: /[^A-Za-z0-9]/.test(passwordForm.newPassword),
+  };
+  const allCriteriaMet = Object.values(criteria).every(Boolean);
+  const passwordsMatch = Boolean(
+    passwordForm.confirmPassword &&
+    passwordForm.newPassword &&
+    passwordForm.newPassword === passwordForm.confirmPassword
+  );
 
   // Active Sessions & History State
   const [sessions, setSessions] = useState([]);
@@ -57,12 +77,14 @@ export const SecurityTab = () => {
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
+    setTouched({ currentPassword: true, newPassword: true, confirmPassword: true });
+
     if (!passwordForm.currentPassword) {
       showError('Please enter your current password.');
       return;
     }
-    if (passwordForm.newPassword.length < 8) {
-      showError('New password must be at least 8 characters long.');
+    if (!allCriteriaMet) {
+      showError('Please ensure your new password satisfies all security requirements.');
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -79,6 +101,7 @@ export const SecurityTab = () => {
       });
       showSuccess('Your password has been changed successfully!');
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTouched({ currentPassword: false, newPassword: false, confirmPassword: false });
       fetchSecurityData();
     } catch (err) {
       showError(err.response?.data?.detail || 'Failed to update password. Verify current password.');
@@ -133,8 +156,15 @@ export const SecurityTab = () => {
                 type={showCurrent ? 'text' : 'password'}
                 value={passwordForm.currentPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                onBlur={() => setTouched((t) => ({ ...t, currentPassword: true }))}
                 placeholder="Enter your current password"
-                className="w-full pl-9 pr-10 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className={`w-full pl-9 pr-10 py-2 text-sm rounded-xl border bg-white text-brand-primary focus:outline-none transition-all ${
+                  touched.currentPassword && !passwordForm.currentPassword
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : touched.currentPassword && passwordForm.currentPassword
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
               <i className="bi bi-key absolute left-3 top-2.5 text-brand-secondary text-sm" />
               <button
@@ -145,6 +175,12 @@ export const SecurityTab = () => {
                 <i className={`bi ${showCurrent ? 'bi-eye-slash' : 'bi-eye'}`} />
               </button>
             </div>
+            {touched.currentPassword && !passwordForm.currentPassword && (
+              <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                <span>Current password is required.</span>
+              </p>
+            )}
           </div>
 
           {/* New Password */}
@@ -157,8 +193,15 @@ export const SecurityTab = () => {
                 type={showNew ? 'text' : 'password'}
                 value={passwordForm.newPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                onBlur={() => setTouched((t) => ({ ...t, newPassword: true }))}
                 placeholder="Minimum 8 characters (mixed case, numbers, symbols)"
-                className="w-full pl-9 pr-10 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className={`w-full pl-9 pr-10 py-2 text-sm rounded-xl border bg-white text-brand-primary focus:outline-none transition-all ${
+                  touched.newPassword && !allCriteriaMet
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : touched.newPassword && allCriteriaMet
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
               <i className="bi bi-lock absolute left-3 top-2.5 text-brand-secondary text-sm" />
               <button
@@ -189,6 +232,35 @@ export const SecurityTab = () => {
                 </div>
               </div>
             )}
+
+            {/* Password Security Requirements Checklist */}
+            <div className="mt-2.5 p-3 rounded-xl bg-brand-secondary/5 border border-brand-primary/10 space-y-1.5">
+              <div className="text-[10px] font-semibold text-brand-secondary uppercase tracking-wider">
+                Password Requirements
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+                <div className={`flex items-center gap-1.5 ${criteria.minLength ? 'text-emerald-700 font-medium' : 'text-brand-secondary'}`}>
+                  <i className={`bi ${criteria.minLength ? 'bi-check-circle-fill text-emerald-600' : 'bi-circle text-brand-secondary/50'} text-xs`} />
+                  <span>At least 8 characters</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${criteria.hasUpper ? 'text-emerald-700 font-medium' : 'text-brand-secondary'}`}>
+                  <i className={`bi ${criteria.hasUpper ? 'bi-check-circle-fill text-emerald-600' : 'bi-circle text-brand-secondary/50'} text-xs`} />
+                  <span>At least 1 uppercase letter</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${criteria.hasLower ? 'text-emerald-700 font-medium' : 'text-brand-secondary'}`}>
+                  <i className={`bi ${criteria.hasLower ? 'bi-check-circle-fill text-emerald-600' : 'bi-circle text-brand-secondary/50'} text-xs`} />
+                  <span>At least 1 lowercase letter</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${criteria.hasNumber ? 'text-emerald-700 font-medium' : 'text-brand-secondary'}`}>
+                  <i className={`bi ${criteria.hasNumber ? 'bi-check-circle-fill text-emerald-600' : 'bi-circle text-brand-secondary/50'} text-xs`} />
+                  <span>At least 1 numeric digit (0-9)</span>
+                </div>
+                <div className={`flex items-center gap-1.5 sm:col-span-2 ${criteria.hasSpecial ? 'text-emerald-700 font-medium' : 'text-brand-secondary'}`}>
+                  <i className={`bi ${criteria.hasSpecial ? 'bi-check-circle-fill text-emerald-600' : 'bi-circle text-brand-secondary/50'} text-xs`} />
+                  <span>At least 1 special character (!@#$%^&*...)</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Confirm Password */}
@@ -201,8 +273,15 @@ export const SecurityTab = () => {
                 type={showConfirm ? 'text' : 'password'}
                 value={passwordForm.confirmPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                onBlur={() => setTouched((t) => ({ ...t, confirmPassword: true }))}
                 placeholder="Re-enter new password"
-                className="w-full pl-9 pr-10 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className={`w-full pl-9 pr-10 py-2 text-sm rounded-xl border bg-white text-brand-primary focus:outline-none transition-all ${
+                  touched.confirmPassword && !passwordsMatch
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : touched.confirmPassword && passwordsMatch
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
               <i className="bi bi-shield-check absolute left-3 top-2.5 text-brand-secondary text-sm" />
               <button
@@ -213,15 +292,24 @@ export const SecurityTab = () => {
                 <i className={`bi ${showConfirm ? 'bi-eye-slash' : 'bi-eye'}`} />
               </button>
             </div>
-            {passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
-              <p className="text-[11px] text-rose-500 mt-1">Passwords do not match.</p>
+            {touched.confirmPassword && passwordForm.confirmPassword && !passwordsMatch && (
+              <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                <span>Passwords do not match.</span>
+              </p>
+            )}
+            {touched.confirmPassword && passwordsMatch && (
+              <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
+                <i className="bi bi-check-circle-fill text-[10px]" />
+                <span>Passwords match.</span>
+              </p>
             )}
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              disabled={passwordLoading || !passwordForm.currentPassword || !passwordForm.newPassword}
+              disabled={passwordLoading || !passwordForm.currentPassword || !allCriteriaMet || !passwordsMatch}
               className="px-5 py-2 text-xs font-semibold text-white bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-subtle transition-all flex items-center gap-2"
             >
               {passwordLoading && <i className="bi bi-arrow-repeat animate-spin" />}

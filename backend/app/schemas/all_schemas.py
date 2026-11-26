@@ -1,6 +1,7 @@
+import re
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Union
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 try:
     import email_validator
@@ -173,6 +174,37 @@ class UserProfileUpdate(BaseModel):
     skills: Optional[List[str]] = None
     communication_preference: Optional[str] = None
 
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v_clean = v.strip()
+            if len(v_clean) < 2:
+                raise ValueError("Full name must be at least 2 characters long.")
+            if len(v_clean) > 100:
+                raise ValueError("Full name cannot exceed 100 characters.")
+            if not re.match(r"^[a-zA-Z\s'\-]+$", v_clean):
+                raise ValueError("Full name can only contain letters, spaces, hyphens, and apostrophes.")
+            return v_clean
+        return v
+
+    @field_validator("phone", "alt_phone")
+    @classmethod
+    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v.strip():
+            digits = re.sub(r"\D", "", v)
+            if len(digits) < 7 or len(digits) > 15:
+                raise ValueError("Phone number must contain between 7 and 15 digits.")
+            return v.strip()
+        return None
+
+    @field_validator("bio")
+    @classmethod
+    def validate_bio(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and len(v) > 300:
+            raise ValueError("Bio cannot exceed 300 characters.")
+        return v
+
 
 class UserPreferencesUpdate(BaseModel):
     theme: Optional[str] = None
@@ -223,6 +255,8 @@ class OrganizationBase(BaseModel):
     name: str
     code: str
     domain: Optional[str] = None
+    org_type: Optional[str] = "COMPANY"  # COMPANY, COLLEGE
+    settings: Optional[Dict[str, Any]] = {}
     is_active: bool = True
 
 
@@ -275,6 +309,142 @@ class TeamResponse(TeamBase):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ==========================================
+# Dynamic Organizational Structure Schemas
+# ==========================================
+class OrganizationalUnitTypeBase(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    code: str = Field(..., min_length=2, max_length=50)
+    icon: Optional[str] = "bi-diagram-3"
+    level_hint: Optional[int] = 0
+    is_active: Optional[bool] = True
+
+
+class OrganizationalUnitTypeCreate(OrganizationalUnitTypeBase):
+    org_id: Optional[str] = None
+
+
+class OrganizationalUnitTypeResponse(OrganizationalUnitTypeBase):
+    id: str
+    org_id: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class PositionBase(BaseModel):
+    title: str = Field(..., min_length=2, max_length=150)
+    description: Optional[str] = None
+    is_active: Optional[bool] = True
+
+
+class PositionCreate(PositionBase):
+    org_id: Optional[str] = None
+
+
+class PositionResponse(PositionBase):
+    id: str
+    org_id: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UserUnitMembershipBase(BaseModel):
+    user_id: str
+    unit_id: str
+    position_id: Optional[str] = None
+    is_lead: Optional[bool] = False
+    is_primary: Optional[bool] = True
+
+
+class UserUnitMembershipCreate(BaseModel):
+    user_id: str
+    position_id: Optional[str] = None
+    is_lead: Optional[bool] = False
+    is_primary: Optional[bool] = True
+
+
+class UnitMemberDetailResponse(BaseModel):
+    membership_id: str
+    user_id: str
+    full_name: str
+    email: str
+    avatar_url: Optional[str] = None
+    position_id: Optional[str] = None
+    position_title: Optional[str] = None
+    is_lead: bool
+    is_primary: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class OrganizationalUnitBase(BaseModel):
+    name: str = Field(..., min_length=2, max_length=150)
+    code: str = Field(..., min_length=2, max_length=50)
+    unit_type_id: str
+    parent_id: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = True
+
+
+class OrganizationalUnitCreate(OrganizationalUnitBase):
+    org_id: Optional[str] = None
+
+
+class OrganizationalUnitUpdate(BaseModel):
+    name: Optional[str] = None
+    code: Optional[str] = None
+    unit_type_id: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class OrganizationalUnitMoveRequest(BaseModel):
+    new_parent_id: Optional[str] = None  # None indicates moving to root
+
+
+class OrganizationalUnitResponse(OrganizationalUnitBase):
+    id: str
+    org_id: str
+    unit_type_name: Optional[str] = None
+    unit_type_icon: Optional[str] = None
+    parent_name: Optional[str] = None
+    hierarchy_path: Optional[str] = None
+    is_active: bool
+    member_count: Optional[int] = 0
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class OrganizationalUnitTreeNode(BaseModel):
+    id: str
+    org_id: str
+    unit_type_id: str
+    unit_type_name: str
+    unit_type_icon: str
+    parent_id: Optional[str] = None
+    name: str
+    code: str
+    description: Optional[str] = None
+    email: Optional[str] = None
+    hierarchy_path: Optional[str] = None
+    is_active: bool
+    member_count: int = 0
+    members: Optional[List[UnitMemberDetailResponse]] = []
+    children: List["OrganizationalUnitTreeNode"] = []
+
+    model_config = {"from_attributes": True}
+
+
+OrganizationalUnitTreeNode.model_rebuild()
 
 
 class CategoryBase(BaseModel):

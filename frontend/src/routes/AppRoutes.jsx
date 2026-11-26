@@ -16,6 +16,7 @@ import { KnowledgeBasePage } from '../pages/knowledge-base/KnowledgeBasePage';
 import { AIAssistantPage } from '../pages/ai-assistant/AIAssistantPage';
 import { SLAManagementPage } from '../pages/sla/SLAManagementPage';
 import { AdminUsersPage } from '../pages/administration/AdminUsersPage';
+import { OrgStructureBuilderPage } from '../pages/administration/OrgStructureBuilderPage';
 import { AIModelMonitorPage } from '../pages/administration/AIModelMonitorPage';
 import { AuditLogsPage } from '../pages/administration/AuditLogsPage';
 import { ProfileLayout } from '../pages/profile/ProfileLayout';
@@ -168,6 +169,14 @@ export const AppRoutes = () => {
           element={
             <RoleRoute allowedRoles={['ORG_ADMIN', 'SYS_ADMIN']}>
               <AdminUsersPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="admin/organization-structure"
+          element={
+            <RoleRoute allowedRoles={['ORG_ADMIN', 'SYS_ADMIN']}>
+              <OrgStructureBuilderPage />
             </RoleRoute>
           }
         />

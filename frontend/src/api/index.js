@@ -42,6 +42,21 @@ export const createTeamApi = (data) => apiClient.post('/teams', data);
 export const getCategoriesApi = () => apiClient.get('/categories');
 export const createCategoryApi = (data) => apiClient.post('/categories', data);
 
+// Dynamic Organization Structure (Tree, Units, Unit Types, Positions, Members)
+export const getOrgTreeApi = (activeOnly = true) => apiClient.get('/org-structure/tree', { params: { active_only: activeOnly } });
+export const getOrgUnitTypesApi = () => apiClient.get('/org-structure/unit-types');
+export const createOrgUnitTypeApi = (data) => apiClient.post('/org-structure/unit-types', data);
+export const getPositionsApi = () => apiClient.get('/org-structure/positions');
+export const createPositionApi = (data) => apiClient.post('/org-structure/positions', data);
+export const getOrgUnitsApi = (params) => apiClient.get('/org-structure/units', { params });
+export const getOrgUnitDetailApi = (id) => apiClient.get(`/org-structure/units/${id}`);
+export const createOrgUnitApi = (data) => apiClient.post('/org-structure/units', data);
+export const updateOrgUnitApi = (id, data) => apiClient.put(`/org-structure/units/${id}`, data);
+export const moveOrgUnitApi = (id, data) => apiClient.put(`/org-structure/units/${id}/move`, data);
+export const deactivateOrgUnitApi = (id) => apiClient.delete(`/org-structure/units/${id}`);
+export const assignUnitMemberApi = (unitId, data) => apiClient.post(`/org-structure/units/${unitId}/members`, data);
+export const removeUnitMemberApi = (unitId, userId) => apiClient.delete(`/org-structure/units/${unitId}/members/${userId}`);
+
 // Tickets
 export const getTicketsApi = (params) => apiClient.get('/tickets', { params });
 export const getTicketDetailApi = (id) => apiClient.get(`/tickets/${id}`);

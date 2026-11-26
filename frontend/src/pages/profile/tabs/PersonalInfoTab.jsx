@@ -22,8 +22,10 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
 
   const [initialData, setInitialData] = useState({});
   const [newSkillInput, setNewSkillInput] = useState('');
+  const [skillError, setSkillError] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     if (profile) {
@@ -51,34 +53,128 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
 
   const isDirty = JSON.stringify(formData) !== JSON.stringify(initialData);
 
+  const validateField = (name, value, allData = formData) => {
+    const val = typeof value === 'string' ? value.trim() : value;
+    switch (name) {
+      case 'firstName':
+        if (!val) return 'First name is required.';
+        if (val.length < 2) return 'First name must be at least 2 characters.';
+        if (val.length > 50) return 'First name cannot exceed 50 characters.';
+        if (!/^[a-zA-Z\s'-]+$/.test(val)) return 'First name can only contain letters, spaces, hyphens, and apostrophes.';
+        return null;
+
+      case 'lastName':
+        if (!val) return null;
+        if (val.length > 50) return 'Last name cannot exceed 50 characters.';
+        if (!/^[a-zA-Z\s'-]+$/.test(val)) return 'Last name can only contain letters, spaces, hyphens, and apostrophes.';
+        return null;
+
+      case 'phone':
+        if (!val) return null;
+        const phoneDigits = val.replace(/\D/g, '');
+        if (phoneDigits.length < 7 || phoneDigits.length > 15 || !/^\+?[0-9\s\-()]{7,25}$/.test(val)) {
+          return 'Enter a valid phone number (7-15 digits, e.g. +1 555 123 4567).';
+        }
+        return null;
+
+      case 'altPhone':
+        if (!val) return null;
+        const altDigits = val.replace(/\D/g, '');
+        if (altDigits.length < 7 || altDigits.length > 15 || !/^\+?[0-9\s\-()]{7,25}$/.test(val)) {
+          return 'Enter a valid alternative contact number (7-15 digits).';
+        }
+        if (allData.phone && val === allData.phone.trim()) {
+          return 'Alternative contact number must be different from primary mobile number.';
+        }
+        return null;
+
+      case 'jobTitle':
+        if (!val) return null;
+        if (val.length < 2) return 'Job title must be at least 2 characters.';
+        if (val.length > 100) return 'Job title cannot exceed 100 characters.';
+        if (!/^[a-zA-Z0-9\s\-&/,().]+$/.test(val)) return 'Job title contains unsupported characters.';
+        return null;
+
+      case 'location':
+        if (!val) return null;
+        if (val.length < 2) return 'Location must be at least 2 characters.';
+        if (val.length > 150) return 'Location cannot exceed 150 characters.';
+        return null;
+
+      case 'bio':
+        if (!val) return null;
+        if (val.length > 300) return 'Bio cannot exceed 300 characters.';
+        return null;
+
+      default:
+        return null;
+    }
+  };
+
   const validate = () => {
     const errs = {};
-    if (!formData.firstName.trim()) errs.firstName = 'First name is required.';
-    if (formData.phone && !/^[+0-9\s\-()]{7,25}$/.test(formData.phone)) {
-      errs.phone = 'Please enter a valid phone number.';
-    }
-    if (formData.altPhone && !/^[+0-9\s\-()]{7,25}$/.test(formData.altPhone)) {
-      errs.altPhone = 'Please enter a valid alternative contact number.';
-    }
+    const allTouched = {};
+    ['firstName', 'lastName', 'phone', 'altPhone', 'jobTitle', 'location', 'bio'].forEach((field) => {
+      allTouched[field] = true;
+      const err = validateField(field, formData[field], formData);
+      if (err) errs[field] = err;
+    });
+    setTouched((prev) => ({ ...prev, ...allTouched }));
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    if (Object.keys(errs).length > 0) {
+      showError('Please correct the highlighted form errors before saving.');
+      return false;
+    }
+    return true;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
-    }
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      if (touched[name]) {
+        const err = validateField(name, value, next);
+        setErrors((prevErrs) => ({ ...prevErrs, [name]: err }));
+      }
+      return next;
+    });
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const err = validateField(name, value, formData);
+    setErrors((prev) => ({ ...prev, [name]: err }));
   };
 
   const handleAddSkill = (e) => {
     e.preventDefault();
     const trimmed = newSkillInput.trim();
-    if (trimmed && !formData.skills.includes(trimmed)) {
-      setFormData((prev) => ({ ...prev, skills: [...prev.skills, trimmed] }));
-      setNewSkillInput('');
+    if (!trimmed) return;
+    if (trimmed.length < 2) {
+      setSkillError('Skill must be at least 2 characters.');
+      return;
     }
+    if (trimmed.length > 30) {
+      setSkillError('Skill cannot exceed 30 characters.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9\s\-_+#./]+$/.test(trimmed)) {
+      setSkillError('Skill can only contain letters, numbers, and symbols (e.g. C++, .NET).');
+      return;
+    }
+    if (formData.skills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) {
+      setSkillError('This skill is already in your profile.');
+      return;
+    }
+    if (formData.skills.length >= 20) {
+      setSkillError('Maximum of 20 skills allowed.');
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, skills: [...prev.skills, trimmed] }));
+    setNewSkillInput('');
+    setSkillError('');
   };
 
   const handleRemoveSkill = (skillToRemove) => {
@@ -97,13 +193,13 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
       const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
       const payload = {
         full_name: fullName,
-        phone: formData.phone,
-        alt_phone: formData.altPhone,
-        job_title: formData.jobTitle,
-        location: formData.location,
+        phone: formData.phone.trim() || null,
+        alt_phone: formData.altPhone.trim() || null,
+        job_title: formData.jobTitle.trim() || null,
+        location: formData.location.trim() || null,
         timezone: formData.timezone,
         preferred_language: formData.preferredLanguage,
-        bio: formData.bio,
+        bio: formData.bio.trim() || null,
         skills: formData.skills,
         communication_preference: formData.communicationPreference,
       };
@@ -112,6 +208,7 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
       showSuccess('Profile information saved successfully!');
       onProfileUpdated(res.data);
       setInitialData(formData);
+      setTouched({});
     } catch (err) {
       showError(err.response?.data?.detail || 'Failed to update profile information.');
     } finally {
@@ -122,6 +219,8 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
   const handleReset = () => {
     setFormData(initialData);
     setErrors({});
+    setTouched({});
+    setSkillError('');
   };
 
   const role = profile?.roles?.[0] || 'REQUESTER';
@@ -191,15 +290,21 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="First name"
                 className={`w-full px-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
-                  errors.firstName
+                  errors.firstName && touched.firstName
                     ? 'border-rose-400 ring-2 ring-rose-200'
+                    : !errors.firstName && touched.firstName && formData.firstName
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
                     : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
                 }`}
               />
-              {errors.firstName && (
-                <p className="text-[11px] text-rose-500 mt-1">{errors.firstName}</p>
+              {errors.firstName && touched.firstName && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.firstName}</span>
+                </p>
               )}
             </div>
 
@@ -213,9 +318,22 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Last name"
-                className="w-full px-3.5 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 transition-all"
+                className={`w-full px-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                  errors.lastName && touched.lastName
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : !errors.lastName && touched.lastName && formData.lastName
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
+              {errors.lastName && touched.lastName && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.lastName}</span>
+                </p>
+              )}
             </div>
 
             {/* Display Name Preview */}
@@ -256,16 +374,24 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="+1 (555) 000-0000"
                   className={`w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
-                    errors.phone
+                    errors.phone && touched.phone
                       ? 'border-rose-400 ring-2 ring-rose-200'
+                      : !errors.phone && touched.phone && formData.phone
+                      ? 'border-emerald-400 ring-1 ring-emerald-200'
                       : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
                   }`}
                 />
                 <i className="bi bi-telephone absolute left-3 top-2.5 text-brand-secondary text-sm" />
               </div>
-              {errors.phone && <p className="text-[11px] text-rose-500 mt-1">{errors.phone}</p>}
+              {errors.phone && touched.phone && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.phone}</span>
+                </p>
+              )}
             </div>
 
             {/* Alternative Contact Number */}
@@ -279,52 +405,98 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                   name="altPhone"
                   value={formData.altPhone}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Secondary phone or extension"
                   className={`w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
-                    errors.altPhone
+                    errors.altPhone && touched.altPhone
                       ? 'border-rose-400 ring-2 ring-rose-200'
+                      : !errors.altPhone && touched.altPhone && formData.altPhone
+                      ? 'border-emerald-400 ring-1 ring-emerald-200'
                       : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
                   }`}
                 />
                 <i className="bi bi-phone absolute left-3 top-2.5 text-brand-secondary text-sm" />
               </div>
-              {errors.altPhone && <p className="text-[11px] text-rose-500 mt-1">{errors.altPhone}</p>}
+              {errors.altPhone && touched.altPhone && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.altPhone}</span>
+                </p>
+              )}
             </div>
 
             {/* Job Title / Designation */}
             <div>
-              <label className="block text-xs font-semibold text-brand-primary mb-1">
-                Job Title / Designation
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-brand-primary">
+                  Job Title / Designation
+                </label>
+                <span className="text-[10px] text-brand-secondary font-mono">
+                  {formData.jobTitle.length}/100
+                </span>
+              </div>
               <div className="relative">
                 <input
                   type="text"
                   name="jobTitle"
+                  maxLength={100}
                   value={formData.jobTitle}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="e.g. Senior Analyst / Student"
-                  className="w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 transition-all"
+                  className={`w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.jobTitle && touched.jobTitle
+                      ? 'border-rose-400 ring-2 ring-rose-200'
+                      : !errors.jobTitle && touched.jobTitle && formData.jobTitle
+                      ? 'border-emerald-400 ring-1 ring-emerald-200'
+                      : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                  }`}
                 />
                 <i className="bi bi-briefcase absolute left-3 top-2.5 text-brand-secondary text-sm" />
               </div>
+              {errors.jobTitle && touched.jobTitle && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.jobTitle}</span>
+                </p>
+              )}
             </div>
 
             {/* Location */}
             <div>
-              <label className="block text-xs font-semibold text-brand-primary mb-1">
-                Office / Campus Location
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-brand-primary">
+                  Office / Campus Location
+                </label>
+                <span className="text-[10px] text-brand-secondary font-mono">
+                  {formData.location.length}/150
+                </span>
+              </div>
               <div className="relative">
                 <input
                   type="text"
                   name="location"
+                  maxLength={150}
                   value={formData.location}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="e.g. Building A, Floor 3 / North Hall"
-                  className="w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 transition-all"
+                  className={`w-full pl-9 pr-3.5 py-2 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all ${
+                    errors.location && touched.location
+                      ? 'border-rose-400 ring-2 ring-rose-200'
+                      : !errors.location && touched.location && formData.location
+                      ? 'border-emerald-400 ring-1 ring-emerald-200'
+                      : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                  }`}
                 />
                 <i className="bi bi-geo-alt absolute left-3 top-2.5 text-brand-secondary text-sm" />
               </div>
+              {errors.location && touched.location && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.location}</span>
+                </p>
+              )}
             </div>
 
             {/* Preferred Language */}
@@ -376,7 +548,7 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                 <label className="text-xs font-semibold text-brand-primary">
                   About Me / Short Bio
                 </label>
-                <span className="text-[10px] text-brand-secondary">
+                <span className="text-[10px] text-brand-secondary font-mono">
                   {formData.bio.length}/300 characters
                 </span>
               </div>
@@ -384,11 +556,24 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 maxLength={300}
                 rows={3}
                 placeholder="Brief summary of your responsibilities, team function, or campus department..."
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-brand-primary/20 bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 transition-all resize-none"
+                className={`w-full px-3.5 py-2.5 text-sm rounded-xl border bg-white text-brand-primary placeholder:text-brand-secondary/60 focus:outline-none transition-all resize-none ${
+                  errors.bio && touched.bio
+                    ? 'border-rose-400 ring-2 ring-rose-200'
+                    : !errors.bio && touched.bio && formData.bio
+                    ? 'border-emerald-400 ring-1 ring-emerald-200'
+                    : 'border-brand-primary/20 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15'
+                }`}
               />
+              {errors.bio && touched.bio && (
+                <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                  <span>{errors.bio}</span>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -543,14 +728,19 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                   </div>
 
                   {/* Add skill input */}
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <input
                       type="text"
                       value={newSkillInput}
-                      onChange={(e) => setNewSkillInput(e.target.value)}
+                      onChange={(e) => {
+                        setNewSkillInput(e.target.value);
+                        if (skillError) setSkillError('');
+                      }}
                       onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(e)}
                       placeholder="Add a skill (e.g. Active Directory, Docker, Hardware Diagnostics)..."
-                      className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-brand-primary/20 bg-white text-brand-primary focus:outline-none focus:border-brand-primary"
+                      className={`flex-1 px-3 py-1.5 text-xs rounded-lg border bg-white text-brand-primary focus:outline-none transition-all ${
+                        skillError ? 'border-rose-400 ring-1 ring-rose-200' : 'border-brand-primary/20 focus:border-brand-primary'
+                      }`}
                     />
                     <button
                       type="button"
@@ -560,6 +750,12 @@ export const PersonalInfoTab = ({ profile, onProfileUpdated }) => {
                       Add Skill
                     </button>
                   </div>
+                  {skillError && (
+                    <p className="text-[11px] text-rose-500 mb-2 flex items-center gap-1">
+                      <i className="bi bi-exclamation-circle-fill text-[10px]" />
+                      <span>{skillError}</span>
+                    </p>
+                  )}
 
                   {/* Skill tags */}
                   <div className="flex flex-wrap gap-1.5">

@@ -16,6 +16,7 @@ from backend.app.api.v1 import (
     auth,
     users,
     organizations,
+    org_structure,
     tickets,
     knowledge,
     sla,
@@ -139,6 +140,7 @@ app.include_router(health.router, prefix=api_v1_prefix)
 app.include_router(auth.router, prefix=api_v1_prefix)
 app.include_router(users.router, prefix=api_v1_prefix)
 app.include_router(organizations.router, prefix=api_v1_prefix)
+app.include_router(org_structure.router, prefix=api_v1_prefix)
 app.include_router(tickets.router, prefix=api_v1_prefix)
 app.include_router(knowledge.router, prefix=api_v1_prefix)
 app.include_router(sla.router, prefix=api_v1_prefix)

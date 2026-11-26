@@ -275,6 +275,24 @@ export const AppLayout = () => {
                   {!collapsed && <span className="truncate">Users & Roles</span>}
                 </NavLink>
               )}
+              {hasRole(['ORG_ADMIN', 'SYS_ADMIN']) && (
+                <NavLink
+                  to="/admin/organization-structure"
+                  title="Organization Structure"
+                  className={({ isActive }) =>
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`
+                  }
+                >
+                  <i className="bi bi-diagram-3 text-base flex-shrink-0" />
+                  {!collapsed && <span className="truncate">Org Structure</span>}
+                </NavLink>
+              )}
               <NavLink
                 to="/admin/ai-models"
                 title="AI Model Metrics"
