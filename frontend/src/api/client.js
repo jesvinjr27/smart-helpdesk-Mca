@@ -1,7 +1,23 @@
 import axios from 'axios';
 import { loadingTracker } from './loadingTracker';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+
+// Automatically normalizes base URL whether user includes /api/v1 or just domain
+const normalizeBaseUrl = (url) => {
+  if (!url || url === '/api/v1') return '/api/v1';
+  let clean = url.trim().replace(/\/+$/, '');
+  if (!clean.endsWith('/api/v1')) {
+    if (clean.endsWith('/api')) {
+      clean = `${clean}/v1`;
+    } else {
+      clean = `${clean}/api/v1`;
+    }
+  }
+  return clean;
+};
+
+const API_BASE_URL = normalizeBaseUrl(rawBaseUrl);
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

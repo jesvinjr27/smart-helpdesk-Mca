@@ -139,6 +139,9 @@ app.add_middleware(
 api_v1_prefix = settings.API_V1_STR
 app.include_router(health.router, prefix=api_v1_prefix)
 app.include_router(auth.router, prefix=api_v1_prefix)
+# Fallback alias mounts so /auth/login and /api/auth/login work seamlessly
+app.include_router(auth.router, prefix="/api/auth", include_in_schema=False)
+app.include_router(auth.router, prefix="/auth", include_in_schema=False)
 app.include_router(users.router, prefix=api_v1_prefix)
 app.include_router(organizations.router, prefix=api_v1_prefix)
 app.include_router(org_structure.router, prefix=api_v1_prefix)
@@ -150,6 +153,7 @@ app.include_router(admin.router, prefix=api_v1_prefix)
 
 
 @app.get("/", include_in_schema=False)
+@app.get("/login", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
 
