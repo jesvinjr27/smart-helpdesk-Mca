@@ -16,8 +16,10 @@ import { KnowledgeBasePage } from '../pages/knowledge-base/KnowledgeBasePage';
 import { AIAssistantPage } from '../pages/ai-assistant/AIAssistantPage';
 import { SLAManagementPage } from '../pages/sla/SLAManagementPage';
 import { AdminUsersPage } from '../pages/administration/AdminUsersPage';
+import { OrgStructureBuilderPage } from '../pages/administration/OrgStructureBuilderPage';
 import { AIModelMonitorPage } from '../pages/administration/AIModelMonitorPage';
 import { AuditLogsPage } from '../pages/administration/AuditLogsPage';
+import { ProfileLayout } from '../pages/profile/ProfileLayout';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -152,12 +154,29 @@ export const AppRoutes = () => {
           }
         />
 
+        {/* Profile & Self-Service Settings */}
+        <Route path="profile" element={<ProfileLayout />} />
+        <Route path="profile/personal-information" element={<ProfileLayout />} />
+        <Route path="profile/account" element={<ProfileLayout />} />
+        <Route path="profile/security" element={<ProfileLayout />} />
+        <Route path="profile/notifications" element={<ProfileLayout />} />
+        <Route path="profile/preferences" element={<ProfileLayout />} />
+        <Route path="profile/activity" element={<ProfileLayout />} />
+
         {/* Administration */}
         <Route
           path="admin/users"
           element={
             <RoleRoute allowedRoles={['ORG_ADMIN', 'SYS_ADMIN']}>
               <AdminUsersPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="admin/organization-structure"
+          element={
+            <RoleRoute allowedRoles={['ORG_ADMIN', 'SYS_ADMIN']}>
+              <OrgStructureBuilderPage />
             </RoleRoute>
           }
         />

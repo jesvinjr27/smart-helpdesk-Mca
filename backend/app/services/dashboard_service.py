@@ -159,6 +159,7 @@ class DashboardService:
 
         return {
             "ticket_volume_by_day": volume_list,
+            "daily_volume": volume_list,
             "status_distribution": status_dict,
             "priority_distribution": priority_dict,
             "category_breakdown": category_breakdown,

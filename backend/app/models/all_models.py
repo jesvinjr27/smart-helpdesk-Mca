@@ -34,6 +34,8 @@ class Organization(Base):
     name = Column(String(255), nullable=False)
     code = Column(String(50), nullable=False, unique=True, index=True)
     domain = Column(String(255), nullable=True)
+    org_type = Column(String(30), default="COMPANY", nullable=False)  # COMPANY, COLLEGE
+    settings = Column(JSON, default=dict, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=utc_now, nullable=False)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
@@ -47,6 +49,9 @@ class Organization(Base):
     sla_policies = relationship("SLAPolicy", back_populates="organization", cascade="all, delete-orphan")
     knowledge_articles = relationship("KnowledgeArticle", back_populates="organization", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="organization", cascade="all, delete-orphan")
+    unit_types = relationship("OrganizationalUnitType", back_populates="organization", cascade="all, delete-orphan")
+    organizational_units = relationship("OrganizationalUnit", back_populates="organization", cascade="all, delete-orphan")
+    positions = relationship("Position", back_populates="organization", cascade="all, delete-orphan")
 
 
 class Department(Base):
@@ -108,6 +113,94 @@ class TeamMember(Base):
     user = relationship("User", back_populates="team_memberships")
 
 
+# =====================================================================
+# Dynamic Organizational Structure Models
+# =====================================================================
+class OrganizationalUnitType(Base):
+    __tablename__ = "organizational_unit_types"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    org_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(100), nullable=False)  # Department, Faculty, Division, Team, Lab, etc.
+    code = Column(String(50), nullable=False)
+    icon = Column(String(50), default="bi-diagram-3", nullable=False)
+    level_hint = Column(Integer, default=0, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("org_id", "code", name="uq_org_unit_type_code"),
+    )
+
+    organization = relationship("Organization", back_populates="unit_types")
+    units = relationship("OrganizationalUnit", back_populates="unit_type", cascade="all, delete-orphan")
+
+
+class OrganizationalUnit(Base):
+    __tablename__ = "organizational_units"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    org_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    unit_type_id = Column(String(36), ForeignKey("organizational_unit_types.id", ondelete="RESTRICT"), nullable=False, index=True)
+    parent_id = Column(String(36), ForeignKey("organizational_units.id", ondelete="SET NULL"), nullable=True, index=True)
+    name = Column(String(150), nullable=False)
+    code = Column(String(50), nullable=False)
+    description = Column(Text, nullable=True)
+    email = Column(String(255), nullable=True)
+    hierarchy_path = Column(String(500), nullable=True, index=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("org_id", "code", name="uq_org_unit_code"),
+    )
+
+    organization = relationship("Organization", back_populates="organizational_units")
+    unit_type = relationship("OrganizationalUnitType", back_populates="units")
+    parent = relationship("OrganizationalUnit", remote_side=[id], back_populates="children")
+    children = relationship("OrganizationalUnit", back_populates="parent")
+    memberships = relationship("UserUnitMembership", back_populates="unit", cascade="all, delete-orphan")
+
+
+class Position(Base):
+    __tablename__ = "positions"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    org_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(150), nullable=False)
+    description = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("org_id", "title", name="uq_org_position_title"),
+    )
+
+    organization = relationship("Organization", back_populates="positions")
+    memberships = relationship("UserUnitMembership", back_populates="position")
+
+
+class UserUnitMembership(Base):
+    __tablename__ = "user_unit_memberships"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    unit_id = Column(String(36), ForeignKey("organizational_units.id", ondelete="CASCADE"), nullable=False, index=True)
+    position_id = Column(String(36), ForeignKey("positions.id", ondelete="SET NULL"), nullable=True, index=True)
+    is_lead = Column(Boolean, default=False, nullable=False)
+    is_primary = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "unit_id", name="uq_user_unit_membership"),
+    )
+
+    user = relationship("User", back_populates="unit_memberships")
+    unit = relationship("OrganizationalUnit", back_populates="memberships")
+    position = relationship("Position", back_populates="memberships")
+
+
 class Role(Base):
     __tablename__ = "roles"
 
@@ -133,6 +226,32 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     account_status = Column(String(50), default="ACTIVE", nullable=False)
     is_verified = Column(Boolean, default=True, nullable=False)
+    
+    # Extended Profile & Contact Information
+    alt_phone = Column(String(50), nullable=True)
+    job_title = Column(String(100), nullable=True)
+    location = Column(String(150), nullable=True)
+    timezone = Column(String(50), default="UTC", nullable=True)
+    preferred_language = Column(String(20), default="en", nullable=True)
+    bio = Column(Text, nullable=True)
+    skills = Column(JSON, default=list, nullable=True)
+
+    # Role-Specific Identity & Academic / Employee Fields
+    external_id = Column(String(50), nullable=True)  # Student ID (e.g. STU-2024-0891) or Employee ID (e.g. EMP-4021)
+    user_type = Column(String(50), default="EMPLOYEE", nullable=True)  # STUDENT, EMPLOYEE, STAFF, ADMIN
+    course = Column(String(100), nullable=True)  # Academic Course for Students
+    academic_year = Column(String(50), nullable=True)  # Academic Year for Students
+    reporting_manager = Column(String(150), nullable=True)  # Manager for Employees
+    communication_preference = Column(String(50), default="email", nullable=True)
+
+    # Application & Notification Preferences
+    theme = Column(String(20), default="light", nullable=True)
+    date_format = Column(String(20), default="YYYY-MM-DD", nullable=True)
+    time_format = Column(String(10), default="12h", nullable=True)
+    table_page_size = Column(Integer, default=10, nullable=True)
+    accessibility_preferences = Column(JSON, default=dict, nullable=True)
+    notification_preferences = Column(JSON, default=dict, nullable=True)
+
     created_at = Column(DateTime, default=utc_now, nullable=False)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
@@ -160,6 +279,7 @@ class User(Base):
     assigned_tickets = relationship("Ticket", back_populates="assignee", foreign_keys="Ticket.assigned_to_id")
     comments = relationship("TicketComment", back_populates="author")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
+    unit_memberships = relationship("UserUnitMembership", back_populates="user", cascade="all, delete-orphan")
 
 
 class UserRole(Base):
@@ -219,6 +339,8 @@ class RefreshToken(Base):
     expires_at = Column(DateTime, nullable=False)
     revoked = Column(Boolean, default=False, nullable=False)
     revoked_at = Column(DateTime, nullable=True)
+    user_agent = Column(String(255), nullable=True)
+    ip_address = Column(String(45), nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 
     user = relationship("User", back_populates="refresh_tokens")

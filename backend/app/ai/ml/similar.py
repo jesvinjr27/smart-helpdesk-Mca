@@ -50,14 +50,18 @@ def find_similar_tickets(
             if score < min_score:
                 break
             cand = candidates[idx]
+            cand_id = cand.get("ticket_id") or cand.get("id") or ""
             results.append({
-                "id": cand.get("id"),
-                "ticket_number": cand.get("ticket_number"),
-                "title": cand.get("title"),
-                "status": cand.get("status"),
-                "priority": cand.get("priority"),
+                "id": cand_id,
+                "ticket_id": cand_id,
+                "ticket_number": cand.get("ticket_number") or "",
+                "title": cand.get("title") or "",
+                "status": cand.get("status") or "NEW",
+                "priority": cand.get("priority") or "MEDIUM",
                 "category_name": cand.get("category_name"),
-                "similarity_score": round(score, 3)
+                "similarity_score": round(score, 3),
+                "created_at": cand.get("created_at"),
+                "updated_at": cand.get("updated_at")
             })
 
             if len(results) >= top_k:

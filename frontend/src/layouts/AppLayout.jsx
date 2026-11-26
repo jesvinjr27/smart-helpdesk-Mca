@@ -17,7 +17,7 @@ export const AppLayout = () => {
       const next = !prev;
       setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
-      }, 260);
+      }, 280);
       return next;
     });
   };
@@ -59,13 +59,30 @@ export const AppLayout = () => {
           collapsed ? 'w-[76px]' : 'w-[270px]'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
-        {/* Sidebar Header */}
-        <div className="h-16 px-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
-          <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
-            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-brand-primary font-bold shadow-sm flex-shrink-0">
-              <i className="bi bi-shield-check text-lg text-white" />
-            </div>
-            {!collapsed && (
+        {/* Sidebar Header - Only Place with Collapse & Smooth Blinking Indicator */}
+        {collapsed ? (
+          <div className="h-16 w-full flex items-center justify-center border-b border-white/10 flex-shrink-0 px-2">
+            <button
+              type="button"
+              onClick={handleToggleCollapse}
+              className="relative group/toggle w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center shadow-sm hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              {/* Smooth blinking/pulsing beacon */}
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent shadow-xs"></span>
+              </span>
+              <img src="/logo.png" alt="SmartHelpdesk" className="w-7 h-7 object-contain" />
+            </button>
+          </div>
+        ) : (
+          <div className="h-16 px-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+            <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
+              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                <img src="/logo.png" alt="SmartHelpdesk" className="w-8 h-8 object-contain" />
+              </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="font-bold text-sm tracking-tight text-white truncate">
                   SmartHelpdesk
@@ -74,32 +91,43 @@ export const AppLayout = () => {
                   AI-Powered Hub
                 </span>
               </div>
-            )}
-          </NavLink>
+            </NavLink>
 
-          <button
-            type="button"
-            className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center"
-            onClick={handleToggleCollapse}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <i className={`bi ${collapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'} text-sm`} />
-          </button>
-        </div>
+            {/* Single Collapse Button with Smooth Blinking Pulse */}
+            <button
+              type="button"
+              onClick={handleToggleCollapse}
+              className="relative group/toggle p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 transition-all duration-300 hidden lg:flex items-center justify-center cursor-pointer focus:outline-none"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              {/* Smooth blinking/pulsing beacon */}
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent shadow-xs"></span>
+              </span>
+              <i className="bi bi-chevron-left text-sm transition-transform group-hover/toggle:-translate-x-0.5" />
+            </button>
+          </div>
+        )}
 
         {/* Sidebar Nav Items */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {!collapsed && (
+          {!collapsed ? (
             <div className="px-3 pt-2 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
               Operations
             </div>
+          ) : (
+            <div className="border-t border-white/10 my-2 mx-2" />
           )}
 
           <NavLink
             to="/dashboard"
             title="Dashboard"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -115,7 +143,9 @@ export const AppLayout = () => {
             end
             title="All Tickets"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -130,7 +160,9 @@ export const AppLayout = () => {
             to="/tickets/new"
             title="Create New Ticket"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -141,17 +173,21 @@ export const AppLayout = () => {
             {!collapsed && <span className="truncate">New Ticket</span>}
           </NavLink>
 
-          {!collapsed && (
+          {!collapsed ? (
             <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
               Knowledge & Intelligence
             </div>
+          ) : (
+            <div className="border-t border-white/10 my-2 mx-2" />
           )}
 
           <NavLink
             to="/knowledge-base"
             title="Knowledge Base"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -166,7 +202,9 @@ export const AppLayout = () => {
             to="/ai-assistant"
             title="AI Copilot"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -184,16 +222,20 @@ export const AppLayout = () => {
 
           {hasRole(['AGENT', 'LEAD', 'ORG_ADMIN', 'SYS_ADMIN']) && (
             <>
-              {!collapsed && (
+              {!collapsed ? (
                 <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
                   Service & SLA
                 </div>
+              ) : (
+                <div className="border-t border-white/10 my-2 mx-2" />
               )}
               <NavLink
                 to="/sla"
                 title="SLA & Risk Alerts"
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  `flex items-center ${
+                    collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                  } py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -208,17 +250,21 @@ export const AppLayout = () => {
 
           {hasRole(['LEAD', 'ORG_ADMIN', 'SYS_ADMIN']) && (
             <>
-              {!collapsed && (
+              {!collapsed ? (
                 <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
                   Administration
                 </div>
+              ) : (
+                <div className="border-t border-white/10 my-2 mx-2" />
               )}
               {hasRole(['ORG_ADMIN', 'SYS_ADMIN']) && (
                 <NavLink
                   to="/admin/users"
                   title="Users & Roles"
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -229,11 +275,31 @@ export const AppLayout = () => {
                   {!collapsed && <span className="truncate">Users & Roles</span>}
                 </NavLink>
               )}
+              {hasRole(['ORG_ADMIN', 'SYS_ADMIN']) && (
+                <NavLink
+                  to="/admin/organization-structure"
+                  title="Organization Structure"
+                  className={({ isActive }) =>
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`
+                  }
+                >
+                  <i className="bi bi-diagram-3 text-base flex-shrink-0" />
+                  {!collapsed && <span className="truncate">Org Structure</span>}
+                </NavLink>
+              )}
               <NavLink
                 to="/admin/ai-models"
                 title="AI Model Metrics"
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  `flex items-center ${
+                    collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                  } py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -248,7 +314,9 @@ export const AppLayout = () => {
                   to="/admin/audit-logs"
                   title="Audit Logs"
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -260,35 +328,6 @@ export const AppLayout = () => {
                 </NavLink>
               )}
             </>
-          )}
-        </div>
-
-        {/* Sidebar Footer User Info */}
-        <div className="p-3.5 border-t border-white/10 flex items-center justify-between flex-shrink-0 bg-brand-primary">
-          <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
-              {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
-            </div>
-            {!collapsed && (
-              <div className="overflow-hidden min-w-0">
-                <div className="text-white text-xs font-semibold truncate">
-                  {user?.full_name || 'User'}
-                </div>
-                <div className="text-[10px] text-brand-accent truncate">
-                  {user?.roles?.[0] || 'REQUESTER'}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {!collapsed && (
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
-            >
-              <i className="bi bi-box-arrow-right text-lg" />
-            </button>
           )}
         </div>
       </aside>
@@ -307,7 +346,7 @@ export const AppLayout = () => {
             collapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[270px]'
           }`}
         >
-          <div className="flex items-center gap-3 overflow-hidden min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden min-w-0">
             {/* Mobile Hamburger */}
             <button
               type="button"
@@ -352,10 +391,15 @@ export const AppLayout = () => {
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="p-1 rounded-xl flex items-center gap-2 hover:bg-brand-secondary/15 transition-colors"
+                className="p-1 rounded-xl flex items-center gap-2 hover:bg-brand-secondary/15 transition-colors cursor-pointer"
+                title="Account menu"
               >
-                <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-white font-bold text-xs shadow-xs flex-shrink-0">
-                  {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
+                <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-white font-bold text-xs shadow-xs flex-shrink-0 overflow-hidden border border-brand-primary/20">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.full_name ? user.full_name[0].toUpperCase() : 'U'
+                  )}
                 </div>
                 <div className="text-left hidden xl:block">
                   <div className="font-semibold text-xs text-brand-primary truncate max-w-[120px]">
@@ -370,37 +414,95 @@ export const AppLayout = () => {
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 card-glow py-1.5 z-50 animate-scaleUp overflow-hidden"
+                  className="absolute right-0 mt-2 w-60 card-glow py-1.5 z-50 animate-scaleUp overflow-hidden bg-white/95 backdrop-blur-md rounded-2xl border border-brand-primary/20 shadow-xl"
                   onMouseLeave={() => setUserDropdownOpen(false)}
                 >
-                  <div className="px-4 py-2.5 border-b border-brand-primary/10">
+                  <div className="px-4 py-2.5 border-b border-brand-primary/10 bg-brand-secondary/5">
                     <div className="font-bold text-xs text-brand-primary truncate">
                       {user?.full_name}
                     </div>
                     <div className="text-[11px] text-brand-secondary truncate">{user?.email}</div>
-                    <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary rounded-full border border-brand-secondary/40">
+                    <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold bg-brand-secondary/20 text-brand-primary rounded-full border border-brand-secondary/40">
                       {user?.roles?.[0] || 'REQUESTER'}
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      navigate('/tickets');
-                    }}
-                    className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors"
-                  >
-                    <i className="bi bi-ticket-perforated text-brand-secondary" />
-                    <span>My Support Queue</span>
-                  </button>
+                  <div className="py-1">
+                    {/* 1. My Profile */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/personal-information');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-person-circle text-brand-secondary text-sm" />
+                      <span>My Profile</span>
+                    </button>
+
+                    {/* 2. Account Settings */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/account');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-gear-wide-connected text-brand-secondary text-sm" />
+                      <span>Account Settings</span>
+                    </button>
+
+                    {/* 3. Security */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/security');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-shield-check text-brand-secondary text-sm" />
+                      <span>Security</span>
+                    </button>
+
+                    {/* 4. Notifications */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/notifications');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-bell text-brand-secondary text-sm" />
+                      <span>Notifications</span>
+                    </button>
+
+                    {/* 5. My Activity */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        navigate('/profile/activity');
+                      }}
+                      className="w-full px-4 py-2 text-xs text-brand-primary hover:bg-brand-secondary/15 flex items-center gap-2.5 text-left transition-colors cursor-pointer"
+                    >
+                      <i className="bi bi-clock-history text-brand-secondary text-sm" />
+                      <span>My Activity</span>
+                    </button>
+                  </div>
 
                   <div className="border-t border-brand-primary/10 my-1" />
 
+                  {/* 6. Sign Out */}
                   <button
+                    type="button"
                     onClick={logout}
-                    className="w-full px-4 py-2 text-xs text-brand-primary font-medium hover:bg-brand-primary hover:text-white flex items-center gap-2.5 text-left transition-colors"
+                    className="w-full px-4 py-2 text-xs text-rose-700 hover:bg-rose-50 font-medium flex items-center gap-2.5 text-left transition-colors cursor-pointer"
                   >
-                    <i className="bi bi-box-arrow-right" />
+                    <i className="bi bi-box-arrow-right text-sm" />
                     <span>Sign Out</span>
                   </button>
                 </div>

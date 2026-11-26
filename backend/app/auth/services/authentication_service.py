@@ -154,18 +154,74 @@ class AuthenticationService:
 
         return user, roles, workspaces
 
+    @staticmethod
+    def calculate_profile_completion(user: User) -> int:
+        fields = [
+            bool(user.full_name),
+            bool(user.email),
+            bool(user.phone),
+            bool(user.job_title),
+            bool(user.location),
+            bool(user.bio),
+            bool(user.avatar_url),
+        ]
+        return int(round((sum(fields) / len(fields)) * 100))
+
     @classmethod
     def build_user_me_response(cls, db: Session, user: User, roles: List[str]) -> UserMeResponse:
-        """Constructs standardized UserMeResponse with roles and workspaces."""
+        """Constructs standardized UserMeResponse with roles, workspaces, and extended profile."""
         org = db.query(Organization).filter(Organization.id == user.org_id).first()
         dept = db.query(Department).filter(Department.id == user.department_id).first() if user.department_id else None
         workspaces = cls.get_user_workspaces(db, user, roles)
+        completion = cls.calculate_profile_completion(user)
+
+        import json
+        skills_val = user.skills
+        if isinstance(skills_val, str):
+            try:
+                skills_val = json.loads(skills_val)
+            except Exception:
+                skills_val = []
+
+        notif_val = user.notification_preferences
+        if isinstance(notif_val, str):
+            try:
+                notif_val = json.loads(notif_val)
+            except Exception:
+                notif_val = {}
+
+        access_val = user.accessibility_preferences
+        if isinstance(access_val, str):
+            try:
+                access_val = json.loads(access_val)
+            except Exception:
+                access_val = {}
 
         return UserMeResponse(
             id=user.id,
             email=user.email,
             full_name=user.full_name,
             phone=user.phone,
+            alt_phone=user.alt_phone,
+            job_title=user.job_title,
+            location=user.location,
+            timezone=user.timezone or "UTC",
+            preferred_language=user.preferred_language or "en",
+            bio=user.bio,
+            skills=skills_val if isinstance(skills_val, list) else [],
+            external_id=user.external_id,
+            user_type=user.user_type or ("STUDENT" if org and "greenwood" in org.code.lower() else "EMPLOYEE"),
+            course=user.course,
+            academic_year=user.academic_year,
+            reporting_manager=user.reporting_manager,
+            communication_preference=user.communication_preference or "email",
+            theme=user.theme or "light",
+            date_format=user.date_format or "YYYY-MM-DD",
+            time_format=user.time_format or "12h",
+            table_page_size=user.table_page_size or 10,
+            accessibility_preferences=access_val if isinstance(access_val, dict) else {},
+            notification_preferences=notif_val if isinstance(notif_val, dict) else {},
+            profile_completion_percentage=completion,
             avatar_url=user.avatar_url,
             is_active=user.is_active,
             account_status=user.account_status or "ACTIVE",

@@ -63,45 +63,84 @@ export const ToastProvider = ({ children }) => {
     [addToast]
   );
 
+  const showInfo = useCallback(
+    (message, duration = 3500) => {
+      addToast({ message, type: 'info', duration });
+    },
+    [addToast]
+  );
+
+  const showWarning = useCallback(
+    (message, duration = 3500) => {
+      addToast({ message, type: 'warning', duration });
+    },
+    [addToast]
+  );
+
+  const getToastStyles = (type) => {
+    switch (type) {
+      case 'success':
+        return {
+          container: 'bg-emerald-600 border border-emerald-500/40 text-white',
+          icon: <i className="bi bi-check-circle-fill text-white/95" />,
+        };
+      case 'warning':
+        return {
+          container: 'bg-amber-600 border border-amber-500/40 text-white',
+          icon: <i className="bi bi-exclamation-triangle-fill text-white/95" />,
+        };
+      case 'info':
+        return {
+          container: 'bg-brand-primary border border-brand-secondary/40 text-white',
+          icon: <i className="bi bi-info-circle-fill text-white/95" />,
+        };
+      case 'error':
+      default:
+        return {
+          container: 'bg-[#DC2626] border border-red-700/40 text-white',
+          icon: <i className="bi bi-exclamation-octagon-fill text-white/95" />,
+        };
+    }
+  };
+
   return (
-    <ToastContext.Provider value={{ addToast, showError, showSuccess, removeToast }}>
+    <ToastContext.Provider value={{ addToast, showError, showSuccess, showInfo, showWarning, removeToast }}>
       {children}
       {/* Toast Notification Container */}
       <div
         aria-live="assertive"
         className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:top-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm sm:max-w-md w-full"
       >
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            role="alert"
-            className="pointer-events-auto flex items-start gap-3 p-3.5 sm:p-4 rounded-xl text-white shadow-xl bg-[#DC2626] border border-red-700/40 backdrop-blur-sm animate-fadeIn transition-all duration-300 transform translate-y-0"
-          >
-            {/* Red Error Icon */}
-            <div className="flex-shrink-0 text-lg mt-0.5 text-white/95">
-              {toast.type === 'error' ? (
-                <i className="bi bi-exclamation-octagon-fill" />
-              ) : (
-                <i className="bi bi-check-circle-fill" />
-              )}
-            </div>
-
-            {/* Notification Text */}
-            <div className="flex-1 min-w-0 text-sm font-medium leading-snug">
-              {toast.message}
-            </div>
-
-            {/* Manual Dismiss Button */}
-            <button
-              type="button"
-              onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 ml-1 text-white/80 hover:text-white transition-colors p-1 rounded-lg hover:bg-black/10 focus:outline-none"
-              aria-label="Dismiss notification"
+        {toasts.map((toast) => {
+          const styles = getToastStyles(toast.type);
+          return (
+            <div
+              key={toast.id}
+              role="alert"
+              className={`pointer-events-auto flex items-start gap-3 p-3.5 sm:p-4 rounded-xl shadow-xl backdrop-blur-sm animate-fadeIn transition-all duration-300 transform translate-y-0 ${styles.container}`}
             >
-              <i className="bi bi-x-lg text-xs" />
-            </button>
-          </div>
-        ))}
+              {/* Type-Specific Icon */}
+              <div className="flex-shrink-0 text-lg mt-0.5">
+                {styles.icon}
+              </div>
+
+              {/* Notification Text */}
+              <div className="flex-1 min-w-0 text-sm font-medium leading-snug">
+                {toast.message}
+              </div>
+
+              {/* Manual Dismiss Button */}
+              <button
+                type="button"
+                onClick={() => removeToast(toast.id)}
+                className="flex-shrink-0 ml-1 text-white/80 hover:text-white transition-colors p-1 rounded-lg hover:bg-black/10 focus:outline-none"
+                aria-label="Dismiss notification"
+              >
+                <i className="bi bi-x-lg text-xs" />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

@@ -10,11 +10,28 @@ export const resetPasswordApi = (data) => apiClient.post('/auth/reset-password',
 export const getMicrosoftConfigApi = () => apiClient.get('/auth/microsoft/config');
 export const exchangeMicrosoftTokenApi = (data) => apiClient.post('/auth/microsoft/exchange', data);
 
-// Users
+// Users & Current Profile
 export const getUsersApi = (params) => apiClient.get('/users', { params });
 export const createUserApi = (data) => apiClient.post('/users', data);
 export const updateUserApi = (id, data) => apiClient.patch(`/users/${id}`, data);
 export const deleteUserApi = (id) => apiClient.delete(`/users/${id}`);
+
+// Profile & Self-Service Settings
+export const getMyProfileApi = () => apiClient.get('/users/me');
+export const updateMyProfileApi = (data) => apiClient.patch('/users/me', data);
+export const uploadMyAvatarApi = (formData) =>
+  apiClient.post('/users/me/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+export const removeMyAvatarApi = () => apiClient.delete('/users/me/avatar');
+export const getMyPreferencesApi = () => apiClient.get('/users/me/preferences');
+export const updateMyPreferencesApi = (data) => apiClient.patch('/users/me/preferences', data);
+export const changePasswordApi = (data) => apiClient.patch('/users/me/password', data);
+export const getMyNotificationsApi = () => apiClient.get('/users/me/notifications');
+export const updateMyNotificationsApi = (data) => apiClient.patch('/users/me/notifications', data);
+export const getMyActivityApi = (params) => apiClient.get('/users/me/activity', { params });
+export const getMySessionsApi = () => apiClient.get('/users/me/sessions');
+export const revokeOtherSessionsApi = () => apiClient.post('/users/me/sessions/revoke-others');
 
 // Structure
 export const getOrganizationsApi = () => apiClient.get('/organizations');
@@ -25,6 +42,21 @@ export const createTeamApi = (data) => apiClient.post('/teams', data);
 export const getCategoriesApi = () => apiClient.get('/categories');
 export const createCategoryApi = (data) => apiClient.post('/categories', data);
 
+// Dynamic Organization Structure (Tree, Units, Unit Types, Positions, Members)
+export const getOrgTreeApi = (activeOnly = true) => apiClient.get('/org-structure/tree', { params: { active_only: activeOnly } });
+export const getOrgUnitTypesApi = () => apiClient.get('/org-structure/unit-types');
+export const createOrgUnitTypeApi = (data) => apiClient.post('/org-structure/unit-types', data);
+export const getPositionsApi = () => apiClient.get('/org-structure/positions');
+export const createPositionApi = (data) => apiClient.post('/org-structure/positions', data);
+export const getOrgUnitsApi = (params) => apiClient.get('/org-structure/units', { params });
+export const getOrgUnitDetailApi = (id) => apiClient.get(`/org-structure/units/${id}`);
+export const createOrgUnitApi = (data) => apiClient.post('/org-structure/units', data);
+export const updateOrgUnitApi = (id, data) => apiClient.put(`/org-structure/units/${id}`, data);
+export const moveOrgUnitApi = (id, data) => apiClient.put(`/org-structure/units/${id}/move`, data);
+export const deactivateOrgUnitApi = (id) => apiClient.delete(`/org-structure/units/${id}`);
+export const assignUnitMemberApi = (unitId, data) => apiClient.post(`/org-structure/units/${unitId}/members`, data);
+export const removeUnitMemberApi = (unitId, userId) => apiClient.delete(`/org-structure/units/${unitId}/members/${userId}`);
+
 // Tickets
 export const getTicketsApi = (params) => apiClient.get('/tickets', { params });
 export const getTicketDetailApi = (id) => apiClient.get(`/tickets/${id}`);
@@ -32,6 +64,12 @@ export const createTicketApi = (data) => apiClient.post('/tickets', data);
 export const updateTicketApi = (id, data) => apiClient.patch(`/tickets/${id}`, data);
 export const assignTicketApi = (id, data) => apiClient.post(`/tickets/${id}/assign`, data);
 export const transitionTicketApi = (id, data) => apiClient.post(`/tickets/${id}/transition`, data);
+export const checkDuplicateTicketApi = (data) => apiClient.post('/tickets/check-duplicate', data);
+export const uploadTicketAttachmentsApi = (id, formData) =>
+  apiClient.post(`/tickets/${id}/attachments`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+export const getTicketAttachmentsApi = (id) => apiClient.get(`/tickets/${id}/attachments`);
 
 // Comments & Events
 export const getTicketCommentsApi = (id) => apiClient.get(`/tickets/${id}/comments`);
