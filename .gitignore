@@ -61,3 +61,15 @@ ai/artifacts/*.pkl.tmp
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Local Windows Batch Scripts
+*.bat
+
+# Test artifacts & configurations
+tests/
+test/
+pytest.ini
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
