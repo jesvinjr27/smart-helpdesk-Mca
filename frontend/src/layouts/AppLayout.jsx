@@ -17,7 +17,7 @@ export const AppLayout = () => {
       const next = !prev;
       setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
-      }, 260);
+      }, 280);
       return next;
     });
   };
@@ -59,16 +59,22 @@ export const AppLayout = () => {
           collapsed ? 'w-[76px]' : 'w-[270px]'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
-        {/* Sidebar Header */}
+        {/* Sidebar Header - Only Place with Collapse & Smooth Blinking Indicator */}
         {collapsed ? (
-          <div className="h-16 w-full flex items-center justify-center border-b border-white/10 flex-shrink-0">
+          <div className="h-16 w-full flex items-center justify-center border-b border-white/10 flex-shrink-0 px-2">
             <button
               type="button"
               onClick={handleToggleCollapse}
-              className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm hover:scale-105 transition-all cursor-pointer focus:outline-none"
+              className="relative group/toggle w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center shadow-sm hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
               title="Expand sidebar"
+              aria-label="Expand sidebar"
             >
-              <img src="/logo.png" alt="SmartHelpdesk" className="w-8 h-8 object-contain" />
+              {/* Smooth blinking/pulsing beacon */}
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent shadow-xs"></span>
+              </span>
+              <img src="/logo.png" alt="SmartHelpdesk" className="w-7 h-7 object-contain" />
             </button>
           </div>
         ) : (
@@ -87,30 +93,41 @@ export const AppLayout = () => {
               </div>
             </NavLink>
 
+            {/* Single Collapse Button with Smooth Blinking Pulse */}
             <button
               type="button"
-              className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
               onClick={handleToggleCollapse}
+              className="relative group/toggle p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 transition-all duration-300 hidden lg:flex items-center justify-center cursor-pointer focus:outline-none"
               title="Collapse sidebar"
+              aria-label="Collapse sidebar"
             >
-              <i className="bi bi-chevron-double-left text-sm" />
+              {/* Smooth blinking/pulsing beacon */}
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent shadow-xs"></span>
+              </span>
+              <i className="bi bi-chevron-left text-sm transition-transform group-hover/toggle:-translate-x-0.5" />
             </button>
           </div>
         )}
 
         {/* Sidebar Nav Items */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {!collapsed && (
+          {!collapsed ? (
             <div className="px-3 pt-2 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
               Operations
             </div>
+          ) : (
+            <div className="border-t border-white/10 my-2 mx-2" />
           )}
 
           <NavLink
             to="/dashboard"
             title="Dashboard"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -126,7 +143,9 @@ export const AppLayout = () => {
             end
             title="All Tickets"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -141,7 +160,9 @@ export const AppLayout = () => {
             to="/tickets/new"
             title="Create New Ticket"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -152,17 +173,21 @@ export const AppLayout = () => {
             {!collapsed && <span className="truncate">New Ticket</span>}
           </NavLink>
 
-          {!collapsed && (
+          {!collapsed ? (
             <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
               Knowledge & Intelligence
             </div>
+          ) : (
+            <div className="border-t border-white/10 my-2 mx-2" />
           )}
 
           <NavLink
             to="/knowledge-base"
             title="Knowledge Base"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -177,7 +202,9 @@ export const AppLayout = () => {
             to="/ai-assistant"
             title="AI Copilot"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -195,16 +222,20 @@ export const AppLayout = () => {
 
           {hasRole(['AGENT', 'LEAD', 'ORG_ADMIN', 'SYS_ADMIN']) && (
             <>
-              {!collapsed && (
+              {!collapsed ? (
                 <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
                   Service & SLA
                 </div>
+              ) : (
+                <div className="border-t border-white/10 my-2 mx-2" />
               )}
               <NavLink
                 to="/sla"
                 title="SLA & Risk Alerts"
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  `flex items-center ${
+                    collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                  } py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -219,17 +250,21 @@ export const AppLayout = () => {
 
           {hasRole(['LEAD', 'ORG_ADMIN', 'SYS_ADMIN']) && (
             <>
-              {!collapsed && (
+              {!collapsed ? (
                 <div className="px-3 pt-4 pb-1 text-[11px] font-semibold tracking-wider text-brand-accent/80 uppercase">
                   Administration
                 </div>
+              ) : (
+                <div className="border-t border-white/10 my-2 mx-2" />
               )}
               {hasRole(['ORG_ADMIN', 'SYS_ADMIN']) && (
                 <NavLink
                   to="/admin/users"
                   title="Users & Roles"
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -244,7 +279,9 @@ export const AppLayout = () => {
                 to="/admin/ai-models"
                 title="AI Model Metrics"
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  `flex items-center ${
+                    collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                  } py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -259,7 +296,9 @@ export const AppLayout = () => {
                   to="/admin/audit-logs"
                   title="Audit Logs"
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center ${
+                      collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    } py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-brand-accent text-brand-primary font-semibold shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -271,58 +310,6 @@ export const AppLayout = () => {
                 </NavLink>
               )}
             </>
-          )}
-
-          {/* Collapse / Expand Toggle Item for Desktop */}
-          <div className="pt-2 hidden lg:block border-t border-white/10 mt-2">
-            <button
-              type="button"
-              onClick={handleToggleCollapse}
-              className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer ${
-                collapsed ? 'justify-center' : ''
-              }`}
-              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              <i className={`bi ${collapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'} text-sm flex-shrink-0`} />
-              {!collapsed && <span className="truncate">Collapse Sidebar</span>}
-            </button>
-          </div>
-        </div>
-
-        {/* Sidebar Footer User Info */}
-        <div className="p-3.5 border-t border-white/10 flex items-center justify-between flex-shrink-0 bg-brand-primary">
-          <NavLink
-            to="/profile"
-            className="flex items-center gap-2.5 overflow-hidden min-w-0 group hover:opacity-90 transition-opacity"
-            title="View Profile & Settings"
-          >
-            <div className="w-9 h-9 rounded-xl bg-brand-secondary flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 overflow-hidden border border-white/20">
-              {user?.avatar_url ? (
-                <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-              ) : (
-                user?.full_name ? user.full_name[0].toUpperCase() : 'U'
-              )}
-            </div>
-            {!collapsed && (
-              <div className="overflow-hidden min-w-0">
-                <div className="text-white text-xs font-semibold truncate group-hover:underline">
-                  {user?.full_name || 'User'}
-                </div>
-                <div className="text-[10px] text-brand-accent truncate">
-                  {user?.roles?.[0] || 'REQUESTER'}
-                </div>
-              </div>
-            )}
-          </NavLink>
-
-          {!collapsed && (
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
-            >
-              <i className="bi bi-box-arrow-right text-lg" />
-            </button>
           )}
         </div>
       </aside>
@@ -342,17 +329,6 @@ export const AppLayout = () => {
           }`}
         >
           <div className="flex items-center gap-2 sm:gap-3 overflow-hidden min-w-0">
-            {/* Desktop Sidebar Toggle */}
-            <button
-              type="button"
-              className="p-1.5 rounded-lg text-brand-primary hover:bg-brand-secondary/20 hidden lg:flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
-              onClick={handleToggleCollapse}
-              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              aria-label="Toggle navigation sidebar"
-            >
-              <i className={`bi ${collapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'} text-lg`} />
-            </button>
-
             {/* Mobile Hamburger */}
             <button
               type="button"
