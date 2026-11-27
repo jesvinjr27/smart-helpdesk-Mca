@@ -13,7 +13,13 @@ services:
         value: production
       - key: DEBUG
         value: "false"
+      - key: API_V1_STR
+        value: "/api/v1"
       - key: SECRET_KEY
-        generateValue: true
+        value: "smart-helpdesk-production-super-secret-key-2026-mca-project"
       - key: DATABASE_URL
         value: "sqlite:///./smart_helpdesk.db"
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"

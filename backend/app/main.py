@@ -140,9 +140,6 @@ app.add_middleware(
 api_v1_prefix = settings.API_V1_STR
 app.include_router(health.router, prefix=api_v1_prefix)
 app.include_router(auth.router, prefix=api_v1_prefix)
-# Fallback alias mounts so /auth/login and /api/auth/login work seamlessly
-app.include_router(auth.router, prefix="/api/auth", include_in_schema=False)
-app.include_router(auth.router, prefix="/auth", include_in_schema=False)
 app.include_router(users.router, prefix=api_v1_prefix)
 app.include_router(organizations.router, prefix=api_v1_prefix)
 app.include_router(org_structure.router, prefix=api_v1_prefix)
@@ -151,6 +148,19 @@ app.include_router(knowledge.router, prefix=api_v1_prefix)
 app.include_router(sla.router, prefix=api_v1_prefix)
 app.include_router(dashboard.router, prefix=api_v1_prefix)
 app.include_router(admin.router, prefix=api_v1_prefix)
+
+# Fallback root mounts so calls directly to /auth/login, /tickets, /users, etc. work seamlessly
+app.include_router(auth.router, prefix="/api", include_in_schema=False)
+app.include_router(auth.router, prefix="", include_in_schema=False)
+app.include_router(health.router, prefix="", include_in_schema=False)
+app.include_router(users.router, prefix="", include_in_schema=False)
+app.include_router(organizations.router, prefix="", include_in_schema=False)
+app.include_router(org_structure.router, prefix="", include_in_schema=False)
+app.include_router(tickets.router, prefix="", include_in_schema=False)
+app.include_router(knowledge.router, prefix="", include_in_schema=False)
+app.include_router(sla.router, prefix="", include_in_schema=False)
+app.include_router(dashboard.router, prefix="", include_in_schema=False)
+app.include_router(admin.router, prefix="", include_in_schema=False)
 
 
 @app.get("/api/info")
