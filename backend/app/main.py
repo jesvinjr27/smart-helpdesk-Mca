@@ -7,9 +7,10 @@ _project_root = str(Path(__file__).resolve().parent.parent.parent)
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 
 from backend.app.core.config import settings
 from backend.app.api.v1 import (
@@ -152,12 +153,6 @@ app.include_router(dashboard.router, prefix=api_v1_prefix)
 app.include_router(admin.router, prefix=api_v1_prefix)
 
 
-@app.get("/", include_in_schema=False)
-@app.get("/login", include_in_schema=False)
-def root():
-    return RedirectResponse(url="/docs")
-
-
 @app.get("/api/info")
 def api_info():
     return {
@@ -168,3 +163,45 @@ def api_info():
         "redoc_docs": "/redoc",
         "api_v1": settings.API_V1_STR
     }
+
+
+# -------------------------------------------------------------------------
+# Static Frontend (React SPA) Integration
+# -------------------------------------------------------------------------
+_dist_dir = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+
+if _dist_dir.exists() and (_dist_dir / "index.html").exists():
+    if (_dist_dir / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=str(_dist_dir / "assets")), name="static-assets")
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    @app.get("/favicon.png", include_in_schema=False)
+    @app.get("/logo.png", include_in_schema=False)
+    @app.get("/loading.png", include_in_schema=False)
+    @app.get("/loading.svg", include_in_schema=False)
+    def serve_static_root_files(request: Request):
+        filename = request.url.path.lstrip("/")
+        target = _dist_dir / filename
+        if target.is_file():
+            return FileResponse(target)
+        return RedirectResponse(url="/docs")
+
+    @app.get("/", include_in_schema=False)
+    def serve_root():
+        return FileResponse(_dist_dir / "index.html")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_react_spa(full_path: str):
+        # Do not intercept API endpoints or API docs
+        if full_path.startswith("api/") or full_path in ("docs", "redoc", "openapi.json"):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+
+        target = _dist_dir / full_path
+        if full_path and target.is_file():
+            return FileResponse(target)
+        return FileResponse(_dist_dir / "index.html")
+else:
+    @app.get("/", include_in_schema=False)
+    @app.get("/login", include_in_schema=False)
+    def root():
+        return RedirectResponse(url="/docs")
