@@ -127,9 +127,13 @@ app = FastAPI(
 )
 
 # CORS Middleware
+cors_origins = list(settings.CORS_ORIGINS)
+if "https://smart-helpdesk-mca.vercel.app" not in cors_origins:
+    cors_origins.append("https://smart-helpdesk-mca.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=cors_origins,
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
